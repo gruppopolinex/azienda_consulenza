@@ -1,7 +1,7 @@
 // app/servizi/finanziamenti/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -30,6 +30,7 @@ function fmtDate(iso?: string) {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("it-IT");
 }
+
 function statusClasses(s: Status) {
   switch (s) {
     case "Aperti":
@@ -66,7 +67,9 @@ export default function FinanziamentiPage() {
 
     // Filtro per aree (multi-selezione)
     if (selectedAreas.length > 0) {
-      arr = arr.filter((g) => g.aree.some((a) => selectedAreas.includes(a)));
+      arr = arr.filter((g) =>
+        g.aree?.some((a) => selectedAreas.includes(a))
+      );
     }
 
     // Filtro testuale
@@ -94,12 +97,12 @@ export default function FinanziamentiPage() {
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Nav />
 
-      {/* 👇 stessa distanza dalla nav delle altre pagine: py-2 / sm:py-3 */}
+      {/* stessa distanza dalla nav delle altre pagine: py-2 / sm:py-3 */}
       <main className="flex-grow mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
         {/* Header con logo + titolo come le altre pagine servizi */}
         <header className="text-center max-w-3xl mx-auto">
           <div className="flex justify-center mb-0">
-            {/* 👇 stesso blocco logo usato in /servizi/acqua ecc. */}
+            {/* stesso blocco logo usato in /servizi/acqua ecc. */}
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
               <Image
                 src="/logo.png"
@@ -332,7 +335,7 @@ function Meta({
   label,
   value,
 }: {
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   label: string;
   value: string;
 }) {
