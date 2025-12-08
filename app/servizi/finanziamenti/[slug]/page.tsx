@@ -48,9 +48,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = params;
   const g = getGrantBySlug(slug);
   if (!g) return {};
 
@@ -69,9 +69,9 @@ export async function generateMetadata({
 export default async function GrantPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
   const g = getGrantBySlug(slug);
   if (!g) return notFound();
 
@@ -109,9 +109,9 @@ export default async function GrantPage({
           </div>
 
           {/* Aree di riferimento (badge per settore: Acqua, Ambiente, ecc.) */}
-          {g.areas && g.areas.length > 0 && (
+          {Array.isArray(g.aree) && g.aree.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {g.areas.map((area) => (
+              {g.aree.map((area) => (
                 <span
                   key={area}
                   className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700"
