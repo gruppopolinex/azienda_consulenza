@@ -29,14 +29,14 @@ export type Grant = {
   ente: string;
   beneficiari: string;
   contributo: string;
-  scadenza?: string;      // es. "2026-03-03"
+  scadenza?: string; // es. "2026-03-03"
   territorio?: string;
-  teaser?: string;        // descrizione breve per la card
-  description?: string;   // descrizione estesa per la pagina dettaglio
-  pdfHref?: string;       // link al PDF in /public/finanziamenti/
-  youtubeId?: string;     // ID del video YouTube
-  officialUrl?: string;   // link al sito ufficiale
-  areas?: Area[];         // settori di riferimento (Acqua, Ambiente, …)
+  teaser?: string; // descrizione breve per la card
+  description?: string; // descrizione estesa per la pagina dettaglio
+  pdfHref?: string; // link al PDF in /public/finanziamenti/
+  youtubeId?: string; // ID del video YouTube
+  officialUrl?: string; // link al sito ufficiale
+  aree?: Area[]; // settori di riferimento (Acqua, Ambiente, …)
 };
 
 export const GRANTS: Grant[] = [
@@ -56,7 +56,7 @@ export const GRANTS: Grant[] = [
     pdfHref: "/finanziamenti/mase-fotovoltaico-fer-sud.pdf",
     youtubeId: "dQw4w9WgXcQ",
     officialUrl: "https://www.mase.gov.it/",
-    areas: ["Energia", "Bandi e Finanziamenti"],
+    aree: ["Energia", "Bandi e Finanziamenti"],
   },
   {
     slug: "regione-veneto-efficienza-energetica-pmi",
@@ -74,7 +74,7 @@ export const GRANTS: Grant[] = [
     pdfHref: "/finanziamenti/regione-veneto-efficienza-energetica-pmi.pdf",
     youtubeId: "dQw4w9WgXcQ",
     officialUrl: "https://www.regione.veneto.it/",
-    areas: ["Energia", "Bandi e Finanziamenti"],
+    aree: ["Energia", "Bandi e Finanziamenti"],
   },
   {
     slug: "isi-inail-2025",
@@ -91,7 +91,7 @@ export const GRANTS: Grant[] = [
     pdfHref: "/finanziamenti/isi-inail-2025.pdf",
     youtubeId: "dQw4w9WgXcQ",
     officialUrl: "https://www.inail.it/",
-    areas: ["Sicurezza", "Bandi e Finanziamenti"],
+    aree: ["Sicurezza", "Bandi e Finanziamenti"],
   },
 ];
 
