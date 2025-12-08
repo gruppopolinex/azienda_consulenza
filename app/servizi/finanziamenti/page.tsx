@@ -297,7 +297,7 @@ function GrantRow({ g }: { g: Grant }) {
           </div>
 
           {/* Aree di intervento */}
-          {g.aree?.length > 0 && (
+          {Array.isArray(g.aree) && g.aree.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {g.aree.map((area) => (
                 <span
