@@ -1,7 +1,6 @@
 // app/formazione/page.tsx
 "use client";
 
-import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -20,12 +19,8 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
 // dati centralizzati in _data.ts
-import {
-  COURSES,
-  AREAS,
-  type Course,
-  type Area,
-} from "./_data";
+import { COURSES, AREAS } from "./_data";
+import type { Course } from "./_data";
 
 /* ==================== UTILS ==================== */
 
