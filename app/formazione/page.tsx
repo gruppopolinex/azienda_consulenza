@@ -16,260 +16,21 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
-// Import Nav & Footer (cartella /app/components)
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
-/* ==================== TIPI & DATI ==================== */
+// dati centralizzati in _data.ts
+import {
+  COURSES,
+  AREAS,
+  type Course,
+  type Area,
+} from "./_data";
 
-export type Area =
-  | "Acqua"
-  | "Ambiente"
-  | "Energia"
-  | "Agricoltura"
-  | "Sicurezza"
-  | "Edilizia e Infrastrutture"
-  | "Finanza e Contabilità";
-
-export type Level = "Base" | "Intermedio" | "Avanzato";
-export type Mode = "Online live" | "On demand" | "In presenza" | "Blended";
-
-export type Course = {
-  slug: string;
-  title: string;
-  subtitle?: string;
-  area: Area;
-  description: string;
-  price: number;
-  hours: number;
-  level: Level;
-  mode: Mode;
-  nextEdition?: string;
-  badge?: string;
-  cover: string;
-};
-
-export const AREAS: Area[] = [
-  "Acqua",
-  "Ambiente",
-  "Energia",
-  "Agricoltura",
-  "Sicurezza",
-  "Edilizia e Infrastrutture",
-  "Finanza e Contabilità",
-];
+/* ==================== UTILS ==================== */
 
 const AREA_FILTERS = ["Tutte", ...AREAS] as const;
 type AreaFilter = (typeof AREA_FILTERS)[number];
-
-export const COURSES: Course[] = [
-  // Acqua
-  {
-    slug: "acqua-progettazione-reti-idriche",
-    title: "Progettazione reti idriche e acquedotti",
-    subtitle: "Dal dimensionamento alle perdite di carico",
-    area: "Acqua",
-    description:
-      "Un percorso operativo per studenti di ingegneria e tecnici che vogliono progettare reti idriche, acquedotti e sistemi di distribuzione con criteri professionali.",
-    price: 290,
-    hours: 16,
-    level: "Intermedio",
-    mode: "Online live",
-    nextEdition: "Aprile 2025",
-    badge: "Live class",
-    cover: "/formazione/acqua-progettazione-reti-idriche.jpg",
-  },
-  {
-    slug: "acqua-monitoraggi-campi-pozzi",
-    title: "Monitoraggi di campi pozzi e falde",
-    subtitle: "Strumentazione, piezometri e data analysis",
-    area: "Acqua",
-    description:
-      "Dalla progettazione del piano di monitoraggio alla lettura critica dei dati piezometrici e chimici, con casi studio reali.",
-    price: 190,
-    hours: 10,
-    level: "Base",
-    mode: "On demand",
-    nextEdition: "Sempre disponibile",
-    cover: "/formazione/acqua-monitoraggi-campi-pozzi.jpg",
-  },
-
-  // Ambiente
-  {
-    slug: "ambiente-via-vas-laboratorio",
-    title: "Laboratorio pratico VIA/VAS",
-    subtitle: "Dallo screening allo studio di impatto",
-    area: "Ambiente",
-    description:
-      "Simulazione completa di un procedimento VIA/VAS: lettura norme, impostazione dello studio, scrittura delle sezioni chiave e gestione delle osservazioni.",
-    price: 360,
-    hours: 20,
-    level: "Avanzato",
-    mode: "Blended",
-    nextEdition: "Maggio 2025",
-    badge: "Intensivo",
-    cover: "/formazione/ambiente-via-vas-laboratorio.jpg",
-  },
-  {
-    slug: "ambiente-bonifiche-rifiuti",
-    title: "Bonifiche siti contaminati e rifiuti",
-    subtitle: "EER, caratterizzazione e progetti di bonifica",
-    area: "Ambiente",
-    description:
-      "Per chi lavora o vuole lavorare su siti contaminati: iter normativi, piani di caratterizzazione, classificazione rifiuti e gestione terre e rocce da scavo.",
-    price: 320,
-    hours: 18,
-    level: "Intermedio",
-    mode: "Online live",
-    cover: "/formazione/ambiente-bonifiche-rifiuti.jpg",
-  },
-
-  // Energia
-  {
-    slug: "energia-audit-iso50001",
-    title: "Audit energetici e diagnosi ISO 50001",
-    subtitle: "Strumenti, KPI e casi studio",
-    area: "Energia",
-    description:
-      "Corso pratico per impostare e condurre diagnosi energetiche in ambito industriale e terziario, con esempi di report e fogli di calcolo.",
-    price: 330,
-    hours: 16,
-    level: "Intermedio",
-    mode: "Online live",
-    nextEdition: "Giugno 2025",
-    badge: "Per tecnici energy",
-    cover: "/formazione/energia-audit-iso50001.jpg",
-  },
-  {
-    slug: "energia-comunita-energetiche",
-    title: "Comunità energetiche rinnovabili (CER)",
-    subtitle: "Modelli tecnici ed economici",
-    area: "Energia",
-    description:
-      "Panoramica completa su configurazioni, iter autorizzativi e simulazioni economiche per la progettazione di CER sostenibili.",
-    price: 210,
-    hours: 12,
-    level: "Base",
-    mode: "On demand",
-    cover: "/formazione/energia-comunita-energetiche.jpg",
-  },
-
-  // Agricoltura
-  {
-    slug: "agricoltura-piani-nitrati-pratico",
-    title: "Piani nitrati in ZVN: corso pratico",
-    subtitle: "Calcoli, limiti, documentazione",
-    area: "Agricoltura",
-    description:
-      "Per periti agrari, agronomi e tecnici che gestiscono reflui e piani nitrati: casi di calcolo, errori tipici e modulistica.",
-    price: 180,
-    hours: 8,
-    level: "Base",
-    mode: "Online live",
-    cover: "/formazione/agricoltura-piani-nitrati-pratico.jpg",
-  },
-  {
-    slug: "agricoltura-gestione-idrica-aziende",
-    title: "Gestione idrica in aziende agricole",
-    subtitle: "Invasi, irrigazione, riuso acque",
-    area: "Agricoltura",
-    description:
-      "Approccio integrato alla risorsa idrica in agricoltura, con focus su invasi, reti irrigue e riutilizzo di acque depurate.",
-    price: 220,
-    hours: 12,
-    level: "Intermedio",
-    mode: "Blended",
-    cover: "/formazione/agricoltura-gestione-idrica-aziende.jpg",
-  },
-
-  // Sicurezza
-  {
-    slug: "sicurezza-cantieri-csp-cse",
-    title: "CSP/CSE in cantieri complessi",
-    subtitle: "Dal PSC alla gestione interferenze",
-    area: "Sicurezza",
-    description:
-      "Per coordinatori della sicurezza e tecnici HSE: lettura critica del PSC, gestione delle varianti in corso d’opera e casi reali.",
-    price: 350,
-    hours: 20,
-    level: "Avanzato",
-    mode: "In presenza",
-    nextEdition: "Padova · Luglio 2025",
-    badge: "In aula",
-    cover: "/formazione/sicurezza-cantieri-csp-cse.jpg",
-  },
-  {
-    slug: "sicurezza-dvr-e-valutazioni",
-    title: "DVR e valutazioni specifiche",
-    subtitle: "Rumore, vibrazioni, agenti chimici",
-    area: "Sicurezza",
-    description:
-      "Come strutturare DVR solidi e aggiornati, integrare valutazioni specifiche e comunicare il rischio a RSPP e lavoratori.",
-    price: 240,
-    hours: 14,
-    level: "Intermedio",
-    mode: "On demand",
-    cover: "/formazione/sicurezza-dvr-e-valutazioni.jpg",
-  },
-
-  // Edilizia e Infrastrutture
-  {
-    slug: "edilizia-riqualificazione-sismica-corso",
-    title: "Riqualificazione strutturale e sismica",
-    subtitle: "Dalla verifica al cantiere",
-    area: "Edilizia e Infrastrutture",
-    description:
-      "Per ingegneri e architetti che si occupano di riqualificazioni: criteri di scelta degli interventi, iter autorizzativi e cantierizzazione.",
-    price: 390,
-    hours: 22,
-    level: "Avanzato",
-    mode: "Blended",
-    badge: "Per progettisti",
-    cover: "/formazione/edilizia-riqualificazione-sismica-corso.jpg",
-  },
-  {
-    slug: "edilizia-permessi-iter-pratico",
-    title: "Permessi e iter edilizi",
-    subtitle: "SCIA, CILA, PdC e varianti",
-    area: "Edilizia e Infrastrutture",
-    description:
-      "Schemi decisionali, casi tipo e modulistica per districarsi tra titoli abilitativi e comunicazioni.",
-    price: 210,
-    hours: 10,
-    level: "Base",
-    mode: "Online live",
-    cover: "/formazione/edilizia-permessi-iter-pratico.jpg",
-  },
-
-  // Finanza e Contabilità
-  {
-    slug: "finanza-agevolata-progetti-tecnici",
-    title: "Finanza agevolata per progetti tecnici",
-    subtitle: "PSR, PNRR, bandi regionali",
-    area: "Finanza e Contabilità",
-    description:
-      "Per consulenti e tecnici che vogliono integrare bandi e contributi nelle proprie progettazioni.",
-    price: 260,
-    hours: 14,
-    level: "Intermedio",
-    mode: "Online live",
-    badge: "Per tecnici & PM",
-    cover: "/formazione/finanza-agevolata-progetti-tecnici.jpg",
-  },
-  {
-    slug: "finanza-rendicontazione-bandi",
-    title: "Rendicontazione di bandi e contributi",
-    subtitle: "SAL, verifiche, documenti di spesa",
-    area: "Finanza e Contabilità",
-    description:
-      "Un corso operativo su SAL, verifiche documentali e preparazione della documentazione per i controlli.",
-    price: 190,
-    hours: 9,
-    level: "Base",
-    mode: "On demand",
-    cover: "/formazione/finanza-rendicontazione-bandi.jpg",
-  },
-];
 
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat("it-IT", {
@@ -283,9 +44,6 @@ export const formatPrice = (price: number) =>
 export default function FormazionePage() {
   const [areaFilter, setAreaFilter] = useState<AreaFilter>("Tutte");
   const [search, setSearch] = useState("");
-
-  // se usi un contesto carrello:
-  // const { addItem } = useCart();
 
   const filteredCourses = useMemo(() => {
     return COURSES.filter((course) => {
@@ -313,77 +71,83 @@ export default function FormazionePage() {
   const totalCourses = filteredCourses.length;
 
   const handleAddToCart = (course: Course) => {
-    // Qui collegherai il carrello globale (context/Zustand ecc.)
-    // Esempio:
-    // addItem({ slug: course.slug, title: course.title, price: course.price, type: "course" });
+    // qui in futuro collegherai il carrello globale
     console.log("Aggiungi corso al carrello:", course.slug);
   };
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
-      {/* NAVBAR */}
       <Nav />
 
-      <main className="flex-1">
-        {/* HERO / INTRO */}
-        <section className="border-b border-slate-200 bg-slate-50">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="max-w-2xl">
-                <h1 className="section-title flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                    <GraduationCap className="h-5 w-5" />
-                  </span>
-                  <span>Formazione tecnica — Polinex srl</span>
-                </h1>
-                <p className="section-sub mt-4">
-                  Percorsi formativi per{" "}
-                  <strong>studenti di ingegneria e materie STEM</strong>,{" "}
-                  <strong>consulenti, ingegneri, architetti e tecnici</strong>{" "}
-                  che lavorano su acqua, ambiente, energia, agricoltura,
-                  sicurezza ed edilizia, con un focus sulla{" "}
-                  <strong>finanza dei progetti</strong>.
-                </p>
-                <p className="mt-3 text-sm text-slate-600">
-                  Corsi pratici, casi studio reali e docenti che lavorano
-                  quotidianamente su progetti, autorizzazioni e cantieri. Uno
-                  stile didattico operativo, pensato per portare rapidamente le
-                  competenze sul campo.
-                </p>
-              </div>
+      <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+        {/* HERO con logo + titolo, stile coerente con le altre pagine */}
+        <section className="text-center max-w-4xl mx-auto">
+          <div className="flex justify-center mb-0">
+            <div className="relative w-40 h-16 sm:w-56 sm:h-24">
+              <Image
+                src="/logo.png"
+                alt="Polinex srl"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
 
-              <div className="rounded-2xl border border-emerald-100 bg-white px-4 py-4 sm:px-5 sm:py-5 shadow-sm max-w-sm">
-                <p className="text-sm font-medium text-emerald-900">
-                  Filtra per area di competenza
-                </p>
-                <p className="mt-1 text-xs text-slate-600">
-                  Puoi combinare il filtro per area con la ricerca per titolo o
-                  parole chiave (es. &quot;CER&quot;, &quot;VIA&quot;,
-                  &quot;PSC&quot;...).
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {AREA_FILTERS.map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setAreaFilter(f)}
-                      className={`rounded-full border px-3 py-1 text-xs sm:text-[13px] transition ${
-                        areaFilter === f
-                          ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      {f === "Tutte" ? "Tutte le aree" : f}
-                    </button>
-                  ))}
-                </div>
+          <h1 className="section-title mt-1 flex items-center justify-center gap-2">
+            <span>Formazione tecnica</span>
+            <GraduationCap className="h-6 w-6 text-emerald-700 hidden sm:inline" />
+          </h1>
+
+          <p className="mt-4 text-slate-600 leading-relaxed">
+            Percorsi formativi per{" "}
+            <strong>studenti di ingegneria e materie STEM</strong>,{" "}
+            <strong>consulenti, ingegneri, architetti e tecnici</strong> che
+            lavorano su acqua, ambiente, energia, agricoltura, sicurezza ed
+            edilizia, con un focus sulla{" "}
+            <strong>finanza dei progetti</strong>.
+          </p>
+          <p className="mt-2 text-sm text-slate-600">
+            Corsi pratici, casi studio reali e docenti che lavorano
+            quotidianamente su progetti, autorizzazioni e cantieri. Uno stile
+            didattico operativo, pensato per portare rapidamente le competenze
+            sul campo.
+          </p>
+        </section>
+
+        {/* Card filtro area in stile box (come Editoria) */}
+        <section className="mt-8 sm:mt-10">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-2xl border border-emerald-100 bg-white px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
+              <p className="text-sm font-medium text-emerald-900">
+                Filtra per area di competenza
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                Puoi combinare il filtro per area con la ricerca per titolo o
+                parole chiave (es. &quot;CER&quot;, &quot;VIA&quot;,
+                &quot;PSC&quot;...).
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {AREA_FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setAreaFilter(f)}
+                    className={`rounded-full border px-3 py-1 text-xs sm:text-[13px] transition ${
+                      areaFilter === f
+                        ? "border-emerald-600 bg-emerald-50 text-emerald-700"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    {f === "Tutte" ? "Tutte le aree" : f}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
         {/* FILTRI & GRID CORSI */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-          {/* Barra filtri "tipo piattaforma corsi" */}
+        <section className="mx-auto max-w-6xl py-10">
+          {/* Barra filtri tipo piattaforma corsi */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2 text-sm text-slate-700">
               <Filter className="h-4 w-4 text-slate-500" />
@@ -422,8 +186,8 @@ export default function FormazionePage() {
 
             {filteredCourses.length === 0 && (
               <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-                Nessun corso trovato per i filtri selezionati. Prova a modificare
-                area o testo di ricerca.
+                Nessun corso trovato per i filtri selezionati. Prova a
+                modificare area o testo di ricerca.
               </div>
             )}
           </div>
@@ -453,12 +217,31 @@ export default function FormazionePage() {
             </div>
           </div>
         </section>
+
+        {/* CTA finale in stile Trasparenza / Editoria */}
+        <section className="mx-auto max-w-6xl pb-20">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h3 className="section-title text-xl sm:text-2xl">
+              Vuoi un percorso formativo dedicato?
+            </h3>
+            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+              Possiamo costruire{" "}
+              <strong>academy aziendali, laboratori pratici e percorsi blended</strong>{" "}
+              su misura per il tuo team, a partire dai vostri progetti reali.
+            </p>
+            <Link
+              href="/contatti"
+              className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Parla con il team
+            </Link>
+          </div>
+        </section>
       </main>
 
-      {/* FOOTER */}
       <Footer />
 
-      {/* Stili globali per i titoli, coerenti con Home / Lavora con noi / Editoria */}
+      {/* Stili globali per i titoli, coerenti con le altre pagine */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -553,7 +336,9 @@ function CourseCard({
             </div>
             {course.nextEdition && (
               <div>
-                <dt className="font-medium text-slate-600">Prossima edizione</dt>
+                <dt className="font-medium text-slate-600">
+                  Prossima edizione
+                </dt>
                 <dd>{course.nextEdition}</dd>
               </div>
             )}

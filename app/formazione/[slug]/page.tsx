@@ -20,9 +20,17 @@ import {
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
-// Importo tipi e dati dalla pagina principale Formazione
-import type { Course } from "../page";
-import { COURSES, formatPrice } from "../page";
+// Importo tipi e dati da _data.ts
+import type { Course } from "../_data";
+import { COURSES } from "../_data";
+
+/* ===== Helper prezzo (stile altre pagine) ===== */
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+  }).format(price);
 
 /* ============ Mappa slug → URL embed YouTube ============ */
 /**
@@ -67,7 +75,9 @@ export default function CourseDetailPage() {
   const router = useRouter();
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const course = COURSES.find((c) => c.slug === slugParam);
+  const course: Course | undefined = COURSES.find(
+    (c) => c.slug === slugParam
+  );
 
   // Fallback se il corso non esiste
   if (!course) {
@@ -118,7 +128,7 @@ export default function CourseDetailPage() {
       <Nav />
 
       <main className="flex-1">
-        {/* BREADCRUMB + HERO COMPATTO */}
+        {/* BREADCRUMB + HERO COMPATTO (stile altre pagine) */}
         <section className="border-b border-slate-200 bg-slate-50">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <div className="flex flex-col gap-3">
@@ -169,9 +179,9 @@ export default function CourseDetailPage() {
                     <p className="mt-1 text-xs text-slate-500 flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5 text-slate-500" />
                       Prossima edizione:{" "}
-                        <span className="font-medium text-slate-800">
-                          {course.nextEdition}
-                        </span>
+                      <span className="font-medium text-slate-800">
+                        {course.nextEdition}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -195,7 +205,7 @@ export default function CourseDetailPage() {
           </div>
         </section>
 
-        {/* CONTENUTO PRINCIPALE */}
+        {/* CONTENUTO PRINCIPALE (stile uniforme) */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             {/* Colonna sinistra: video + descrizione + blocchi informativi */}
@@ -220,7 +230,7 @@ export default function CourseDetailPage() {
                     </div>
                   )}
 
-                  {/* BADGE OVERLAY come prima, sopra il video */}
+                  {/* Badge overlay sopra il video */}
                   <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
                       <GraduationCap className="h-3.5 w-3.5" />
@@ -352,7 +362,7 @@ export default function CourseDetailPage() {
                 </div>
               </div>
 
-              {/* Programma indicativo (placeholder generico) */}
+              {/* Programma indicativo */}
               <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                 <h3 className="text-sm font-semibold text-slate-900">
                   Programma indicativo
@@ -387,7 +397,7 @@ export default function CourseDetailPage() {
               </div>
             </div>
 
-            {/* Colonna destra: box iscrizione */}
+            {/* Colonna destra: box iscrizione (stile uniforme) */}
             <aside className="space-y-4 lg:space-y-6">
               <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <p className="text-xs text-slate-500">Quota di iscrizione</p>
@@ -443,7 +453,7 @@ export default function CourseDetailPage() {
             </aside>
           </div>
 
-          {/* Corsi correlati */}
+          {/* Corsi correlati (stile cards compatte) */}
           {related.length > 0 && (
             <section className="mt-12 border-t border-slate-200 pt-8">
               <h2 className="text-sm font-semibold text-slate-900">
