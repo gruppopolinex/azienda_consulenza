@@ -6,10 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { BookOpen, ShoppingCart, Filter, Tag, Check } from "lucide-react";
-// se usi già il contesto carrello, puoi importare qui:
-// import { useCart } from "../components/cart/CartContext";
 
-// Import Nav & Footer (cartella /app/components)
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
@@ -268,9 +265,6 @@ export default function EditoriaPage() {
   const [areaFilter, setAreaFilter] = useState<AreaFilter>("Tutte");
   const [search, setSearch] = useState("");
 
-  // se usi il contesto:
-  // const { addItem } = useCart();
-
   const filteredBooks = useMemo(() => {
     return BOOKS.filter((book) => {
       const byArea =
@@ -290,73 +284,80 @@ export default function EditoriaPage() {
   const totalBooks = filteredBooks.length;
 
   const handleAddToCart = (book: Book) => {
-    // Qui in futuro collegherai il carrello globale (es. contesto, Zustand, ecc.)
-    // Esempio con contesto:
-    // addItem({ slug: book.slug, title: book.title, price: book.price });
     console.log("Aggiungi al carrello:", book.slug);
   };
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
-      {/* NAVBAR */}
       <Nav />
 
-      <main className="flex-1">
-        {/* HERO / INTRO */}
-        <section className="border-b border-slate-200 bg-slate-50">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="max-w-2xl">
-                <h1 className="section-title flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                    <BookOpen className="h-5 w-5" />
-                  </span>
-                  <span>Editoria tecnica — Polinex srl</span>
-                </h1>
-                <p className="section-sub mt-4">
-                  Manuali, linee guida e casi studio pensati per chi lavora
-                  ogni giorno su{" "}
-                  <strong>acqua, ambiente, energia, agricoltura, sicurezza</strong>{" "}
-                  ed <strong>edilizia e infrastrutture</strong>, con una
-                  sezione dedicata a <strong>finanza e contabilità</strong>{" "}
-                  dei progetti.
-                </p>
-                <p className="mt-3 text-sm text-slate-600">
-                  Ogni volume è concepito come uno strumento operativo: schemi,
-                  check-list, esempi reali e riferimenti normativi essenziali.
-                </p>
-              </div>
+      <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+        {/* HERO con logo + titolo, come le altre pagine */}
+        <section className="text-center max-w-4xl mx-auto">
+          <div className="flex justify-center mb-0">
+            <div className="relative w-40 h-16 sm:w-56 sm:h-24">
+              <Image
+                src="/logo.png"
+                alt="Polinex srl"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
 
-              <div className="rounded-2xl border border-emerald-100 bg-white px-4 py-4 sm:px-5 sm:py-5 shadow-sm max-w-sm">
-                <p className="text-sm font-medium text-emerald-900">
-                  Filtra per area di competenza
-                </p>
-                <p className="mt-1 text-xs text-slate-600">
-                  Puoi combinare il filtro per area con la ricerca per titolo o
-                  parole chiave.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {AREA_FILTERS.map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setAreaFilter(f)}
-                      className={`rounded-full border px-3 py-1 text-xs sm:text-[13px] transition ${
-                        areaFilter === f
-                          ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      {f === "Tutte" ? "Tutte le aree" : f}
-                    </button>
-                  ))}
-                </div>
+          <h1 className="section-title mt-1 flex items-center justify-center gap-2">
+            <span>Editoria tecnica</span>
+            <BookOpen className="h-6 w-6 text-emerald-700 hidden sm:inline" />
+          </h1>
+
+          <p className="mt-4 text-slate-600 leading-relaxed">
+            Manuali, linee guida e casi studio pensati per chi lavora ogni
+            giorno su{" "}
+            <strong>
+              acqua, ambiente, energia, agricoltura, sicurezza, edilizia e
+              infrastrutture
+            </strong>{" "}
+            e sugli aspetti di{" "}
+            <strong>finanza e contabilità dei progetti</strong>.
+          </p>
+          <p className="mt-2 text-sm text-slate-600">
+            Ogni volume è concepito come uno strumento operativo: schemi,
+            check-list, esempi reali e riferimenti normativi essenziali.
+          </p>
+        </section>
+
+        {/* Card filtro area in stile "box" sotto l'hero */}
+        <section className="mt-8 sm:mt-10">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-2xl border border-emerald-100 bg-white px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
+              <p className="text-sm font-medium text-emerald-900 flex items-center gap-2">
+                Filtra per area di competenza
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                Puoi combinare il filtro per area con la ricerca per titolo o
+                parole chiave.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {AREA_FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setAreaFilter(f)}
+                    className={`rounded-full border px-3 py-1 text-xs sm:text-[13px] transition ${
+                      areaFilter === f
+                        ? "border-emerald-600 bg-emerald-50 text-emerald-700"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    {f === "Tutte" ? "Tutte le aree" : f}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
         {/* FILTRI & GRID LIBRI */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+        <section className="mx-auto max-w-6xl py-10">
           {/* Barra filtri "tipo e-commerce" */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2 text-sm text-slate-700">
@@ -408,7 +409,8 @@ export default function EditoriaPage() {
               <div className="flex items-start gap-2">
                 <Check className="h-4 w-4 mt-0.5 text-emerald-600" />
                 <p>
-                  Le informazioni su <strong>spedizione, tempi di consegna</strong> e{" "}
+                  Le informazioni su{" "}
+                  <strong>spedizione, tempi di consegna</strong> e{" "}
                   <strong>fatturazione</strong> vengono mostrate nel carrello
                   prima del completamento dell’ordine.
                 </p>
@@ -427,9 +429,29 @@ export default function EditoriaPage() {
             </div>
           </div>
         </section>
+
+        {/* CTA finale in stile Trasparenza / Portfolio */}
+        <section className="mx-auto max-w-6xl pb-20">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h3 className="section-title text-xl sm:text-2xl">
+              Non trovi il volume che cerchi?
+            </h3>
+            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+              Possiamo valutare insieme{" "}
+              <strong>nuove uscite</strong>, tirature dedicate o{" "}
+              <strong>materiali formativi su misura</strong> per la tua azienda
+              o il tuo ente.
+            </p>
+            <Link
+              href="/contatti"
+              className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Parla con il team
+            </Link>
+          </div>
+        </section>
       </main>
 
-      {/* FOOTER */}
       <Footer />
 
       {/* Stili globali per i titoli, coerenti con Home / Lavora con noi */}

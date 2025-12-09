@@ -52,7 +52,7 @@ export default function ContattiPage() {
         </section>
 
         {/* Contenuto */}
-        <section className="pb-20 mt-10">
+        <section className="pb-16 mt-10">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.15fr)] lg:items-stretch">
             {/* Colonna sinistra ● Info + Mappa (allineata in basso alla card destra) */}
             <div className="flex flex-col gap-8 h-full">
@@ -67,7 +67,6 @@ export default function ContattiPage() {
                     <div>
                       <div className="font-medium">Indirizzo</div>
                       <p className="mt-0.5">{ADDRESS}</p>
-                      {/* Link "Apri in Google Maps" rimosso */}
                     </div>
                   </div>
 
@@ -206,6 +205,27 @@ export default function ContattiPage() {
                   </button>
                 </form>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA finale verso Coworking */}
+        <section className="mx-auto max-w-7xl pb-20">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+              Vuoi vedere da vicino le nostre sedi?
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
+              Esplora gli spazi di coworking, gli uffici e le sale riunioni
+              disponibili nelle sedi Polinex di Venezia, Milano, Roma e Napoli.
+            </p>
+            <div className="mt-6">
+              <Link
+                href="/coworking"
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-sm sm:text-base font-medium text-white hover:bg-emerald-700"
+              >
+                Scopri le nostre sedi e gli spazi di lavoro
+              </Link>
             </div>
           </div>
         </section>
