@@ -27,6 +27,18 @@ export type Course = {
   cover: string;
 };
 
+export type Teacher = {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  phone?: string;
+  email?: string;
+  linkedin?: string;
+  /** Slug dei corsi (Course.slug) a cui questo docente è associato */
+  courses: string[];
+};
+
 export const AREAS: Area[] = [
   "Acqua",
   "Ambiente",
@@ -243,5 +255,135 @@ export const COURSES: Course[] = [
     level: "Base",
     mode: "On demand",
     cover: "/formazione/finanza-rendicontazione-bandi.jpg",
+  },
+];
+
+export const TEACHERS: Teacher[] = [
+  // Acqua
+  {
+    id: "teacher-laura-verdi",
+    name: "Ing. Laura Verdi",
+    role: "Ingegnera idraulica",
+    image: "/docenti/laura-verdi.jpg",
+    phone: "+39 333 0000001",
+    email: "laura.verdi@polinex.it",
+    linkedin: "https://www.linkedin.com/in/laura-verdi",
+    courses: ["acqua-progettazione-reti-idriche"],
+  },
+  {
+    id: "teacher-federico-moro",
+    name: "Dott. Federico Moro",
+    role: "Idrogeologo",
+    image: "/docenti/federico-moro.jpg",
+    email: "federico.moro@polinex.it",
+    linkedin: "https://www.linkedin.com/in/federico-moro",
+    courses: ["acqua-monitoraggi-campi-pozzi"],
+  },
+
+  // Ambiente
+  {
+    id: "teacher-marco-bianchi",
+    name: "Ing. Marco Bianchi",
+    role: "Ingegnere ambientale",
+    image: "/docenti/marco-bianchi.jpg",
+    phone: "+39 333 0000002",
+    email: "marco.bianchi@polinex.it",
+    linkedin: "https://www.linkedin.com/in/marco-bianchi",
+    courses: ["ambiente-via-vas-laboratorio", "ambiente-bonifiche-rifiuti"],
+  },
+  {
+    id: "teacher-chiara-rossi",
+    name: "Avv. Chiara Rossi",
+    role: "Avvocata amministrativista",
+    image: "/docenti/chiara-rossi.jpg",
+    email: "chiara.rossi@polinex.it",
+    courses: ["ambiente-via-vas-laboratorio"],
+  },
+
+  // Energia
+  {
+    id: "teacher-giulio-neri",
+    name: "Ing. Giulio Neri",
+    role: "Energy manager",
+    image: "/docenti/giulio-neri.jpg",
+    phone: "+39 333 0000003",
+    email: "giulio.neri@polinex.it",
+    linkedin: "https://www.linkedin.com/in/giulio-neri",
+    courses: ["energia-audit-iso50001"],
+  },
+  {
+    id: "teacher-elena-ferrari",
+    name: "Dott.ssa Elena Ferrari",
+    role: "Consulente CER",
+    image: "/docenti/elena-ferrari.jpg",
+    email: "elena.ferrari@polinex.it",
+    courses: ["energia-comunita-energetiche"],
+  },
+
+  // Agricoltura
+  {
+    id: "teacher-paolo-deangelis",
+    name: "Dott. Agr. Paolo De Angelis",
+    role: "Agronomo",
+    image: "/docenti/paolo-deangelis.jpg",
+    phone: "+39 333 0000004",
+    email: "paolo.deangelis@polinex.it",
+    courses: [
+      "agricoltura-piani-nitrati-pratico",
+      "agricoltura-gestione-idrica-aziende",
+    ],
+  },
+
+  // Sicurezza
+  {
+    id: "teacher-sara-martini",
+    name: "Ing. Sara Martini",
+    role: "HSE manager",
+    image: "/docenti/sara-martini.jpg",
+    email: "sara.martini@polinex.it",
+    linkedin: "https://www.linkedin.com/in/sara-martini",
+    courses: ["sicurezza-cantieri-csp-cse"],
+  },
+  {
+    id: "teacher-andrea-ferri",
+    name: "Ing. Andrea Ferri",
+    role: "Esperto sicurezza lavoro",
+    image: "/docenti/andrea-ferri.jpg",
+    courses: ["sicurezza-dvr-e-valutazioni"],
+  },
+
+  // Edilizia e Infrastrutture
+  {
+    id: "teacher-francesca-moretti",
+    name: "Ing. Francesca Moretti",
+    role: "Strutturista",
+    image: "/docenti/francesca-moretti.jpg",
+    phone: "+39 333 0000005",
+    email: "francesca.moretti@polinex.it",
+    linkedin: "https://www.linkedin.com/in/francesca-moretti",
+    courses: ["edilizia-riqualificazione-sismica-corso"],
+  },
+  {
+    id: "teacher-luca-fontana",
+    name: "Geom. Luca Fontana",
+    role: "Tecnico edilizio",
+    image: "/docenti/luca-fontana.jpg",
+    email: "luca.fontana@polinex.it",
+    courses: ["edilizia-permessi-iter-pratico"],
+  },
+
+  // Finanza e Contabilità
+  {
+    id: "teacher-elisa-neri",
+    name: "Dott.ssa Elisa Neri",
+    role: "Consulente finanza agevolata",
+    image: "/docenti/elisa-neri.jpg",
+    phone: "+39 333 0000006",
+    email: "elisa.neri@polinex.it",
+    linkedin: "https://www.linkedin.com/in/elisa-neri",
+    courses: [
+      "finanza-agevolata-progetti-tecnici",
+      "finanza-rendicontazione-bandi",
+    ],
   },
 ];
