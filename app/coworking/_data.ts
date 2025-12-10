@@ -7,22 +7,31 @@ export type SpaceType =
   | "Ufficio privato"
   | "Sala riunioni";
 
-export type Space = {
+export type LocationSpace = {
   type: SpaceType;
   label: string;
   capacity: string;
 };
 
 export type Location = {
-  slug: string; // usato nella pagina dinamica /coworking/[slug]
+  slug: string;          // usato da /coworking/[slug]
   city: City;
   name: string;
   address: string;
-  image: string;
   description: string;
+  image: string;
   tags: string[];
-  spaces: Space[];
+  spaces: LocationSpace[];
+
+  // Campi opzionali (usati nella pagina slug)
+  videoUrl?: string;
+  mapUrl?: string;
+  services?: string[];
+  phone?: string;
+  email?: string;
 };
+
+export const CITIES: City[] = ["Venezia", "Milano", "Roma", "Napoli"];
 
 export const SPACE_TYPES: SpaceType[] = [
   "Postazione coworking",
@@ -57,6 +66,17 @@ export const LOCATIONS: Location[] = [
         capacity: "Fino a 10 persone",
       },
     ],
+    // opzionali – li puoi cambiare con i tuoi dati reali
+    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_VENEZIA",
+    mapUrl:
+      "https://www.google.com/maps/search/?api=1&query=Fondamenta+Esempio+12,+Venezia",
+    services: [
+      "Accesso su prenotazione in orario ufficio",
+      "Reception condivisa con lo staff Polinex",
+      "Supporto base per videoconferenze",
+    ],
+    phone: "+39 041 0000000",
+    email: "venezia@polinex.it",
   },
   {
     slug: "milano",
@@ -84,6 +104,16 @@ export const LOCATIONS: Location[] = [
         capacity: "Fino a 12 persone",
       },
     ],
+    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_MILANO",
+    mapUrl:
+      "https://www.google.com/maps/search/?api=1&query=Via+Innovazione+45,+Milano",
+    services: [
+      "Accesso facile con i principali mezzi pubblici",
+      "Spazi modulabili per workshop e riunioni",
+      "Connessione in fibra dedicata",
+    ],
+    phone: "+39 02 0000000",
+    email: "milano@polinex.it",
   },
   {
     slug: "roma",
@@ -111,6 +141,16 @@ export const LOCATIONS: Location[] = [
         capacity: "Fino a 14 persone",
       },
     ],
+    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_ROMA",
+    mapUrl:
+      "https://www.google.com/maps/search/?api=1&query=Via+Progetti+88,+Roma",
+    services: [
+      "Spazio ideale per incontri con PA e enti",
+      "Sala workshop attrezzata con schermi",
+      "Terrazza utilizzabile per brevi pause",
+    ],
+    phone: "+39 06 0000000",
+    email: "roma@polinex.it",
   },
   {
     slug: "napoli",
@@ -138,5 +178,15 @@ export const LOCATIONS: Location[] = [
         capacity: "Fino a 8 persone",
       },
     ],
+    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_NAPOLI",
+    mapUrl:
+      "https://www.google.com/maps/search/?api=1&query=Via+Mare+7,+Napoli",
+    services: [
+      "Ambiente informale per riunioni di team",
+      "Spazio formazione con setup flessibile",
+      "Accesso comodo al parcheggio",
+    ],
+    phone: "+39 081 0000000",
+    email: "napoli@polinex.it",
   },
 ];
