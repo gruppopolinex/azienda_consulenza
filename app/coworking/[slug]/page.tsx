@@ -28,7 +28,7 @@ import Footer from "../../components/Footer";
 // Dati centralizzati
 import {
   LOCATIONS,
-  type CoworkingLocation,
+  type Location,
   type SpaceType,
 } from "../_data";
 
@@ -40,7 +40,7 @@ export default function CoworkingDetailPage() {
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
-  const space: CoworkingLocation | undefined = LOCATIONS.find(
+  const space: Location | undefined = LOCATIONS.find(
     (s) => s.slug === slugParam
   );
 
@@ -342,9 +342,7 @@ export default function CoworkingDetailPage() {
                       required
                       value={selectedSpaceType || ""}
                       onChange={(e) =>
-                        setSelectedSpaceType(
-                          e.target.value as SpaceType | ""
-                        )
+                        setSelectedSpaceType(e.target.value as SpaceType | "")
                       }
                     >
                       <option value="" disabled>
@@ -475,9 +473,9 @@ export default function CoworkingDetailPage() {
                     htmlFor="privacy"
                     className="text-xs text-slate-600 leading-snug"
                   >
-                    Acconsento al trattamento dei dati ai sensi del
-                    Regolamento (UE) 2016/679 ai fini della gestione della
-                    richiesta di prenotazione.
+                    Acconsento al trattamento dei dati ai sensi del Regolamento
+                    (UE) 2016/679 ai fini della gestione della richiesta di
+                    prenotazione.
                   </label>
                 </div>
 
