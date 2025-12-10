@@ -29,7 +29,7 @@ export default function RootLayout({
       <head>
         {/* Cookiebot: blocco cookie preventivo GDPR */}
         <Script
-          id="Cookiebot"
+          id="cookiebot-loader"
           src="https://consent.cookiebot.com/uc.js"
           data-cbid="f63fe291-4351-4739-a3bd-de762b102ba9"
           data-blockingmode="auto"
@@ -37,9 +37,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>

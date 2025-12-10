@@ -98,3 +98,5 @@ export const GRANTS: Grant[] = [
 // helper per pagina [slug]
 export const getGrantBySlug = (slug: string) =>
   GRANTS.find((g) => g.slug === slug);
+
+export const getAllGrants = () => GRANTS;

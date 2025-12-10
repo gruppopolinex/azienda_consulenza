@@ -67,9 +67,7 @@ export default function FinanziamentiPage() {
 
     // Filtro per aree (multi-selezione)
     if (selectedAreas.length > 0) {
-      arr = arr.filter((g) =>
-        g.aree?.some((a) => selectedAreas.includes(a))
-      );
+      arr = arr.filter((g) => g.aree?.some((a) => selectedAreas.includes(a)));
     }
 
     // Filtro testuale
@@ -116,8 +114,8 @@ export default function FinanziamentiPage() {
           <h1 className="section-title">Bandi e Finanziamenti</h1>
 
           <p className="mt-3 text-slate-600 max-w-2xl mx-auto">
-            Selezione di opportunità per imprese, PA e realtà agricole.
-            Filtra per stato, area tecnica e cerca per nome, ente o beneficiari.
+            Selezione di opportunità per imprese, PA e realtà agricole. Filtra
+            per stato, area tecnica e cerca per nome, ente o beneficiari.
           </p>
         </header>
 

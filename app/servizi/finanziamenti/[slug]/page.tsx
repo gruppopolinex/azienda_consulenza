@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { GRANTS, getGrantBySlug, type Status } from "../_data";
+import { getGrantBySlug, type Status } from "../_data";
 
 // Layout (client components)
 import Nav from "../../../components/Nav";
@@ -39,19 +39,13 @@ function statusBadgeClass(s: Status) {
   }
 }
 
-/* ===== static params (pre-render) ===== */
-export async function generateStaticParams() {
-  return GRANTS.map((g) => ({ slug: g.slug }));
-}
-
 /* ===== SEO ===== */
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const { slug } = params;
-  const g = getGrantBySlug(slug);
+  const g = getGrantBySlug(params.slug);
   if (!g) return {};
 
   const title = `${g.title} — Bandi e Finanziamenti | Polinex srl`;
@@ -65,15 +59,17 @@ export async function generateMetadata({
   };
 }
 
-/* ===== Pagina ===== */
+/* ===== Pagina dettaglio ===== */
 export default async function GrantPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  const { slug } = params;
-  const g = getGrantBySlug(slug);
-  if (!g) return notFound();
+  const g = getGrantBySlug(params.slug);
+
+  if (!g) {
+    notFound();
+  }
 
   return (
     <>
@@ -108,7 +104,7 @@ export default async function GrantPage({
             </span>
           </div>
 
-          {/* Aree di riferimento (badge per settore: Acqua, Ambiente, ecc.) */}
+          {/* Aree di riferimento */}
           {Array.isArray(g.aree) && g.aree.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {g.aree.map((area) => (
@@ -225,9 +221,8 @@ export default async function GrantPage({
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <h3 className="text-base font-semibold">Ti serve assistenza?</h3>
               <p className="mt-2 text-sm text-slate-700">
-                Supporto su{" "}
-                <strong>ammissibilità</strong>, <strong>domanda</strong>,{" "}
-                <strong>piano spese</strong> e{" "}
+                Supporto su <strong>ammissibilità</strong>,{" "}
+                <strong>domanda</strong>, <strong>piano spese</strong> e{" "}
                 <strong>rendicontazione</strong>.
               </p>
               <Link
