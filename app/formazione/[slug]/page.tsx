@@ -80,10 +80,6 @@ export default function CourseDetailPage() {
     (c) => c.slug === slugParam
   );
 
-  // Docenti collegati a questo corso (se presenti in _data.ts)
-  const courseTeachers: Teacher[] =
-    TEACHERS?.filter((t) => t.courses?.includes(course?.slug ?? "")) ?? [];
-
   // Fallback se il corso non esiste
   if (!course) {
     return (
@@ -120,6 +116,10 @@ export default function CourseDetailPage() {
   const related = COURSES.filter(
     (c) => c.area === course.area && c.slug !== course.slug
   ).slice(0, 3);
+
+  const courseTeachers: Teacher[] = TEACHERS.filter((t) =>
+    t.courses.includes(course.slug)
+  );
 
   const handleAddToCart = () => {
     // Qui potrai collegare il carrello globale (context/Zustand, ecc.)
@@ -212,15 +212,12 @@ export default function CourseDetailPage() {
 
         {/* CONTENUTO PRINCIPALE */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-          {/* GRID 2x2:
-              Riga 1: Video | Iscrizione (stessa altezza)
-              Riga 2: Panoramica+Cosa imparerai+A chi è rivolto | Programma (stessa altezza)
-          */}
-          <div className="grid gap-8 lg:grid-cols-2 lg:auto-rows-[1fr]">
-            {/* RIGA 1 - COLONNA SINISTRA: VIDEO */}
-            <div className="h-full">
-              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+            {/* Colonna sinistra: video + descrizioni */}
+            <div className="space-y-6">
+              {/* Video YouTube di presentazione */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 h-auto lg:h-[360px]">
+                <div className="relative w-full h-[220px] lg:h-full overflow-hidden rounded-xl bg-slate-900">
                   {videoUrl ? (
                     <iframe
                       src={videoUrl}
@@ -259,57 +256,7 @@ export default function CourseDetailPage() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* RIGA 1 - COLONNA DESTRA: ISCRIZIONE (stessa altezza del video) */}
-            <aside className="h-full">
-              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-                <p className="text-xs text-slate-500">Quota di iscrizione</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-900">
-                  {formatPrice(course.price)}
-                </p>
-
-                <p className="mt-2 text-xs text-slate-600">
-                  Il prezzo si intende{" "}
-                  <strong>IVA esclusa</strong> e comprende materiali didattici
-                  digitali e attestato di partecipazione rilasciato da Polinex
-                  srl.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                >
-                  Iscriviti al corso
-                </button>
-
-                <p className="mt-3 text-[11px] text-slate-500">
-                  Potrai completare l&apos;iscrizione, scegliere modalità di
-                  pagamento e inserire i dati di fatturazione all&apos;interno
-                  del carrello.
-                </p>
-
-                {/* CTA Finanza agevolata / contributi */}
-                <div className="mt-auto pt-4 border-t border-dashed border-slate-200">
-                  <p className="text-[11px] text-slate-600">
-                    Vuoi valutare{" "}
-                    <strong>bandi o contributi per finanziare il corso</strong>{" "}
-                    (es. PSR, PNRR, fondi regionali)?
-                  </p>
-                  <Link
-                    href="/contatti"
-                    className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-emerald-50 px-4 py-2 text-[12px] font-semibold text-emerald-800 border border-emerald-100 hover:bg-emerald-100"
-                  >
-                    Parla con il team Finanza agevolata
-                  </Link>
-                </div>
-              </div>
-            </aside>
-
-            {/* RIGA 2 - COLONNA SINISTRA:
-                Panoramica + Cosa imparerai + A chi è rivolto / Requisiti */}
-            <div className="space-y-6">
               {/* Panoramica del corso */}
               <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                 <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -358,7 +305,7 @@ export default function CourseDetailPage() {
                 </ul>
               </div>
 
-              {/* A chi è rivolto & requisiti */}
+              {/* A chi è rivolto & Requisiti */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 grid gap-5 sm:grid-cols-2">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900">
@@ -421,13 +368,62 @@ export default function CourseDetailPage() {
               </div>
             </div>
 
-            {/* RIGA 2 - COLONNA DESTRA: PROGRAMMA (altezza = colonna sinistra) */}
-            <div className="h-full">
-              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+            {/* Colonna destra: box iscrizione + programma */}
+            <aside className="space-y-4 lg:space-y-6">
+              {/* Box iscrizione: altezza simile al video */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm h-auto lg:h-[360px] flex flex-col justify-between">
+                <div>
+                  <p className="text-xs text-slate-500">Quota di iscrizione</p>
+                  <p className="mt-1 text-2xl font-semibold text-slate-900">
+                    {formatPrice(course.price)}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-600">
+                    Il prezzo si intende{" "}
+                    <strong>IVA esclusa</strong> e comprende materiali didattici
+                    digitali e attestato di partecipazione rilasciato da Polinex
+                    srl.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                  >
+                    Iscriviti al corso
+                  </button>
+
+                  <p className="mt-3 text-[11px] text-slate-500">
+                    Potrai completare l&apos;iscrizione, scegliere modalità di
+                    pagamento e inserire i dati di fatturazione all&apos;interno
+                    del carrello.
+                  </p>
+                </div>
+
+                {/* CTA finanza agevolata, parte bassa del box */}
+                <div className="mt-4 border-t border-slate-100 pt-3 text-[11px] text-slate-600">
+                  <p className="font-medium text-slate-800">
+                    Vuoi finanziare il corso tramite finanza agevolata?
+                  </p>
+                  <p className="mt-1">
+                    Possiamo aiutarti a valutare bandi e contributi attivabili
+                    per coprire in parte o totalmente i costi di formazione.
+                  </p>
+                  <Link
+                    href="/contatti"
+                    className="mt-3 inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-semibold text-emerald-800 hover:bg-emerald-100"
+                  >
+                    Parla con il team finanza agevolata
+                  </Link>
+                </div>
+              </div>
+
+              {/* Programma indicativo, in colonna sotto l'iscrizione */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                 <h3 className="text-sm font-semibold text-slate-900">
                   Programma indicativo
                 </h3>
-                <ol className="mt-3 space-y-2 text-xs text-slate-700 flex-1">
+                <ol className="mt-3 space-y-2 text-xs text-slate-700">
                   <li>
                     <span className="font-semibold">Modulo 1 ·</span> Contesto
                     normativo e inquadramento del problema tecnico.
@@ -455,82 +451,109 @@ export default function CourseDetailPage() {
                   dell&apos;avvio del corso.
                 </p>
               </div>
-            </div>
+
+              {/* CTA aziende / gruppi */}
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs text-emerald-900 space-y-2">
+                <p className="font-semibold text-[13px]">
+                  Per aziende e gruppi
+                </p>
+                <p>
+                  Se vuoi iscrivere più persone o attivare una edizione
+                  dedicata del corso (in presenza o online), possiamo
+                  strutturare un{" "}
+                  <strong>percorso personalizzato</strong> sulle esigenze del
+                  tuo team.
+                </p>
+                <p>
+                  Scrivici dalla pagina{" "}
+                  <Link
+                    href="/contatti"
+                    className="underline underline-offset-2 font-semibold"
+                  >
+                    Contatti
+                  </Link>{" "}
+                  indicando numero di partecipanti, area di interesse e
+                  tempistiche.
+                </p>
+              </div>
+            </aside>
           </div>
 
-          {/* DOCENTI – mostrata solo se esistono docenti per questo corso */}
+          {/* Docenti del corso (solo se presenti in _data.ts) */}
           {courseTeachers.length > 0 && (
             <section className="mt-12 border-t border-slate-200 pt-8">
-              <h2 className="section-title text-base sm:text-lg mb-2">
-                Docenti del corso
-              </h2>
-              <p className="text-sm text-slate-600 mb-6 max-w-2xl">
-                Un team di professionisti che lavora ogni giorno su progetti,
-                autorizzazioni e cantieri nell&apos;area{" "}
-                <strong>{course.area.toLowerCase()}</strong>, disponibile anche
-                per chiarire dubbi prima dell&apos;iscrizione.
-              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-900">
+                    Docenti del corso
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-600 max-w-xl">
+                    Professionisti che lavorano ogni giorno su progetti,
+                    autorizzazioni e cantieri nelle stesse aree trattate a
+                    lezione.
+                  </p>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Puoi contattare i docenti per chiarire dubbi sull&apos;adeguatezza
+                  del corso rispetto al tuo profilo.
+                </p>
+              </div>
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {courseTeachers.map((teacher) => (
                   <article
                     key={teacher.id}
-                    className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm flex flex-col"
+                    className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm"
                   >
-                    <div className="relative h-44 bg-slate-100">
-                      <Image
-                        src={teacher.image}
-                        alt={teacher.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <h3 className="text-sm font-semibold text-slate-900">
-                        {teacher.name}
-                      </h3>
-                      <p className="mt-1 text-xs text-emerald-700 font-medium">
-                        {teacher.role}
-                      </p>
-
-                      {/* CTA contatto: icone telefono / email / LinkedIn */}
-                      <div className="mt-3 flex items-center gap-3 text-slate-500">
-                        {teacher.phone && (
-                          <a
-                            href={`tel:${teacher.phone.replace(/\s+/g, "")}`}
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
-                            aria-label={`Chiama ${teacher.name}`}
-                          >
-                            <Phone className="h-4 w-4" />
-                          </a>
-                        )}
-                        {teacher.email && (
-                          <a
-                            href={`mailto:${teacher.email}`}
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
-                            aria-label={`Scrivi a ${teacher.name}`}
-                          >
-                            <Mail className="h-4 w-4" />
-                          </a>
-                        )}
-                        {teacher.linkedin && (
-                          <a
-                            href={teacher.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
-                            aria-label={`Profilo LinkedIn di ${teacher.name}`}
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </a>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-full bg-slate-100">
+                        <Image
+                          src={teacher.image}
+                          alt={teacher.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          {teacher.name}
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          {teacher.role}
+                        </p>
+                      </div>
+                    </div>
 
-                      <p className="mt-3 text-[11px] text-slate-500">
-                        Puoi contattare i docenti per chiarire dubbi su
-                        prerequisiti, casi trattati e opportunità applicative
-                        del corso nel tuo contesto.
-                      </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+                      {teacher.phone && (
+                        <a
+                          href={`tel:${teacher.phone.replace(/\s+/g, "")}`}
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 hover:border-emerald-500 hover:text-emerald-700"
+                        >
+                          <Phone className="h-3 w-3" />
+                          <span>Telefono</span>
+                        </a>
+                      )}
+                      {teacher.email && (
+                        <a
+                          href={`mailto:${teacher.email}`}
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 hover:border-emerald-500 hover:text-emerald-700"
+                        >
+                          <Mail className="h-3 w-3" />
+                          <span>Email</span>
+                        </a>
+                      )}
+                      {teacher.linkedin && (
+                        <a
+                          href={teacher.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 hover:border-emerald-500 hover:text-emerald-700"
+                        >
+                          <Linkedin className="h-3 w-3" />
+                          <span>LinkedIn</span>
+                        </a>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -538,7 +561,7 @@ export default function CourseDetailPage() {
             </section>
           )}
 
-          {/* Corsi correlati (stile cards compatte) */}
+          {/* Corsi correlati */}
           {related.length > 0 && (
             <section className="mt-12 border-t border-slate-200 pt-8">
               <h2 className="text-sm font-semibold text-slate-900">

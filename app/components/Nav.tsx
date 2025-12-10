@@ -48,7 +48,7 @@ export default function Nav() {
     pathname === href ? "text-slate-900 font-medium" : "text-slate-700";
 
   // Link top-level (escludo "Servizi" perché è dropdown)
-  // NB: l’ordine qui è: Home, Portfolio, Chi siamo, Lavora con noi
+  // ordine: Home, Portfolio, Chi siamo, Lavora con noi
   const topLinks: { href: string; label: string }[] = [
     { href: "/", label: "Home" },
     { href: "/portfolio", label: "Portfolio" },
@@ -56,8 +56,8 @@ export default function Nav() {
     { href: "/lavora-con-noi", label: "Lavora con noi" },
   ];
 
-  // Voci del menu Servizi — POLINEX (aree)
-  const serviceItems = [
+  // Voci di CONSULENZA (aree tecniche)
+  const consultancyItems = [
     { href: "/servizi/acqua", label: "Acqua" },
     { href: "/servizi/ambiente", label: "Ambiente" },
     { href: "/servizi/energia", label: "Energia" },
@@ -67,17 +67,24 @@ export default function Nav() {
     { href: "/servizi/finanziamenti", label: "Bandi e Finanziamenti" },
   ] as const;
 
-  // JSON-LD per SiteNavigationElement (includo tutto)
+  // Altri servizi nella tendina
+  const extraServiceLinks = [
+    { href: "/formazione", label: "Formazione" },
+    { href: "/editoria", label: "Editoria" },
+    { href: "/gestionali", label: "Gestionali" },
+    { href: "/coworking", label: "Coworking" },
+  ] as const;
+
+  // JSON-LD per SiteNavigationElement
   const ldNav = {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
     name: [
       "Home",
       "Servizi",
-      ...serviceItems.map((s) => s.label),
-      "Formazione",
-      "Editoria",
-      "Gestionali",
+      "Consulenza",
+      ...consultancyItems.map((s) => s.label),
+      ...extraServiceLinks.map((s) => s.label),
       "Portfolio",
       "Chi siamo",
       "Lavora con noi",
@@ -88,10 +95,9 @@ export default function Nav() {
     url: [
       "/",
       "/servizi",
-      ...serviceItems.map((s) => s.href),
-      "/formazione",
-      "/editoria",
-      "/gestionali",
+      "/servizi", // voce generica Consulenza
+      ...consultancyItems.map((s) => s.href),
+      ...extraServiceLinks.map((s) => s.href),
       "/portfolio",
       "/chi-siamo",
       "/lavora-con-noi",
@@ -111,10 +117,13 @@ export default function Nav() {
     hoverTimer.current = setTimeout(() => setServicesOpen(false), 120);
   };
 
-  // Active style per il trigger Servizi se siamo su /servizi o sottopagine
+  // Active style per il trigger Servizi
   const serviziIsActive =
-    pathname === "/servizi" ||
-    serviceItems.some((s) => pathname?.startsWith(s.href));
+    pathname?.startsWith("/servizi") ||
+    pathname === "/formazione" ||
+    pathname === "/editoria" ||
+    pathname === "/gestionali" ||
+    pathname === "/coworking";
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -145,7 +154,7 @@ export default function Nav() {
         {/* Navigazione desktop */}
         <nav className="hidden md:block" aria-label="Navigazione principale">
           <ul className="flex items-center gap-6 lg:gap-8 text-sm">
-            {/* Home (topLinks[0]) */}
+            {/* Home */}
             <li>
               <Link
                 className={`nav-link inline-flex items-center h-16 ${isActive(
@@ -197,7 +206,7 @@ export default function Nav() {
                 role="menu"
                 aria-label="Sottomenu Servizi"
                 className={`
-                  absolute left-0 top-full mt-1 w-[360px]
+                  absolute left-0 top-full mt-1 w-[380px]
                   rounded-xl border border-slate-200 bg-white shadow-lg
                   ring-1 ring-black/5 overflow-hidden
                   ${
@@ -208,8 +217,32 @@ export default function Nav() {
                   transition transform duration-150
                 `}
               >
-                <ul className="py-1">
-                  {serviceItems.map((item) => (
+                {/* Blocco CONSULENZA */}
+                <div className="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Consulenza tecnica
+                </div>
+                <ul className="pb-2">
+                  {consultancyItems.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        role="menuitem"
+                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="border-t border-slate-200 my-1" />
+
+                {/* Blocco altri servizi: Formazione, Editoria, Gestionali, Coworking */}
+                <div className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Altri servizi
+                </div>
+                <ul className="pb-2">
+                  {extraServiceLinks.map((item) => (
                     <li key={item.href}>
                       <Link
                         href={item.href}
@@ -224,46 +257,7 @@ export default function Nav() {
               </div>
             </li>
 
-            {/* Formazione */}
-            <li>
-              <Link
-                className={`nav-link inline-flex items-center h-16 ${isActive(
-                  "/formazione"
-                )}`}
-                href="/formazione"
-                aria-current={pathname === "/formazione" ? "page" : undefined}
-              >
-                Formazione
-              </Link>
-            </li>
-
-            {/* Editoria */}
-            <li>
-              <Link
-                className={`nav-link inline-flex items-center h-16 ${isActive(
-                  "/editoria"
-                )}`}
-                href="/editoria"
-                aria-current={pathname === "/editoria" ? "page" : undefined}
-              >
-                Editoria
-              </Link>
-            </li>
-
-            {/* Gestionali */}
-            <li>
-              <Link
-                className={`nav-link inline-flex items-center h-16 ${isActive(
-                  "/gestionali"
-                )}`}
-                href="/gestionali"
-                aria-current={pathname === "/gestionali" ? "page" : undefined}
-              >
-                Gestionali
-              </Link>
-            </li>
-
-            {/* Portfolio subito dopo i tre link (topLinks[1]) */}
+            {/* Portfolio (topLinks[1]) */}
             <li>
               <Link
                 className={`nav-link inline-flex items-center h-16 ${isActive(
@@ -278,7 +272,7 @@ export default function Nav() {
               </Link>
             </li>
 
-            {/* Chi siamo, Lavora con noi (topLinks[2:], nell’ordine desiderato) */}
+            {/* Chi siamo, Lavora con noi (topLinks[2:]) */}
             {topLinks.slice(2).map(({ href, label }) => (
               <li key={href}>
                 <Link
@@ -293,7 +287,7 @@ export default function Nav() {
               </li>
             ))}
 
-            {/* Contatti (button) + Trasparenza (link) */}
+            {/* Contatti (button) */}
             <li>
               <Link
                 className="btn-ghost inline-flex items-center h-16"
@@ -302,6 +296,8 @@ export default function Nav() {
                 Contatti
               </Link>
             </li>
+
+            {/* Trasparenza */}
             <li>
               <Link
                 className={`nav-link inline-flex items-center h-16 ${isActive(
@@ -411,12 +407,33 @@ export default function Nav() {
                 id="mobile-servizi"
                 className={`overflow-hidden transition-[max-height,opacity] duration-200 ${
                   servicesMobileOpen
-                    ? "max-h-96 opacity-100"
+                    ? "max-height-[999px] max-h-96 opacity-100"
                     : "max-h-0 opacity-70"
                 }`}
               >
+                {/* Consulenza mobile */}
+                <p className="mt-1 pl-2 ml-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Consulenza tecnica
+                </p>
                 <ul className="pl-3 border-l border-slate-200 ml-2 mb-2">
-                  {serviceItems.map((s) => (
+                  {consultancyItems.map((s) => (
+                    <li key={s.href}>
+                      <Link
+                        className="block py-2 text-slate-700 hover:text-emerald-700"
+                        href={s.href}
+                      >
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Altri servizi mobile */}
+                <p className="pl-2 ml-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Altri servizi
+                </p>
+                <ul className="pl-3 border-l border-slate-200 ml-2 mb-2">
+                  {extraServiceLinks.map((s) => (
                     <li key={s.href}>
                       <Link
                         className="block py-2 text-slate-700 hover:text-emerald-700"
@@ -430,40 +447,7 @@ export default function Nav() {
               </div>
             </li>
 
-            {/* Formazione mobile */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/formazione")}`}
-                href="/formazione"
-                aria-current={pathname === "/formazione" ? "page" : undefined}
-              >
-                Formazione
-              </Link>
-            </li>
-
-            {/* Editoria mobile */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/editoria")}`}
-                href="/editoria"
-                aria-current={pathname === "/editoria" ? "page" : undefined}
-              >
-                Editoria
-              </Link>
-            </li>
-
-            {/* Gestionali mobile */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/gestionali")}`}
-                href="/gestionali"
-                aria-current={pathname === "/gestionali" ? "page" : undefined}
-              >
-                Gestionali
-              </Link>
-            </li>
-
-            {/* Portfolio prima di Chi siamo anche su mobile */}
+            {/* Portfolio */}
             <li>
               <Link
                 className={`nav-link ${isActive("/portfolio")}`}
@@ -474,6 +458,7 @@ export default function Nav() {
               </Link>
             </li>
 
+            {/* Chi siamo */}
             <li>
               <Link
                 className={`nav-link ${isActive("/chi-siamo")}`}
@@ -484,6 +469,7 @@ export default function Nav() {
               </Link>
             </li>
 
+            {/* Lavora con noi */}
             <li>
               <Link
                 className={`nav-link ${isActive("/lavora-con-noi")}`}
@@ -507,11 +493,14 @@ export default function Nav() {
               </Link>
             </li>
 
+            {/* Contatti */}
             <li>
               <Link className="btn-ghost" href="/contatti">
                 Contatti
               </Link>
             </li>
+
+            {/* Trasparenza */}
             <li>
               <Link
                 className={`nav-link ${isActive("/trasparenza")}`}
