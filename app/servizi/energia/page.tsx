@@ -16,12 +16,25 @@ import {
   Building2,
   Calendar,
   Wallet,
+  GraduationCap,
+  BookOpen,
 } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
+
+// Bandi & finanziamenti
 import { GRANTS, type Grant } from "../finanziamenti/_data";
+
+// Formazione
+import { COURSES, type Course } from "../../formazione/_data";
+
+// Editoria
+import { BOOKS, type Book } from "../../editoria/_data";
+
+// Portfolio / progetti
+import { PROJECTS, type Project } from "../../portfolio/_data";
 
 /* ========= Utils ========= */
 
@@ -32,41 +45,30 @@ type EnergiaCase = {
   client: string;
 };
 
-const ENERGIA_CASES: EnergiaCase[] = [
-  {
-    slug: "energia-audit-iso50001",
-    title: "Audit energetico secondo ISO 50001",
-    location: "Vicenza (VI)",
-    client: "Azienda Metalmeccanica",
-  },
-  {
-    slug: "energia-cer",
-    title: "Studio di fattibilità CER per area produttiva",
-    location: "Padova (PD)",
-    client: "Consorzio Imprese",
-  },
-];
-
 const cover = (slug: string) => `/portfolio/${slug}/gallery-01.jpg`;
 
-// Filtra solo i bandi relativi all'energia
-const ENERGIA_GRANTS: Grant[] = GRANTS.filter((g) => {
-  const anyG = g as any;
+// Progetti energia dal portfolio
+const ENERGIA_CASES: EnergiaCase[] = PROJECTS.filter(
+  (p) => p.category === "Energia"
+).map((p: Project) => ({
+  slug: p.slug,
+  title: p.title,
+  location: p.location,
+  client: p.client,
+}));
 
-  const byArea =
-    Array.isArray(anyG.areas) &&
-    anyG.areas.some(
-      (a: string) => a.toLowerCase() === "energia".toLowerCase()
-    );
+// Bandi energia (nuovo campo aree)
+const ENERGIA_GRANTS: Grant[] = GRANTS.filter((g) =>
+  g.aree?.includes("Energia")
+);
 
-  const byLegacy =
-    anyG.ambito === "Energia" ||
-    anyG.settore === "Energia" ||
-    (Array.isArray(anyG.tags) &&
-      anyG.tags.some((t: string) => t.toLowerCase().includes("energia")));
+// Corsi formazione area Energia
+const ENERGIA_COURSES: Course[] = COURSES.filter(
+  (c) => c.area === "Energia"
+);
 
-  return byArea || byLegacy;
-});
+// Libri / editoria area Energia
+const ENERGIA_BOOKS: Book[] = BOOKS.filter((b) => b.area === "Energia");
 
 function fmtDate(iso?: string) {
   if (!iso) return "A sportello";
@@ -125,6 +127,11 @@ function SectionHeader({ title }: { title: string }) {
 /* ========= Page ========= */
 
 export default function EnergiaPage() {
+  const hasGrants = ENERGIA_GRANTS.length > 0;
+  const hasCourses = ENERGIA_COURSES.length > 0;
+  const hasBooks = ENERGIA_BOOKS.length > 0;
+  const hasCases = ENERGIA_CASES.length > 0;
+
   return (
     <>
       <Nav />
@@ -143,7 +150,9 @@ export default function EnergiaPage() {
             </div>
           </div>
 
-          <h1 className="section-title">Aree di intervento in ambito energia</h1>
+          <h1 className="section-title">
+            Aree di intervento in ambito energia
+          </h1>
         </section>
 
         {/* MACRO AREE DI INTERVENTO */}
@@ -227,38 +236,78 @@ export default function EnergiaPage() {
         </section>
 
         {/* BANDI / FINANZA AGEVOLATA PER L'ENERGIA */}
-        <section className="mt-10">
-          <SectionHeader title="Bandi e finanziamenti per interventi energetici" />
-          <EnergiaGrantsCarousel items={ENERGIA_GRANTS} />
+        {hasGrants && (
+          <section className="mt-10">
+            <SectionHeader title="Bandi e finanziamenti per interventi energetici" />
+            <EnergiaGrantsCarousel items={ENERGIA_GRANTS} />
 
-          {/* CTA finale sezione bandi */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/servizi/finanziamenti"
-              className="inline-flex items-center rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
-            >
-              Vedi tutti i bandi e i finanziamenti
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-        </section>
+            {/* CTA finale sezione bandi */}
+            <div className="mt-6 text-center">
+              <Link
+                href="/servizi/finanziamenti"
+                className="inline-flex items-center rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+              >
+                Vedi tutti i bandi e i finanziamenti
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* FORMAZIONE AREA ENERGIA */}
+        {hasCourses && (
+          <section className="mt-10">
+            <SectionHeader title="Formazione tecnica in ambito energia" />
+            <EnergiaFormazioneCarousel items={ENERGIA_COURSES} />
+
+            <div className="mt-6 text-center">
+              <Link
+                href="/formazione"
+                className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
+              >
+                Vai a tutti i corsi di formazione
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* EDITORIA AREA ENERGIA */}
+        {hasBooks && (
+          <section className="mt-10">
+            <SectionHeader title="Manuali e pubblicazioni in ambito energia" />
+            <EnergiaEditoriaCarousel items={ENERGIA_BOOKS} />
+
+            <div className="mt-6 text-center">
+              <Link
+                href="/editoria"
+                className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
+              >
+                Vai a tutte le pubblicazioni
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* CASI STUDIO ENERGIA */}
-        <section className="mt-10">
-          <SectionHeader title="Progetti e casi studio in ambito energia" />
-          <EnergiaCasesCarousel items={ENERGIA_CASES} />
+        {hasCases && (
+          <section className="mt-10">
+            <SectionHeader title="Progetti e casi studio in ambito energia" />
+            <EnergiaCasesCarousel items={ENERGIA_CASES} />
 
-          {/* CTA finale sezione portfolio */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/portfolio"
-              className="inline-flex items-center rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-            >
-              Vedi tutto il portfolio
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-        </section>
+            {/* CTA finale sezione portfolio */}
+            <div className="mt-6 text-center">
+              <Link
+                href="/portfolio"
+                className="inline-flex items-center rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+              >
+                Vedi tutto il portfolio
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* CTA FINALE */}
         <section className="mt-10 sm:mt-10 mb-4">
@@ -371,6 +420,8 @@ function StepCard({
 /* ====== Carosello casi studio energia ====== */
 
 function EnergiaCasesCarousel({ items }: { items: EnergiaCase[] }) {
+  if (!items.length) return null;
+
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
@@ -479,6 +530,8 @@ function EnergiaCaseCard({ c }: { c: EnergiaCase }) {
 /* ====== Carosello bandi energia ====== */
 
 function EnergiaGrantsCarousel({ items }: { items: Grant[] }) {
+  if (!items.length) return null;
+
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
@@ -506,16 +559,6 @@ function EnergiaGrantsCarousel({ items }: { items: Grant[] }) {
     const delta = el.clientWidth * 0.9 * (dir === "left" ? -1 : 1);
     el.scrollBy({ left: delta, behavior: "smooth" });
   };
-
-  if (!items.length) {
-    return (
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
-        Stiamo selezionando i bandi più rilevanti per l&apos;ambito energia.
-        Nel frattempo puoi consultare l&apos;elenco completo nella pagina Bandi
-        e Finanziamenti.
-      </div>
-    );
-  }
 
   return (
     <div className="relative mt-6">
@@ -585,7 +628,9 @@ function GrantCard({ g }: { g: Grant }) {
         </div>
 
         {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>
+          <p className="mt-3 text-sm text-slate-600 line-clamp-3">
+            {g.teaser}
+          </p>
         )}
 
         <div className="mt-4 flex items-center justify-between">
@@ -614,5 +659,227 @@ function GrantMeta({
       <span className="font-semibold">{label}:</span>
       <span className="text-slate-800">{value}</span>
     </div>
+  );
+}
+
+/* ====== Carosello FORMAZIONE energia ====== */
+
+function EnergiaFormazioneCarousel({ items }: { items: Course[] }) {
+  if (!items.length) return null;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(true);
+
+  const update = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanLeft(scrollLeft > 0);
+    setCanRight(scrollLeft + clientWidth < scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    update();
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [update, items.length]);
+
+  const scrollBy = (dir: "left" | "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const delta = el.clientWidth * 0.9 * (dir === "left" ? -1 : 1);
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mt-6">
+      <button
+        aria-label="Indietro"
+        onClick={() => scrollBy("left")}
+        disabled={!canLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        aria-label="Avanti"
+        onClick={() => scrollBy("right")}
+        disabled={!canRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      <div
+        ref={ref}
+        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
+      >
+        <div className="flex gap-5 pr-4">
+          {items.map((c) => (
+            <EnergiaCourseCard key={c.slug} c={c} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EnergiaCourseCard({ c }: { c: Course }) {
+  return (
+    <Link
+      href={`/formazione/${c.slug}`}
+      className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
+    >
+      <div className="p-5 flex flex-col h-full">
+        <div className="inline-flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+          <GraduationCap className="h-4 w-4" />
+          <span>Formazione in ambito energia</span>
+        </div>
+        <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
+          {c.title}
+        </h3>
+        {c.subtitle && (
+          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
+        )}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+          {c.description}
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+          <span>
+            Durata: <strong>{c.hours} ore</strong>
+          </span>
+          <span>
+            Livello: <strong>{c.level}</strong>
+          </span>
+          <span>
+            Modalità: <strong>{c.mode}</strong>
+          </span>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-3 py-1 text-[11px] font-semibold">
+            Corso pratico
+          </span>
+          <ArrowRight className="h-5 w-5 text-emerald-600 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ====== Carosello EDITORIA energia ====== */
+
+function EnergiaEditoriaCarousel({ items }: { items: Book[] }) {
+  if (!items.length) return null;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(true);
+
+  const update = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanLeft(scrollLeft > 0);
+    setCanRight(scrollLeft + clientWidth < scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    update();
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [update, items.length]);
+
+  const scrollBy = (dir: "left" | "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const delta = el.clientWidth * 0.9 * (dir === "left" ? -1 : 1);
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mt-6">
+      <button
+        aria-label="Indietro"
+        onClick={() => scrollBy("left")}
+        disabled={!canLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        aria-label="Avanti"
+        onClick={() => scrollBy("right")}
+        disabled={!canRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      <div
+        ref={ref}
+        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
+      >
+        <div className="flex gap-5 pr-4">
+          {items.map((b) => (
+            <EnergiaBookCard key={b.slug} b={b} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EnergiaBookCard({ b }: { b: Book }) {
+  return (
+    <Link
+      href={`/editoria/${b.slug}`}
+      className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
+    >
+      <div className="relative h-40 bg-slate-100">
+        <Image
+          src={b.cover}
+          alt={b.title}
+          fill
+          className="object-cover"
+          sizes="(min-width: 1024px) 420px, 90vw"
+        />
+      </div>
+      <div className="p-5 flex flex-col h-full">
+        <div className="inline-flex items-center gap-2 text-slate-700 text-xs font-semibold">
+          <BookOpen className="h-4 w-4" />
+          <span>Manuale in ambito energia</span>
+        </div>
+        <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
+          {b.title}
+        </h3>
+        {b.subtitle && (
+          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
+        )}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+          {b.description}
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+          <span>
+            Formato: <strong>{b.format}</strong>
+          </span>
+          <span>
+            Pagine: <strong>{b.pages}</strong>
+          </span>
+          <span>
+            Anno: <strong>{b.year}</strong>
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

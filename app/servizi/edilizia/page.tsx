@@ -1,6 +1,7 @@
 // app/servizi/edilizia/page.tsx
 "use client";
 
+import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -14,69 +15,61 @@ import {
   ChevronRight,
   Calendar,
   Wallet,
+  GraduationCap,
+  BookOpen,
 } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
+
+// Bandi & finanziamenti
 import { GRANTS, type Grant } from "../finanziamenti/_data";
+
+// Formazione
+import { COURSES, type Course } from "../../formazione/_data";
+
+// Editoria
+import { BOOKS, type Book } from "../../editoria/_data";
+
+// Portfolio / progetti
+import { PROJECTS, type Project } from "../../portfolio/_data";
 
 /* ========= Utils ========= */
 
-type EdiliziaCase = {
+type EdiliziaProject = {
   slug: string;
   title: string;
   location: string;
   client: string;
 };
 
-const EDILIZIA_CASES: EdiliziaCase[] = [
-  {
-    slug: "edilizia-permessi-costruire",
-    title: "Permesso di costruire per nuovo edificio produttivo",
-    location: "Padova (PD)",
-    client: "Impresa Edile",
-  },
-  {
-    slug: "edilizia-direzione-lavori",
-    title: "Direzione lavori e contabilità per ristrutturazione complesso",
-    location: "Vicenza (VI)",
-    client: "Soggetto Privato",
-  },
-];
-
 const cover = (slug: string) => `/portfolio/${slug}/gallery-01.jpg`;
 
-// Filtra solo i bandi relativi a edilizia/infrastrutture/cantieri
-const EDILIZIA_GRANTS: Grant[] = GRANTS.filter((g) => {
-  const anyG = g as any;
+// --- Bandi edilizia/infrastrutture (nuovo campo aree) ---
+const EDILIZIA_GRANTS: Grant[] = GRANTS.filter((g) =>
+  g.aree?.includes("Edilizia e Infrastrutture")
+);
 
-  const byArea =
-    Array.isArray(anyG.areas) &&
-    anyG.areas.some((a: string) => {
-      const v = a.toLowerCase();
-      return v.includes("edilizia") || v.includes("infrastrutture");
-    });
+// --- Corsi formazione area edilizia/infrastrutture ---
+const EDILIZIA_COURSES: Course[] = COURSES.filter(
+  (c) => c.area === "Edilizia e Infrastrutture"
+);
 
-  const byLegacy =
-    (typeof anyG.ambito === "string" &&
-      (anyG.ambito.toLowerCase().includes("edilizia") ||
-        anyG.ambito.toLowerCase().includes("infrastrutture"))) ||
-    (typeof anyG.settore === "string" &&
-      (anyG.settore.toLowerCase().includes("edilizia") ||
-        anyG.settore.toLowerCase().includes("infrastrutture"))) ||
-    (Array.isArray(anyG.tags) &&
-      anyG.tags.some((t: string) => {
-        const v = t.toLowerCase();
-        return (
-          v.includes("edilizia") ||
-          v.includes("infrastrutture") ||
-          v.includes("cantiere")
-        );
-      }));
+// --- Libri / editoria area edilizia/infrastrutture ---
+const EDILIZIA_BOOKS: Book[] = BOOKS.filter(
+  (b) => b.area === "Edilizia e Infrastrutture"
+);
 
-  return byArea || byLegacy;
-});
+// --- Progetti portfolio categoria Edilizia e Infrastrutture ---
+const EDILIZIA_PROJECTS: EdiliziaProject[] = PROJECTS.filter(
+  (p) => p.category === "Edilizia e Infrastrutture"
+).map((p: Project) => ({
+  slug: p.slug,
+  title: p.title,
+  location: p.location,
+  client: p.client,
+}));
 
 function fmtDate(iso?: string) {
   if (!iso) return "A sportello";
@@ -134,6 +127,11 @@ function SectionHeader({ title }: { title: string }) {
 /* ========= Page ========= */
 
 export default function EdiliziaPage() {
+  const hasGrants = EDILIZIA_GRANTS.length > 0;
+  const hasCourses = EDILIZIA_COURSES.length > 0;
+  const hasBooks = EDILIZIA_BOOKS.length > 0;
+  const hasProjects = EDILIZIA_PROJECTS.length > 0;
+
   return (
     <>
       <Nav />
@@ -238,40 +236,82 @@ export default function EdiliziaPage() {
         </section>
 
         {/* BANDI / FINANZA AGEVOLATA PER EDILIZIA / INFRASTRUTTURE */}
-        <section className="mt-10">
-          <SectionHeader title="Bandi e finanziamenti per edilizia e infrastrutture" />
+        {hasGrants && (
+          <section className="mt-10">
+            <SectionHeader title="Bandi e finanziamenti per edilizia e infrastrutture" />
 
-          <EdiliziaGrantsCarousel items={EDILIZIA_GRANTS} />
+            <EdiliziaGrantsCarousel items={EDILIZIA_GRANTS} />
 
-          {/* CTA finale sezione bandi */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/servizi/finanziamenti"
-              className="inline-flex items-center rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
-            >
-              Vedi tutti i bandi e i finanziamenti
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-        </section>
+            {/* CTA finale sezione bandi */}
+            <div className="mt-6 text-center">
+              <Link
+                href="/servizi/finanziamenti"
+                className="inline-flex items-center rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+              >
+                Vedi tutti i bandi e i finanziamenti
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
-        {/* CASI STUDIO EDILIZIA */}
-        <section className="mt-10">
-          <SectionHeader title="Progetti e casi studio in ambito edilizia" />
+        {/* FORMAZIONE AREA EDILIZIA / INFRASTRUTTURE */}
+        {hasCourses && (
+          <section className="mt-10">
+            <SectionHeader title="Formazione tecnica per edilizia e infrastrutture" />
 
-          <EdiliziaCasesCarousel items={EDILIZIA_CASES} />
+            <EdiliziaFormazioneCarousel items={EDILIZIA_COURSES} />
 
-          {/* CTA finale sezione portfolio */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/portfolio"
-              className="inline-flex items-center rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-            >
-              Vedi tutto il portfolio
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-        </section>
+            <div className="mt-6 text-center">
+              <Link
+                href="/formazione"
+                className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
+              >
+                Vai a tutti i corsi di formazione
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* EDITORIA AREA EDILIZIA / INFRASTRUTTURE */}
+        {hasBooks && (
+          <section className="mt-10">
+            <SectionHeader title="Manuali e pubblicazioni per edilizia e infrastrutture" />
+
+            <EdiliziaEditoriaCarousel items={EDILIZIA_BOOKS} />
+
+            <div className="mt-6 text-center">
+              <Link
+                href="/editoria"
+                className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
+              >
+                Vai a tutte le pubblicazioni
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* CASI STUDIO / PROGETTI EDILIZIA */}
+        {hasProjects && (
+          <section className="mt-10">
+            <SectionHeader title="Progetti e casi studio in ambito edilizia" />
+
+            <EdiliziaProjectsCarousel items={EDILIZIA_PROJECTS} />
+
+            {/* CTA finale sezione portfolio */}
+            <div className="mt-6 text-center">
+              <Link
+                href="/portfolio"
+                className="inline-flex items-center rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+              >
+                Vedi tutto il portfolio
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* CTA FINALE */}
         <section className="mt-10 sm:mt-10 mb-4">
@@ -381,9 +421,11 @@ function StepCard({
   );
 }
 
-/* ====== Carosello casi studio edilizia ====== */
+/* ====== Carosello PROGETTI edilizia ====== */
 
-function EdiliziaCasesCarousel({ items }: { items: EdiliziaCase[] }) {
+function EdiliziaProjectsCarousel({ items }: { items: EdiliziaProject[] }) {
+  if (!items.length) return null;
+
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
@@ -436,8 +478,8 @@ function EdiliziaCasesCarousel({ items }: { items: EdiliziaCase[] }) {
         className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
       >
         <div className="flex gap-5 pr-4">
-          {items.map((c) => (
-            <EdiliziaCaseCard key={c.slug} c={c} />
+          {items.map((p) => (
+            <EdiliziaProjectCard key={p.slug} p={p} />
           ))}
         </div>
       </div>
@@ -445,13 +487,13 @@ function EdiliziaCasesCarousel({ items }: { items: EdiliziaCase[] }) {
   );
 }
 
-function EdiliziaCaseCard({ c }: { c: EdiliziaCase }) {
+function EdiliziaProjectCard({ p }: { p: EdiliziaProject }) {
   return (
     <article className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[400px] rounded-2xl border border-slate-200 bg-white overflow-hidden hover:shadow-sm transition">
       <div className="relative aspect-[16/9] bg-slate-100">
         <SmartImage
-          srcJpg={cover(c.slug)}
-          alt={c.title}
+          srcJpg={cover(p.slug)}
+          alt={p.title}
           fill
           sizes="(min-width: 1024px) 400px, 90vw"
           className="object-cover"
@@ -463,21 +505,21 @@ function EdiliziaCaseCard({ c }: { c: EdiliziaCase }) {
           Edilizia e Infrastrutture
         </span>
 
-        <h3 className="mt-2 font-semibold text-lg">{c.title}</h3>
+        <h3 className="mt-2 font-semibold text-lg">{p.title}</h3>
 
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-700">
           <MapPin className="h-4 w-4 text-slate-500" />
-          <span>{c.location}</span>
+          <span>{p.location}</span>
         </div>
 
         <div className="mt-1 flex items-center gap-2 text-sm text-slate-700">
           <Building2 className="h-4 w-4 text-slate-500" />
-          <span>{c.client}</span>
+          <span>{p.client}</span>
         </div>
 
         <div className="mt-4">
           <Link
-            href={`/portfolio/${c.slug}`}
+            href={`/portfolio/${p.slug}`}
             className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50 text-sm"
           >
             Approfondisci
@@ -492,6 +534,8 @@ function EdiliziaCaseCard({ c }: { c: EdiliziaCase }) {
 /* ====== Carosello bandi edilizia ====== */
 
 function EdiliziaGrantsCarousel({ items }: { items: Grant[] }) {
+  if (!items.length) return null;
+
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
@@ -512,16 +556,6 @@ function EdiliziaGrantsCarousel({ items }: { items: Grant[] }) {
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [update, items.length]);
-
-  if (!items.length) {
-    return (
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
-        Stiamo selezionando i bandi più rilevanti per l&apos;ambito edilizia e
-        infrastrutture. Nel frattempo puoi consultare l&apos;elenco completo
-        nella pagina Bandi e Finanziamenti.
-      </div>
-    );
-  }
 
   const scrollBy = (dir: "left" | "right") => {
     const el = ref.current;
@@ -598,7 +632,9 @@ function GrantCard({ g }: { g: Grant }) {
         </div>
 
         {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>
+          <p className="mt-3 text-sm text-slate-600 line-clamp-3">
+            {g.teaser}
+          </p>
         )}
 
         <div className="mt-4 flex items-center justify-between">
@@ -627,5 +663,227 @@ function GrantMeta({
       <span className="font-semibold">{label}:</span>
       <span className="text-slate-800">{value}</span>
     </div>
+  );
+}
+
+/* ====== Carosello FORMAZIONE edilizia ====== */
+
+function EdiliziaFormazioneCarousel({ items }: { items: Course[] }) {
+  if (!items.length) return null;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(true);
+
+  const update = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanLeft(scrollLeft > 0);
+    setCanRight(scrollLeft + clientWidth < scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    update();
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [update, items.length]);
+
+  const scrollBy = (dir: "left" | "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const delta = el.clientWidth * 0.9 * (dir === "left" ? -1 : 1);
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mt-6">
+      <button
+        aria-label="Indietro"
+        onClick={() => scrollBy("left")}
+        disabled={!canLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        aria-label="Avanti"
+        onClick={() => scrollBy("right")}
+        disabled={!canRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      <div
+        ref={ref}
+        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
+      >
+        <div className="flex gap-5 pr-4">
+          {items.map((c) => (
+            <EdiliziaCourseCard key={c.slug} c={c} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EdiliziaCourseCard({ c }: { c: Course }) {
+  return (
+    <Link
+      href={`/formazione/${c.slug}`}
+      className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
+    >
+      <div className="p-5 flex flex-col h-full">
+        <div className="inline-flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+          <GraduationCap className="h-4 w-4" />
+          <span>Formazione edilizia e infrastrutture</span>
+        </div>
+        <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
+          {c.title}
+        </h3>
+        {c.subtitle && (
+          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
+        )}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+          {c.description}
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+          <span>
+            Durata: <strong>{c.hours} ore</strong>
+          </span>
+          <span>
+            Livello: <strong>{c.level}</strong>
+          </span>
+          <span>
+            Modalità: <strong>{c.mode}</strong>
+          </span>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-3 py-1 text-[11px] font-semibold">
+            Corso pratico
+          </span>
+          <ArrowRight className="h-5 w-5 text-emerald-600 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ====== Carosello EDITORIA edilizia ====== */
+
+function EdiliziaEditoriaCarousel({ items }: { items: Book[] }) {
+  if (!items.length) return null;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(true);
+
+  const update = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanLeft(scrollLeft > 0);
+    setCanRight(scrollLeft + clientWidth < scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    update();
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [update, items.length]);
+
+  const scrollBy = (dir: "left" | "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const delta = el.clientWidth * 0.9 * (dir === "left" ? -1 : 1);
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mt-6">
+      <button
+        aria-label="Indietro"
+        onClick={() => scrollBy("left")}
+        disabled={!canLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        aria-label="Avanti"
+        onClick={() => scrollBy("right")}
+        disabled={!canRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white p-2 shadow-sm border border-slate-200 disabled:opacity-40"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      <div
+        ref={ref}
+        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
+      >
+        <div className="flex gap-5 pr-4">
+          {items.map((b) => (
+            <EdiliziaBookCard key={b.slug} b={b} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EdiliziaBookCard({ b }: { b: Book }) {
+  return (
+    <Link
+      href={`/editoria/${b.slug}`}
+      className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
+    >
+      <div className="relative h-40 bg-slate-100">
+        <Image
+          src={b.cover}
+          alt={b.title}
+          fill
+          className="object-cover"
+          sizes="(min-width: 1024px) 420px, 90vw"
+        />
+      </div>
+      <div className="p-5 flex flex-col h-full">
+        <div className="inline-flex items-center gap-2 text-slate-700 text-xs font-semibold">
+          <BookOpen className="h-4 w-4" />
+          <span>Manuale edilizia e infrastrutture</span>
+        </div>
+        <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
+          {b.title}
+        </h3>
+        {b.subtitle && (
+          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
+        )}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+          {b.description}
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+          <span>
+            Formato: <strong>{b.format}</strong>
+          </span>
+          <span>
+            Pagine: <strong>{b.pages}</strong>
+          </span>
+          <span>
+            Anno: <strong>{b.year}</strong>
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

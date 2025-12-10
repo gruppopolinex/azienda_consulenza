@@ -1,9 +1,12 @@
 // app/servizi/finanziamenti/[slug]/page.tsx
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+"use client";
+
+import type React from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowRight,
+  ArrowLeft,
   Building2,
   Calendar,
   ExternalLink,
@@ -12,13 +15,11 @@ import {
   Wallet,
   Youtube,
 } from "lucide-react";
-import type { ReactNode } from "react";
 
-import { getGrantBySlug, type Status } from "../_data";
-
-// Layout (client components)
 import Nav from "../../../components/Nav";
 import Footer from "../../../components/Footer";
+
+import { getGrantBySlug, type Status, type Grant } from "../_data";
 
 /* ===== Utils ===== */
 function fmtDate(iso?: string) {
@@ -39,58 +40,90 @@ function statusBadgeClass(s: Status) {
   }
 }
 
-/* ===== SEO ===== */
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const g = getGrantBySlug(params.slug);
-  if (!g) return {};
+/* ===== Pagina dettaglio bando (client) ===== */
 
-  const title = `${g.title} — Bandi e Finanziamenti | Polinex srl`;
-  const description = (g.description || g.teaser || "").slice(0, 160);
+export default function GrantPage() {
+  const params = useParams<{ slug: string | string[] }>();
+  const router = useRouter();
 
-  return {
-    title,
-    description,
-    alternates: { canonical: `/servizi/finanziamenti/${g.slug}` },
-    openGraph: { title, description },
-  };
-}
+  const rawSlug = params?.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
 
-/* ===== Pagina dettaglio ===== */
-export default async function GrantPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const g = getGrantBySlug(params.slug);
+  const grant: Grant | undefined = slug ? getGrantBySlug(slug) : undefined;
 
-  if (!g) {
-    notFound();
+  // Se non trovo il bando → messaggio pulito, niente 404 di Next
+  if (!grant) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white text-slate-900">
+        <Nav />
+        <main className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
+          <button
+            type="button"
+            onClick={() => router.push("/servizi/finanziamenti")}
+            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Torna ai bandi
+          </button>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center">
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Bando non trovato
+            </h1>
+            <p className="mt-3 text-sm text-slate-600">
+              Il bando che stai cercando non è stato trovato. Verifica che
+              l&apos;indirizzo sia corretto oppure torna all&apos;elenco
+              completo dei bandi e finanziamenti.
+            </p>
+            <Link
+              href="/servizi/finanziamenti"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Vai all&apos;elenco bandi
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
+  const g = grant;
+
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Nav />
 
-      <main className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
-        {/* breadcrumb */}
-        <nav className="text-sm text-slate-600">
-          <Link className="hover:underline" href="/">
-            Home
-          </Link>{" "}
-          <span className="mx-1">/</span>
-          <Link className="hover:underline" href="/servizi/finanziamenti">
-            Bandi e Finanziamenti
-          </Link>{" "}
-          <span className="mx-1">/</span>
-          <span className="text-slate-900">{g.title}</span>
-        </nav>
+      <main className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12 flex-1">
+        {/* breadcrumb + back */}
+        <div className="flex flex-col gap-3 mb-4">
+          <button
+            type="button"
+            onClick={() => router.push("/servizi/finanziamenti")}
+            className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 w-fit"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            <span>Torna ai bandi</span>
+          </button>
+
+          <nav className="text-xs sm:text-sm text-slate-600">
+            <Link className="hover:underline" href="/">
+              Home
+            </Link>{" "}
+            <span className="mx-1">/</span>
+            <Link
+              className="hover:underline"
+              href="/servizi/finanziamenti"
+            >
+              Bandi e Finanziamenti
+            </Link>{" "}
+            <span className="mx-1">/</span>
+            <span className="text-slate-900">{g.title}</span>
+          </nav>
+        </div>
 
         {/* header */}
-        <header className="mt-3">
+        <header className="mt-1">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
               {g.title}
@@ -119,7 +152,7 @@ export default async function GrantPage({
           )}
 
           {(g.description || g.teaser) && (
-            <p className="mt-3 max-w-3xl text-slate-700">
+            <p className="mt-3 max-w-3xl text-slate-700 text-sm sm:text-base">
               {g.description || g.teaser}
             </p>
           )}
@@ -153,48 +186,54 @@ export default async function GrantPage({
         </section>
 
         {/* contenuti + sidebar CTA */}
-        <section className="mt-8 grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <h2 className="text-lg font-medium">Documenti e risorse</h2>
-            <div className="mt-3 grid gap-3">
-              {g.pdfHref && (
-                <a
-                  href={g.pdfHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <FileDown className="h-5 w-5 text-slate-600" />
-                    <span className="font-medium">
-                      Scarica scheda tecnica (PDF)
+        <section className="mt-8 grid md:grid-cols-3 gap-6 items-start">
+          <div className="md:col-span-2 space-y-6">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900">
+                Documenti e risorse
+              </h2>
+              <div className="mt-3 grid gap-3">
+                {g.pdfHref && (
+                  <a
+                    href={g.pdfHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <FileDown className="h-5 w-5 text-slate-600" />
+                      <span className="font-medium text-sm">
+                        Scarica scheda tecnica (PDF)
+                      </span>
                     </span>
-                  </span>
-                  <ArrowRight className="h-5 w-5 text-slate-500" />
-                </a>
-              )}
+                    <ArrowRight className="h-5 w-5 text-slate-500" />
+                  </a>
+                )}
 
-              {g.officialUrl && (
-                <a
-                  href={g.officialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <ExternalLink className="h-5 w-5 text-slate-600" />
-                    <span className="font-medium">
-                      Vai alla pagina ufficiale del bando
+                {g.officialUrl && (
+                  <a
+                    href={g.officialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <ExternalLink className="h-5 w-5 text-slate-600" />
+                      <span className="font-medium text-sm">
+                        Vai alla pagina ufficiale del bando
+                      </span>
                     </span>
-                  </span>
-                  <ArrowRight className="h-5 w-5 text-slate-500" />
-                </a>
-              )}
+                    <ArrowRight className="h-5 w-5 text-slate-500" />
+                  </a>
+                )}
+              </div>
             </div>
 
             {g.youtubeId && (
-              <div className="mt-8">
-                <h3 className="text-base font-medium">Video pillola</h3>
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Video pillola
+                </h3>
                 <div
                   className="mt-3 relative w-full overflow-hidden rounded-2xl border border-slate-200 shadow-sm"
                   style={{ aspectRatio: "16/9" }}
@@ -219,7 +258,9 @@ export default async function GrantPage({
           {/* Sidebar CTA */}
           <aside className="md:col-span-1">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <h3 className="text-base font-semibold">Ti serve assistenza?</h3>
+              <h3 className="text-base font-semibold text-slate-900">
+                Ti serve assistenza?
+              </h3>
               <p className="mt-2 text-sm text-slate-700">
                 Supporto su <strong>ammissibilità</strong>,{" "}
                 <strong>domanda</strong>, <strong>piano spese</strong> e{" "}
@@ -236,7 +277,7 @@ export default async function GrantPage({
           </aside>
         </section>
 
-        {/* back link */}
+        {/* back link in fondo */}
         <section className="mt-10">
           <Link
             href="/servizi/finanziamenti"
@@ -248,7 +289,7 @@ export default async function GrantPage({
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
 
@@ -258,7 +299,7 @@ function Meta({
   label,
   value,
 }: {
-  icon?: ReactNode;
+  icon?: React.ReactNode;
   label: string;
   value: string;
 }) {
@@ -269,7 +310,7 @@ function Meta({
         <div className="text-[11px] uppercase tracking-widest text-slate-500">
           {label}
         </div>
-        <div className="text-slate-800">{value}</div>
+        <div className="text-slate-800 text-sm">{value}</div>
       </div>
     </div>
   );

@@ -73,8 +73,8 @@ export default function ChiSiamoPage() {
         </section>
 
         {/* ================= TEAM ================= */}
-        <section className="mb-28">
-          <h2 className="text-center text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 mb-10">
+        <section className="mb-7">
+          <h2 className="text-center text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 mb-7">
             Un team in crescita
           </h2>
 
@@ -197,12 +197,12 @@ type TeamMember = {
 
 const TEAM: TeamMember[] = [
   {
-    name: "Mario Rossi",
-    role: "CEO / Ingegnere Ambientale",
-    image: "/team/person-1.jpg",
-    phone: "+39 333 0000000",
-    email: "mario.rossi@polinex.it",
-    linkedin: "https://www.linkedin.com/in/mario-rossi",
+    name: "Andrea Granara",
+    role: "CEO / Ingegnere Civile",
+    image: "/team/andrea_granara.jpg",
+    phone: "+39 342 3396219",
+    email: "andrea.granara@polinex.it",
+    linkedin: "https://www.linkedin.com/in/andrea-granara",
   },
   {
     name: "Giulia Verdi",

@@ -29,14 +29,14 @@ export type Grant = {
   ente: string;
   beneficiari: string;
   contributo: string;
-  scadenza?: string; // es. "2026-03-03"
+  scadenza?: string;      // es. "2026-03-03"
   territorio?: string;
-  teaser?: string; // descrizione breve per la card
-  description?: string; // descrizione estesa per la pagina dettaglio
-  pdfHref?: string; // link al PDF in /public/finanziamenti/
-  youtubeId?: string; // ID del video YouTube
-  officialUrl?: string; // link al sito ufficiale
-  aree?: Area[]; // settori di riferimento (Acqua, Ambiente, …)
+  teaser?: string;        // descrizione breve per la card
+  description?: string;   // descrizione estesa per la pagina dettaglio
+  pdfHref?: string;       // link al PDF in /public/finanziamenti/
+  youtubeId?: string;     // ID del video YouTube
+  officialUrl?: string;   // link al sito ufficiale
+  aree?: Area[];          // settori di riferimento (Acqua, Ambiente, …)
 };
 
 export const GRANTS: Grant[] = [
@@ -96,7 +96,13 @@ export const GRANTS: Grant[] = [
 ];
 
 // helper per pagina [slug]
-export const getGrantBySlug = (slug: string) =>
-  GRANTS.find((g) => g.slug === slug);
+export const getGrantBySlug = (slug: string) => {
+  if (!slug) return undefined;
+
+  // normalizzo un minimo lo slug prima del match
+  const normalized = decodeURIComponent(slug).trim();
+
+  return GRANTS.find((g) => g.slug === normalized);
+};
 
 export const getAllGrants = () => GRANTS;
