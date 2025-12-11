@@ -16,86 +16,11 @@ import {
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
-/* ==================== TIPI & DATI ==================== */
-
-type Sector =
-  | "Azienda di consulenza"
-  | "Azienda produttiva"
-  | "Azienda agricola";
-
-type Gestionale = {
-  slug: string;
-  name: string;
-  sector: Sector;
-  short: string;
-  description: string;
-  monthlyPrice: number;
-  oneOffPrice: number;
-  usersIncluded: number;
-  tag?: string;
-  features: string[];
-};
-
-const GESTIONALI: Gestionale[] = [
-  {
-    slug: "gestionale-azienda-consulenza",
-    name: "Polinex Studio",
-    sector: "Azienda di consulenza",
-    short:
-      "Per studi tecnici, consulenti HSE, ingegneri e società di servizi.",
-    description:
-      "Gestione commesse, pratiche autorizzative, scadenze e documentazione tecnica in un unico ambiente, pensato per studi di ingegneria e consulenza ambientale.",
-    monthlyPrice: 79,
-    oneOffPrice: 2200,
-    usersIncluded: 5,
-    tag: "Per studi tecnici",
-    features: [
-      "Gestione commesse e stati di avanzamento",
-      "Anagrafiche clienti, siti e impianti",
-      "Scadenziario autorizzazioni e adempimenti",
-      "Gestione documentale con versioning",
-      "Reportistica export Excel/PDF",
-    ],
-  },
-  {
-    slug: "gestionale-azienda-produttiva",
-    name: "Polinex Industry",
-    sector: "Azienda produttiva",
-    short: "Per aziende manifatturiere e impianti produttivi con esigenze HSE.",
-    description:
-      "Un gestionale pensato per imprese produttive che devono integrare ambiente, rifiuti, energia e sicurezza in un unico cruscotto operativo.",
-    monthlyPrice: 129,
-    oneOffPrice: 3400,
-    usersIncluded: 10,
-    tag: "Plant & HSE",
-    features: [
-      "Registro rifiuti, emissioni e scarichi",
-      "Monitoraggi ambientali e KPI energetici",
-      "Gestione DPI, formazione e visite mediche",
-      "Gestione manutenzioni e check-list impianti",
-      "Dashboard per direzione e HSE manager",
-    ],
-  },
-  {
-    slug: "gestionale-azienda-agricola",
-    name: "Polinex Agro",
-    sector: "Azienda agricola",
-    short: "Per aziende agricole e zootecniche orientate a bandi e conformità.",
-    description:
-      "Gestione piani nitrati, reflui, appezzamenti, pratiche PSR/PNRR e scadenze documentali in un ambiente unico, condivisibile con consulenti e tecnici.",
-    monthlyPrice: 59,
-    oneOffPrice: 1800,
-    usersIncluded: 3,
-    tag: "Zootecnia & PSR",
-    features: [
-      "Gestione appezzamenti, colture e capi",
-      "Piani nitrati e distribuzione reflui",
-      "Archivio documenti PSR/PNRR",
-      "Scadenze controlli e adempimenti",
-      "Accesso condiviso con consulenti",
-    ],
-  },
-];
+import {
+  GESTIONALI,
+  type Gestionale,
+  type Sector,
+} from "./_data";
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("it-IT", {
@@ -162,7 +87,7 @@ export default function GestionaliPage() {
             ))}
           </div>
 
-          {/* CTA FINALE IN STILE ALTRE PAGINE (portfolio / trasparenza) */}
+          {/* CTA FINALE IN STILE ALTRE PAGINE */}
           <section className="mt-12">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
               <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
@@ -297,7 +222,6 @@ function GestionaleCard({
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          {/* Link dettaglio prodotto (slug lo implementerai dopo) */}
           <Link
             href={`/gestionali/${gestionale.slug}`}
             className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 hover:text-emerald-700"
@@ -310,7 +234,7 @@ function GestionaleCard({
             type="button"
             onClick={onAddToCart}
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            aria-label={`Aggiungi al carrello: ${gestionale.name}`}
+            aria-label={`Richiedi attivazione: ${gestionale.name}`}
           >
             <CreditCard className="h-4 w-4" />
             <span>Richiedi attivazione</span>

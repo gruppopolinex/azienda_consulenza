@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
-  Server,
   ArrowLeft,
   Building2,
   Factory,
@@ -22,99 +21,16 @@ import {
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
-/* ==================== TIPI & DATI LOCALI ==================== */
+import {
+  GESTIONALI,
+  BASE_FAQ,
+  type Gestionale,
+  type Sector,
+  type Billing,
+  type FAQItem,
+} from "../_data";
 
-type Sector =
-  | "Azienda di consulenza"
-  | "Azienda produttiva"
-  | "Azienda agricola";
-
-type Billing = "mensile" | "una_tantum";
-
-type Gestionale = {
-  slug: string;
-  name: string;
-  sector: Sector;
-  short: string;
-  description: string;
-  monthlyPrice: number;
-  oneOffPrice: number;
-  usersIncluded: number;
-  tag?: string;
-  features: string[];
-  videoUrl?: string; // URL embed YouTube
-};
-
-type FAQItem = {
-  question: string;
-  answer: string;
-};
-
-const GESTIONALI: Gestionale[] = [
-  {
-    slug: "gestionale-azienda-consulenza",
-    name: "Polinex Studio",
-    sector: "Azienda di consulenza",
-    short:
-      "Per studi tecnici, consulenti HSE, ingegneri e società di servizi.",
-    description:
-      "Gestione commesse, pratiche autorizzative, scadenze e documentazione tecnica in un unico ambiente, pensato per studi di ingegneria e consulenza ambientale.",
-    monthlyPrice: 79,
-    oneOffPrice: 2200,
-    usersIncluded: 5,
-    tag: "Per studi tecnici",
-    features: [
-      "Gestione commesse e stati di avanzamento",
-      "Anagrafiche clienti, siti e impianti",
-      "Scadenziario autorizzazioni e adempimenti",
-      "Gestione documentale con versioning",
-      "Reportistica export Excel/PDF",
-    ],
-    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_STUDIO",
-  },
-  {
-    slug: "gestionale-azienda-produttiva",
-    name: "Polinex Industry",
-    sector: "Azienda produttiva",
-    short:
-      "Per aziende manifatturiere e impianti produttivi con esigenze HSE.",
-    description:
-      "Un gestionale pensato per imprese produttive che devono integrare ambiente, rifiuti, energia e sicurezza in un unico cruscotto operativo.",
-    monthlyPrice: 129,
-    oneOffPrice: 3400,
-    usersIncluded: 10,
-    tag: "Plant & HSE",
-    features: [
-      "Registro rifiuti, emissioni e scarichi",
-      "Monitoraggi ambientali e KPI energetici",
-      "Gestione DPI, formazione e visite mediche",
-      "Gestione manutenzioni e check-list impianti",
-      "Dashboard per direzione e HSE manager",
-    ],
-    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_INDUSTRY",
-  },
-  {
-    slug: "gestionale-azienda-agricola",
-    name: "Polinex Agro",
-    sector: "Azienda agricola",
-    short:
-      "Per aziende agricole e zootecniche orientate a bandi e conformità.",
-    description:
-      "Gestione piani nitrati, reflui, appezzamenti, pratiche PSR/PNRR e scadenze documentali in un ambiente unico, condivisibile con consulenti e tecnici.",
-    monthlyPrice: 59,
-    oneOffPrice: 1800,
-    usersIncluded: 3,
-    tag: "Zootecnia & PSR",
-    features: [
-      "Gestione appezzamenti, colture e capi",
-      "Piani nitrati e distribuzione reflui",
-      "Archivio documenti PSR/PNRR",
-      "Scadenze controlli e adempimenti",
-      "Accesso condiviso con consulenti",
-    ],
-    videoUrl: "https://www.youtube.com/embed/VIDEO_ID_AGRO",
-  },
-];
+/* ==================== UTILITY ==================== */
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("it-IT", {
@@ -122,32 +38,6 @@ const formatPrice = (price: number) =>
     currency: "EUR",
     minimumFractionDigits: 0,
   }).format(price);
-
-/* FAQ generiche */
-
-const BASE_FAQ: FAQItem[] = [
-  {
-    question: "Quanto tempo serve per andare in produzione?",
-    answer:
-      "Per la maggior parte dei casi, con un set minimo di dati e utenze, si riesce ad andare in produzione in 2–4 settimane. Per progetti più articolati definiamo un piano di rilascio per step.",
-  },
-  {
-    question:
-      "Cosa cambia tra abbonamento mensile e acquisto tutto subito?",
-    answer:
-      "Con l’abbonamento mensile hai un investimento iniziale ridotto e un canone ricorrente che include aggiornamenti e supporto secondo contratto. Con l’acquisto tutto subito capitalizzi il gestionale come investimento, mantenendo eventualmente un canone di manutenzione minimo.",
-  },
-  {
-    question: "Possiamo integrare il gestionale con altri software?",
-    answer:
-      "Sì. Possiamo interfacciare il gestionale con ERP, CRM, software di manutenzione o sistemi di monitoraggio già presenti, tramite API o scambio dati strutturato. Le integrazioni vengono valutate caso per caso.",
-  },
-  {
-    question: "Come funziona la formazione agli utenti?",
-    answer:
-      "Prevediamo una formazione operativa direttamente sui vostri casi reali: sessioni online o in presenza per gli utenti chiave e, se necessario, materiali video/guide per l’onboarding del resto del personale.",
-  },
-];
 
 /* ==================== ICONA PER SETTORE ==================== */
 
@@ -168,7 +58,9 @@ export default function GestionaleDetailPage() {
   const router = useRouter();
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const gestionale = GESTIONALI.find((g) => g.slug === slugParam);
+  const gestionale: Gestionale | undefined = GESTIONALI.find(
+    (g) => g.slug === slugParam
+  );
 
   const [billing, setBilling] = useState<Billing>("mensile");
 
@@ -211,18 +103,18 @@ export default function GestionaleDetailPage() {
       : formatPrice(gestionale.oneOffPrice);
   const billingLabel = billing === "mensile" ? "/mese" : " una tantum";
 
-  const handleAddToCart = () => {
-    console.log("Aggiungi gestionale al carrello:", gestionale.slug, billing);
-  };
-
   const faqs: FAQItem[] = BASE_FAQ.map((f) => ({ ...f }));
+
+  const appUrl = `https://${gestionale.appDomain}${
+    gestionale.appAuthPath ?? ""
+  }`;
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <Nav />
 
       <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
-        {/* Back link in alto, come nelle altre pagine di dettaglio */}
+        {/* Back link in alto */}
         <button
           type="button"
           onClick={() => router.push("/gestionali")}
@@ -232,7 +124,7 @@ export default function GestionaleDetailPage() {
           <span>Torna alla pagina Gestionali</span>
         </button>
 
-        {/* HERO con logo + titolo centrato, in linea con le altre pagine */}
+        {/* HERO con logo + titolo */}
         <section className="mt-4 text-center max-w-3xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-32 h-12 sm:w-44 sm:h-16">
@@ -269,13 +161,13 @@ export default function GestionaleDetailPage() {
           </p>
         </section>
 
-        {/* CONTENUTO PRINCIPALE: video + moduli + FAQ + box attivazione */}
+        {/* CONTENUTO PRINCIPALE: top simmetrico + blocchi full width */}
         <section className="mt-10 sm:mt-12 pb-16">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            {/* COLONNA SINISTRA: video + funzionalità + FAQ */}
-            <div className="space-y-6">
+          <div className="space-y-6">
+            {/* TOP: VIDEO + BOX ABBONAMENTO (STESSA ALTEZZA) */}
+            <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
               {/* Video YouTube */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col h-full">
                 <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
                   {gestionale.videoUrl ? (
                     <iframe
@@ -301,29 +193,111 @@ export default function GestionaleDetailPage() {
                 </div>
               </div>
 
-              {/* Moduli / Funzionalità */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-                <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <Info className="h-4 w-4 text-slate-500" />
-                  Moduli e funzionalità principali
-                </h2>
-                <ul className="mt-3 space-y-2 text-xs text-slate-700">
-                  {gestionale.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-3 text-[11px] text-slate-500">
-                  Ulteriori moduli (integrazioni, flussi approvativi avanzati,
-                  report personalizzati) possono essere aggiunti in fase di
-                  progetto.
+              {/* Box abbonamento / accesso – altezza allineata al video */}
+              <aside className="rounded-2xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-sm flex flex-col h-full">
+                <p className="text-sm font-medium text-emerald-900 flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 text-emerald-600" />
+                  Modalità di utilizzo
                 </p>
-              </div>
+                <p className="mt-1 text-xs text-slate-600">
+                  Puoi utilizzare il gestionale in{" "}
+                  <strong>abbonamento mensile</strong> oppure{" "}
+                  <strong>licenza una tantum</strong>. L&apos;attivazione e la
+                  gestione degli account avviene su un{" "}
+                  <strong>dominio dedicato</strong> al gestionale.
+                </p>
 
-              {/* Cosa risolve / Avvio progetto */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 grid gap-5 sm:grid-cols-2">
+                {/* Toggle mensile / una tantum (marketing) */}
+                <div className="mt-4 inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-medium w-full">
+                  <button
+                    type="button"
+                    onClick={() => setBilling("mensile")}
+                    className={[
+                      "flex-1 rounded-full px-3 py-1.5 transition",
+                      billing === "mensile"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "text-slate-700",
+                    ].join(" ")}
+                  >
+                    Mensile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBilling("una_tantum")}
+                    className={[
+                      "flex-1 rounded-full px-3 py-1.5 transition",
+                      billing === "una_tantum"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "text-slate-700",
+                    ].join(" ")}
+                  >
+                    Tutto subito
+                  </button>
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-[11px] text-slate-500">
+                    Indicazione di budget a partire da:
+                  </p>
+                  <p className="text-2xl font-semibold text-slate-900">
+                    {price}
+                    <span className="ml-1 text-xs font-normal text-slate-500">
+                      {billingLabel}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    {gestionale.usersIncluded} utenti inclusi nel piano base.
+                    Ulteriori utenti, moduli o integrazioni vengono quotati a
+                    parte in fase di progetto.
+                  </p>
+                </div>
+
+                {/* CTA: Accedi o registrati al gestionale sul dominio dedicato */}
+                <a
+                  href={appUrl}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Accedi o registrati al gestionale
+                </a>
+
+                <p className="mt-3 text-[11px] text-slate-500">
+                  Verrai reindirizzato su{" "}
+                  <span className="font-semibold">
+                    {gestionale.appDomain}
+                  </span>
+                  , il dominio dedicato al gestionale, per completare l&apos;
+                  accesso o creare un nuovo account.
+                </p>
+              </aside>
+            </div>
+
+            {/* SOTTO: BLOCCHI FULL WIDTH (stessa larghezza video + abbonamento) */}
+
+            {/* Moduli / Funzionalità */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <Info className="h-4 w-4 text-slate-500" />
+                Moduli e funzionalità principali
+              </h2>
+              <ul className="mt-3 space-y-2 text-xs text-slate-700">
+                {gestionale.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-[11px] text-slate-500">
+                Ulteriori moduli (integrazioni, flussi approvativi avanzati,
+                report personalizzati) possono essere aggiunti in fase di
+                progetto, partendo dai vostri processi reali.
+              </p>
+            </div>
+
+            {/* Cosa risolve / Avvio progetto */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900">
                     Cosa risolve in pratica
@@ -383,136 +357,70 @@ export default function GestionaleDetailPage() {
                   </ul>
                 </div>
               </div>
-
-              {/* FAQ */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-slate-500" />
-                  Domande frequenti
-                </h3>
-                <div className="mt-3 space-y-3 text-xs text-slate-700">
-                  {faqs.map((faq) => (
-                    <div
-                      key={faq.question}
-                      className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
-                    >
-                      <p className="font-semibold text-slate-900">
-                        {faq.question}
-                      </p>
-                      <p className="mt-1 text-slate-700">{faq.answer}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
-            {/* COLONNA DESTRA: box attivazione + CTA su misura */}
-            <aside className="space-y-4 lg:space-y-6">
-              {/* Box attivazione con toggle mensile / una tantum */}
-              <div className="rounded-2xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-sm">
-                <p className="text-sm font-medium text-emerald-900 flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 text-emerald-600" />
-                  Modalità di attivazione
-                </p>
-                <p className="mt-1 text-xs text-slate-600">
-                  Puoi attivare il gestionale in{" "}
-                  <strong>abbonamento mensile</strong> oppure{" "}
-                  <strong>acquisto una tantum</strong>. Se hai dubbi sul modello
-                  più adatto, possiamo valutarlo insieme.
-                </p>
-
-                <div className="mt-4 inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-medium w-full">
-                  <button
-                    type="button"
-                    onClick={() => setBilling("mensile")}
-                    className={[
-                      "flex-1 rounded-full px-3 py-1.5 transition",
-                      billing === "mensile"
-                        ? "bg-emerald-600 text-white shadow-sm"
-                        : "text-slate-700",
-                    ].join(" ")}
+            {/* FAQ */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-slate-500" />
+                Domande frequenti
+              </h3>
+              <div className="mt-3 space-y-3 text-xs text-slate-700">
+                {faqs.map((faq) => (
+                  <div
+                    key={faq.question}
+                    className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
                   >
-                    Mensile
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBilling("una_tantum")}
-                    className={[
-                      "flex-1 rounded-full px-3 py-1.5 transition",
-                      billing === "una_tantum"
-                        ? "bg-emerald-600 text-white shadow-sm"
-                        : "text-slate-700",
-                    ].join(" ")}
-                  >
-                    Tutto subito
-                  </button>
-                </div>
-
-                <div className="mt-4">
-                  <p className="text-[11px] text-slate-500">
-                    Quota a partire da:
-                  </p>
-                  <p className="text-2xl font-semibold text-slate-900">
-                    {price}
-                    <span className="ml-1 text-xs font-normal text-slate-500">
-                      {billingLabel}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    {gestionale.usersIncluded} utenti inclusi nel piano base.
-                    Ulteriori utenti, moduli o integrazioni vengono quotati a
-                    parte.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  {billing === "mensile"
-                    ? "Attiva in abbonamento"
-                    : "Acquista licenza"}
-                </button>
-
-                <p className="mt-3 text-[11px] text-slate-500">
-                  Nel carrello potrai completare i dettagli: metodo di
-                  pagamento, dati di fatturazione, eventuali note per il
-                  progetto.
-                </p>
+                    <p className="font-semibold text-slate-900">
+                      {faq.question}
+                    </p>
+                    <p className="mt-1 text-slate-700">{faq.answer}</p>
+                  </div>
+                ))}
               </div>
+            </div>
+          </div>
+        </section>
 
-              {/* CTA gestionale su misura */}
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs text-emerald-900 space-y-2">
-                <p className="font-semibold text-[13px]">
-                  Vuoi un gestionale su misura?
-                </p>
-                <p>
-                  Possiamo usare questo gestionale come base per un{" "}
-                  <strong>progetto custom</strong>: campi dedicati, report
-                  su misura, integrazioni con ERP, CRM o software esistenti.
-                </p>
-                <p>
-                  Scrivici dalla pagina{" "}
-                  <Link
-                    href="/contatti"
-                    className="underline underline-offset-2 font-semibold"
-                  >
-                    Contatti
-                  </Link>{" "}
-                  indicando numero di utenti, sedi, processi coinvolti e
-                  tempistiche desiderate.
-                </p>
-              </div>
-            </aside>
+        {/* CTA FINALE – STILE IDENTICO A /gestionali */}
+        <section className="mt-12 sm:mt-16 pb-12">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+              Vuoi un gestionale su misura?
+            </h2>
+
+            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+              Possiamo usare <strong>{gestionale.name}</strong> come base per un{" "}
+              <strong>gestionale personalizzato</strong> integrato con i tuoi
+              processi: ambiente, energia, sicurezza, agricoltura, finanza
+              agevolata o workflow interni aziendali. Costruiamo insieme un{" "}
+              <strong>percorso di progetto realistico</strong> con rilasci per
+              step.
+            </p>
+
+            <div className="mt-6 flex justify-center">
+              <Link
+                href={`/contatti?prodotto=${encodeURIComponent(
+                  gestionale.name
+                )}&tipo=su-misura`}
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
+              >
+                Parla con il team
+              </Link>
+            </div>
+
+            <p className="mt-3 text-[11px] text-slate-500 max-w-xl mx-auto">
+              Ideale per realtà multi-sito, gruppi, enti o aziende con processi
+              complessi che vogliono unire dati e documentazione in un unico
+              ecosistema.
+            </p>
           </div>
         </section>
       </main>
 
       <Footer />
 
-      {/* Stili globali per titoli, coerenti con le altre pagine */}
+      {/* Stili globali per titoli */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);

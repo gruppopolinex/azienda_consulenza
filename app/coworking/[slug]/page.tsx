@@ -16,10 +16,12 @@ import {
   Calendar,
   Clock,
   Laptop,
-  PhoneCall,
   Phone,
   Mail,
   ExternalLink,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import Nav from "../../components/Nav";
@@ -30,7 +32,16 @@ import {
   LOCATIONS,
   type Location,
   type SpaceType,
+  type LocationSpace,
 } from "../_data";
+
+/* ==================== UTILITY ==================== */
+
+function formatItalianDate(isoDate: string) {
+  // isoDate atteso in formato "YYYY-MM-DD"
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
 
 /* ==================== PAGINA DETTAGLIO COWORKING ==================== */
 
@@ -48,6 +59,16 @@ export default function CoworkingDetailPage() {
   const [selectedSpaceType, setSelectedSpaceType] =
     useState<SpaceType | "">("");
 
+  // Stato prenotazione (stile Booking)
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTimeSlotId, setSelectedTimeSlotId] = useState<string>("");
+
+  // Stato per il carosello foto in sovraimpressione
+  const [activeGallery, setActiveGallery] = useState<{
+    space: LocationSpace;
+    index: number;
+  } | null>(null);
+
   const handlePrefillSpace = (type: SpaceType) => {
     setSelectedSpaceType(type);
     // scroll morbido al form
@@ -55,6 +76,45 @@ export default function CoworkingDetailPage() {
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  };
+
+  const handleOpenGallery = (locationSpace: LocationSpace) => {
+    if (!locationSpace.images || locationSpace.images.length === 0) return;
+    setActiveGallery({ space: locationSpace, index: 0 });
+  };
+
+  const handleCloseGallery = () => {
+    setActiveGallery(null);
+  };
+
+  const handlePrevImage = () => {
+    if (!activeGallery) return;
+    setActiveGallery((prev) =>
+      prev
+        ? {
+            ...prev,
+            index:
+              prev.index === 0
+                ? prev.space.images.length - 1
+                : prev.index - 1,
+          }
+        : prev
+    );
+  };
+
+  const handleNextImage = () => {
+    if (!activeGallery) return;
+    setActiveGallery((prev) =>
+      prev
+        ? {
+            ...prev,
+            index:
+              prev.index === prev.space.images.length - 1
+                ? 0
+                : prev.index + 1,
+          }
+        : prev
+    );
   };
 
   // Fallback se la sede non esiste
@@ -180,9 +240,9 @@ export default function CoworkingDetailPage() {
 
         {/* BLOCCO PRINCIPALE: colonna media + colonna form */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-stretch">
             {/* COLONNA SINISTRA: media + panoramica + spazi disponibili */}
-            <div className="space-y-6">
+            <div className="flex flex-col gap-6 lg:h-full">
               {/* Media: video YT se presente, altrimenti immagine grande */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                 <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
@@ -246,17 +306,18 @@ export default function CoworkingDetailPage() {
                 )}
               </div>
 
-              {/* Spazi prenotabili (schede) */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+              {/* Spazi prenotabili (schede) - altezza allineata col box prenotazioni */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col lg:self-stretch">
                 <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                   <Users className="h-4 w-4 text-slate-500" />
                   Tipologie di spazi disponibili
                 </h3>
-                <div className="mt-3 space-y-3">
+
+                <div className="mt-3 space-y-3 flex-1">
                   {space.spaces.map((s) => (
                     <div
                       key={s.label}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5"
                     >
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
@@ -275,13 +336,22 @@ export default function CoworkingDetailPage() {
                           {s.capacity}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePrefillSpace(s.type)}
-                        className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800"
-                      >
-                        Usa per la richiesta
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenGallery(s)}
+                          className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 underline underline-offset-2"
+                        >
+                          Guarda foto
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePrefillSpace(s.type)}
+                          className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800"
+                        >
+                          Usa per la richiesta
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -293,7 +363,7 @@ export default function CoworkingDetailPage() {
                   </span>
                   <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5">
                     <Coffee className="h-3 w-3 mr-1" />
-                    Coffee corner & area relax
+                    Coffee corner &amp; area relax
                   </span>
                   <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5">
                     <Monitor className="h-3 w-3 mr-1" />
@@ -306,14 +376,14 @@ export default function CoworkingDetailPage() {
             {/* COLONNA DESTRA: form di prenotazione dedicato alla sede */}
             <aside
               id="booking-form"
-              className="lg:sticky lg:top-24 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
+              className="lg:sticky lg:top-24 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm lg:self-stretch"
             >
               <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
                 Invia una richiesta per questa sede
               </h2>
               <p className="mt-2 text-sm text-slate-600">
                 Compila il form con{" "}
-                <strong>data, orari e tipologia di spazio</strong>. Ti
+                <strong>data, fascia oraria e tipologia di spazio</strong>. Ti
                 ricontattiamo entro 1 giorno lavorativo con conferma e
                 disponibilità.
               </p>
@@ -357,33 +427,69 @@ export default function CoworkingDetailPage() {
                   </div>
                 </div>
 
-                {/* Date + fascia oraria */}
+                {/* Date + fascia oraria (stile Booking: opzioni non disponibili sfumate) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-slate-700">
-                      Data (arrivo) *
+                      Data *
                     </label>
-                    <div className="relative mt-1">
-                      <input type="date" className="input pr-9" required />
-                      <Calendar className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
-                    </div>
+                    <select
+                      className="input mt-1"
+                      required
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        Seleziona una data
+                      </option>
+                      {space.booking.days.map((d) => (
+                        <option
+                          key={d.date}
+                          value={d.date}
+                          disabled={!d.available}
+                        >
+                          {formatItalianDate(d.date)}
+                          {!d.available ? " – non disponibile" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Le date non disponibili sono disabilitate (in stile
+                      Booking, pronte per collegamento a un calendario reale).
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700">
-                      Fascia oraria
+                      Fascia oraria *
                     </label>
-                    <div className="relative mt-1">
-                      <input
-                        type="text"
-                        className="input pr-9"
-                        placeholder="Es. 9:00–13:00"
-                      />
-                      <Clock className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
-                    </div>
+                    <select
+                      className="input mt-1"
+                      required
+                      value={selectedTimeSlotId}
+                      onChange={(e) => setSelectedTimeSlotId(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        Seleziona una fascia oraria
+                      </option>
+                      {space.booking.timeSlots.map((slot) => (
+                        <option
+                          key={slot.id}
+                          value={slot.id}
+                          disabled={!slot.available}
+                        >
+                          {slot.label}
+                          {!slot.available ? " – non disponibile" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Le fasce orarie non disponibili sono sfumate e non
+                      selezionabili.
+                    </p>
                   </div>
                 </div>
 
-                {/* Persone + durata */}
+                {/* Persone */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-slate-700">
@@ -396,19 +502,6 @@ export default function CoworkingDetailPage() {
                       required
                       placeholder="Es. 4"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Durata
-                    </label>
-                    <select
-                      className="input mt-1"
-                      defaultValue="Mezza giornata"
-                    >
-                      <option>Mezza giornata</option>
-                      <option>Giornata intera</option>
-                      <option>Più giorni / periodo</option>
-                    </select>
                   </div>
                 </div>
 
@@ -493,28 +586,103 @@ export default function CoworkingDetailPage() {
                   proposta di dettaglio (spazi, orari, condizioni economiche).
                 </p>
               </form>
-
-              <div className="mt-4 pt-4 border-t border-slate-200 text-[11px] text-slate-500 flex items-start gap-2">
-                <PhoneCall className="mt-0.5 h-3.5 w-3.5" />
-                <p>
-                  Se preferisci, puoi anche contattarci direttamente dalla
-                  pagina{" "}
-                  <Link
-                    href="/contatti"
-                    className="underline underline-offset-2"
-                  >
-                    Contatti
-                  </Link>{" "}
-                  indicando <strong>sede {space.city}</strong>, data e
-                  tipologia di spazio.
-                </p>
-              </div>
             </aside>
+          </div>
+        </section>
+
+        {/* CTA FINALE – STILE IDENTICO A /gestionali */}
+        <section className="mt-12 sm:mt-16 pb-12">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center max-w-6xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+              Vuoi avere maggiori informazioni su questa sede?
+            </h2>
+
+            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+              Possiamo aiutarti a capire quale{" "}
+              <strong>tipologia di spazio</strong> è più adatta al tuo team,
+              come organizzare le{" "}
+              <strong>giornate di lavoro, le riunioni o gli eventi</strong> e
+              quali servizi aggiuntivi possiamo mettere a disposizione nella
+              sede di <strong>{space.city}</strong>.
+            </p>
+
+            <div className="mt-6 flex justify-center">
+              <Link
+                href={`/contatti?city=${encodeURIComponent(space.city)}`}
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
+              >
+                Contattaci per la sede di {space.city}
+              </Link>
+            </div>
+
+            <p className="mt-3 text-[11px] text-slate-500 max-w-xl mx-auto">
+              Indica la sede, una finestra temporale indicativa e il tipo di
+              utilizzo (coworking, ufficio privato, sala riunioni, evento):
+              ti rispondiamo con una proposta di dettaglio e le opzioni
+              disponibili.
+            </p>
           </div>
         </section>
       </main>
 
       <Footer />
+
+      {/* Carosello in sovraimpressione per le foto degli spazi */}
+      {activeGallery && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center px-4">
+          <div className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-slate-900 truncate">
+                  {activeGallery.space.label}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Foto {activeGallery.index + 1} /{" "}
+                  {activeGallery.space.images.length}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseGallery}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200"
+              >
+                <X className="h-4 w-4 text-slate-700" />
+              </button>
+            </div>
+
+            {/* Immagine */}
+            <div className="relative w-full aspect-[16/9] bg-black">
+              <Image
+                src={activeGallery.space.images[activeGallery.index]}
+                alt={activeGallery.space.label}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 768px, 100vw"
+              />
+              {/* Controlli carosello */}
+              {activeGallery.space.images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePrevImage}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+                  >
+                    <ChevronLeft className="h-5 w-5 text-white" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextImage}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+                  >
+                    <ChevronRight className="h-5 w-5 text-white" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stili globali coerenti con le altre pagine */}
       <style jsx global>{`
