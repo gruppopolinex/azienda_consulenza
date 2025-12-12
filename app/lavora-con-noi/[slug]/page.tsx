@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Check,
   Send,
+  ChevronRight,
 } from "lucide-react";
 
 import Nav from "../../components/Nav";
@@ -229,12 +230,7 @@ export default function JobDetailPage() {
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field
-                      label="Email *"
-                      name="email"
-                      type="email"
-                      required
-                    />
+                    <Field label="Email *" name="email" type="email" required />
                     <Field
                       label="Telefono"
                       name="telefono"
@@ -307,24 +303,25 @@ export default function JobDetailPage() {
           </aside>
         </section>
 
-        {/* CTA centrale sotto: candidature spontanee */}
-        <section className="mt-10 border-t border-slate-100 pt-8">
-          <div className="max-w-xl mx-auto text-center text-xs sm:text-sm text-slate-600">
-            <p className="font-semibold text-slate-900 text-sm sm:text-base">
+        {/* CTA finale (stile come pagina "Chi siamo") */}
+        <section className="mx-auto max-w-7xl pb-20 mt-10">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
               Non è la posizione perfetta?
+            </h3>
+            <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+              Accettiamo anche candidature spontanee: raccontaci area di
+              interesse, esperienze rilevanti e disponibilità. Valuteremo il tuo
+              profilo anche al di fuori delle ricerche attive.
             </p>
-            <p className="mt-2">
-              Accettiamo anche{" "}
-              <Link
-                href="/lavora-con-noi"
-                className="font-semibold text-emerald-700 underline underline-offset-2"
-              >
-                candidature spontanee
-              </Link>
-              . Raccontaci area di interesse, esperienze rilevanti e
-              disponibilità: valuteremo il tuo profilo anche al di fuori delle
-              ricerche attive.
-            </p>
+
+            <Link
+              href="/lavora-con-noi"
+              className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
+            >
+              Invia una candidatura spontanea
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Link>
           </div>
         </section>
       </main>
@@ -404,9 +401,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-slate-700">{label}</label>
       <input
         name={name}
         type={type}

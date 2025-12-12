@@ -11,6 +11,7 @@ import {
   MapPin,
   Send,
   Filter,
+  ChevronRight,
 } from "lucide-react";
 
 import Nav from "../components/Nav";
@@ -82,9 +83,7 @@ export default function LavoraConNoiPage() {
   const cities = useMemo(() => {
     const set = new Set<string>();
     JOBS.forEach((job) => {
-      if (job.location) {
-        set.add(getCityFromLocation(job.location));
-      }
+      if (job.location) set.add(getCityFromLocation(job.location));
     });
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, []);
@@ -144,9 +143,9 @@ export default function LavoraConNoiPage() {
             Cerchiamo persone curiose, precise e abituate a lavorare a contatto
             con <strong>imprese</strong>, <strong>PA</strong> e{" "}
             <strong>territorio</strong>. Se ti occupi di progettazione,
-            permitting o gestione di cantieri, raccontaci chi sei: puoi
-            inviare una <strong>candidatura spontanea</strong> e, se lo
-            desideri, approfondire le posizioni aperte.
+            permitting o gestione di cantieri, raccontaci chi sei: puoi inviare
+            una <strong>candidatura spontanea</strong> e, se lo desideri,
+            approfondire le posizioni aperte.
           </p>
         </section>
 
@@ -173,10 +172,12 @@ export default function LavoraConNoiPage() {
 
         {/* Posizioni aperte + candidatura spontanea */}
         <section className="mt-12 sm:mt-14 pb-16 sm:pb-20">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] lg:items-start">
-            {/* Sinistra: posizioni aperte in riquadro scrollabile verticale */}
-            <div className="h-full">
-              <div className="h-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm flex flex-col">
+          {/* ✅ IMPORTANTISSIMO: items-stretch + min-h-0 per permettere lo “shrink” */}
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] lg:items-stretch">
+            {/* Sinistra: posizioni aperte (stessa altezza della card destra) */}
+            <div className="h-full min-h-0">
+              {/* ✅ h-full + min-h-0 + flex-col: non deve “spingere” la riga */}
+              <div className="h-full min-h-0 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm flex flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
@@ -249,12 +250,13 @@ export default function LavoraConNoiPage() {
                   </div>
                 </div>
 
-                {/* Lista posizioni ― carosello verticale scrollabile */}
-                <div className="mt-4 flex-1 overflow-y-auto pr-1 space-y-3">
+                {/* ✅ “Carosello verticale”: scroll SOLO qui.
+                    ✅ min-h-0 è fondamentale per farlo funzionare davvero. */}
+                <div className="mt-4 flex-1 min-h-0 overflow-y-auto pr-1 space-y-3">
                   {filteredJobs.length === 0 && (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-                      Nessuna posizione trovata con i filtri selezionati.
-                      Prova a modificare settore, città o tipo di contratto.
+                      Nessuna posizione trovata con i filtri selezionati. Prova a
+                      modificare settore, città o tipo di contratto.
                     </div>
                   )}
 
@@ -279,8 +281,9 @@ export default function LavoraConNoiPage() {
               </div>
             </div>
 
-            {/* Destra: form candidatura spontanea */}
-            <div className="h-full">
+            {/* Destra: form candidatura spontanea (altezza naturale, tutto dentro, NO scroll interno) */}
+            <div className="h-full min-h-0">
+              {/* ✅ h-full per “agganciare” lo stretch della grid */}
               <div className="h-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm flex flex-col">
                 <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
                   Candidatura spontanea
@@ -288,101 +291,86 @@ export default function LavoraConNoiPage() {
                 <p className="mt-2 text-sm text-slate-600">
                   Compila il form per inviare una{" "}
                   <strong>candidatura spontanea</strong>. Indica l&apos;area
-                  tecnica in cui ti riconosci, le esperienze principali e
-                  allega il tuo <strong>CV in formato PDF</strong>.
+                  tecnica in cui ti riconosci, le esperienze principali e allega
+                  il tuo <strong>CV in formato PDF</strong>.
                 </p>
 
-                <form
-                  className="mt-6 space-y-4 flex-1 flex flex-col"
-                  onSubmit={handleSpontaneousSubmit}
-                >
-                  <div className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Field
-                        label="Nome *"
-                        name="nome"
-                        type="text"
-                        required
-                      />
-                      <Field
-                        label="Cognome *"
-                        name="cognome"
-                        type="text"
-                        required
-                      />
-                    </div>
+                <form className="mt-6 space-y-4" onSubmit={handleSpontaneousSubmit}>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Nome *" name="nome" type="text" required />
+                    <Field
+                      label="Cognome *"
+                      name="cognome"
+                      type="text"
+                      required
+                    />
+                  </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Field
-                        label="Email *"
-                        name="email"
-                        type="email"
-                        required
-                      />
-                      <Field
-                        label="Telefono"
-                        name="telefono"
-                        type="tel"
-                        required={false}
-                      />
-                    </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Email *" name="email" type="email" required />
+                    <Field
+                      label="Telefono"
+                      name="telefono"
+                      type="tel"
+                      required={false}
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700">
-                        Area / ruolo di interesse *
-                      </label>
-                      <input
-                        name="area"
-                        type="text"
-                        required
-                        className="input mt-1"
-                        placeholder="Es. Project engineer acqua, consulente bandi, tecnico sicurezza…"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700">
+                      Area / ruolo di interesse *
+                    </label>
+                    <input
+                      name="area"
+                      type="text"
+                      required
+                      className="input mt-1"
+                      placeholder="Es. Project engineer acqua, consulente bandi, tecnico sicurezza…"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700">
-                        Breve presentazione *
-                      </label>
-                      <textarea
-                        name="presentazione"
-                        rows={5}
-                        required
-                        className="input mt-1"
-                        placeholder="Raccontaci il tuo percorso, le esperienze più rilevanti e cosa ti piacerebbe seguire in Polinex…"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700">
+                      Breve presentazione *
+                    </label>
+                    <textarea
+                      name="presentazione"
+                      rows={5}
+                      required
+                      className="input mt-1"
+                      placeholder="Raccontaci il tuo percorso, le esperienze più rilevanti e cosa ti piacerebbe seguire in Polinex…"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700">
-                        CV (PDF, max 10 MB) *
-                      </label>
-                      <input
-                        name="cv"
-                        type="file"
-                        accept=".pdf"
-                        required
-                        className="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700">
+                      CV (PDF, max 10 MB) *
+                    </label>
+                    <input
+                      name="cv"
+                      type="file"
+                      accept=".pdf"
+                      required
+                      className="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
+                    />
+                  </div>
 
-                    <div className="flex items-start gap-2 pt-2">
-                      <input
-                        id="privacy"
-                        name="privacy"
-                        type="checkbox"
-                        required
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                      />
-                      <label
-                        htmlFor="privacy"
-                        className="text-xs text-slate-600 leading-relaxed"
-                      >
-                        Acconsento al trattamento dei dati ai sensi del
-                        Regolamento (UE) 2016/679 ai fini esclusivi della
-                        valutazione della candidatura.
-                      </label>
-                    </div>
+                  <div className="flex items-start gap-2 pt-2">
+                    <input
+                      id="privacy"
+                      name="privacy"
+                      type="checkbox"
+                      required
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <label
+                      htmlFor="privacy"
+                      className="text-xs text-slate-600 leading-relaxed"
+                    >
+                      Acconsento al trattamento dei dati ai sensi del
+                      Regolamento (UE) 2016/679 ai fini esclusivi della
+                      valutazione della candidatura.
+                    </label>
                   </div>
 
                   <div className="mt-4">
@@ -411,10 +399,30 @@ export default function LavoraConNoiPage() {
             <span>Sede principale: {ADDRESS}</span>
             <span className="hidden sm:inline">•</span>
             <span>
-              Possibili attività in presenza, in smart working e presso clienti /
-              cantieri, in funzione del ruolo.
+              Possibili attività in presenza, in smart working e presso clienti
+              / cantieri, in funzione del ruolo.
             </span>
           </div>
+
+          {/* CTA finale: sedi / coworking (stile come pagina "Chi siamo") */}
+          <section className="mx-auto max-w-7xl pb-20 mt-10">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+              <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
+                Vuoi vedere dove lavoriamo?
+              </h3>
+              <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+                Scopri le nostre sedi e gli spazi in cui lavoriamo ogni giorno,
+                tra ufficio, incontri con i clienti e momenti di collaborazione.
+              </p>
+              <Link
+                href="/coworking"
+                className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
+              >
+                Vedi le nostre sedi
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
         </section>
       </main>
 
@@ -465,15 +473,8 @@ type FieldProps = {
 function Field({ label, name, type, required }: FieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
-        {label}
-      </label>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        className="input mt-1"
-      />
+      <label className="block text-sm font-medium text-slate-700">{label}</label>
+      <input name={name} type={type} required={required} className="input mt-1" />
     </div>
   );
 }
@@ -509,7 +510,14 @@ type JobCardProps = {
   contract?: string;
 };
 
-function JobCard({ slug, title, location, level, focus, contract }: JobCardProps) {
+function JobCard({
+  slug,
+  title,
+  location,
+  level,
+  focus,
+  contract,
+}: JobCardProps) {
   const city = getCityFromLocation(location);
   const contractLabel = contract ? getContractCategory(contract) : undefined;
 

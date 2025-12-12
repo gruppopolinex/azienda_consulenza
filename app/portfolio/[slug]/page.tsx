@@ -59,9 +59,7 @@ function ImageWithExtFallback({
       alt={alt}
       src={src}
       onError={() => {
-        if (i < exts.length - 1) {
-          setI(i + 1);
-        }
+        if (i < exts.length - 1) setI(i + 1);
       }}
     />
   );
@@ -74,7 +72,7 @@ export default function PortfolioDetailPage() {
   const router = useRouter();
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const project = PROJECTS.find((p) => p.slug === slugParam);
+  const project: Project | undefined = PROJECTS.find((p) => p.slug === slugParam);
 
   // Se il progetto non esiste → pagina 404 custom
   if (!project) {
@@ -102,7 +100,7 @@ export default function PortfolioDetailPage() {
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Vai al portfolio
-          </Link>
+            </Link>
           </div>
         </main>
         <Footer />
@@ -118,7 +116,23 @@ export default function PortfolioDetailPage() {
     );
   }
 
-  const galleryBases = useMemo(() => allImageBasesOf(project), [project.slug, project.imagesCount]);
+  const galleryBases = useMemo(
+    () => allImageBasesOf(project),
+    [project.slug, project.imagesCount]
+  );
+
+  // Tutti i dati arrivano da app/portfolio/_data.ts
+  const overview =
+    project.overview ??
+    project.summary ??
+    "Intervento seguito dal team Polinex: analisi iniziale, coordinamento tecnico-amministrativo e gestione delle attività fino alla consegna.";
+
+  const activities = project.activities ?? [];
+
+  const ctaTitle = project.ctaTitle ?? "Vuoi valutare un progetto simile?";
+  const ctaText =
+    project.ctaText ??
+    "Se il tuo contesto è vicino a questo caso studio, possiamo analizzare insieme vincoli, iter autorizzativi e possibili alternative progettuali.";
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -167,98 +181,66 @@ export default function PortfolioDetailPage() {
           )}
         </header>
 
-        {/* CONTENUTO PRINCIPALE: GALLERY + DESCRIZIONE GENERICA */}
-        <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)] lg:items-start">
-          {/* Colonna sinistra: gallery grande */}
-          <div className="space-y-4">
+        {/* CONTENUTO PRINCIPALE: CAROSELLO + RIQUADRO DESCRIZIONE (stessa altezza) */}
+        <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)] lg:items-stretch">
+          {/* Colonna sinistra: carosello (senza thumbnails) */}
+          <div>
             <Gallery images={galleryBases} alt={project.title} />
-
-            {/* Blocco "In breve" solo se summary esiste; altrimenti testo generico */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-              <h2 className="text-sm sm:text-base font-semibold tracking-tight text-slate-900">
-                In breve
-              </h2>
-              <p className="mt-3 text-sm text-slate-700">
-                {project.summary
-                  ? project.summary
-                  : "Progetto seguito dal team Polinex dall’analisi iniziale fino alla gestione operativa, con coordinamento tra committente, enti e soggetti tecnici coinvolti."}
-              </p>
-            </div>
-
-            {/* Blocco "Ambito di intervento" – testo generico legato alla categoria */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-              <h2 className="text-sm sm:text-base font-semibold tracking-tight text-slate-900">
-                Ambito di intervento
-              </h2>
-              <p className="mt-3 text-sm text-slate-700">
-                Il progetto rientra nell’area{" "}
-                <strong>{project.category}</strong> e ha richiesto un lavoro di
-                coordinamento tra aspetti tecnici, normativi e autorizzativi,
-                con attenzione a tempi, vincoli e comunicazione verso tutti gli
-                stakeholder coinvolti.
-              </p>
-            </div>
           </div>
 
-          {/* Colonna destra: info sintetiche + CTA contatto */}
-          <aside className="space-y-4 lg:space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm text-sm text-slate-700">
-              <h3 className="text-sm sm:text-base font-semibold tracking-tight text-slate-900">
-                Dati sintetici
-              </h3>
-              <dl className="mt-3 space-y-2">
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-slate-500">
-                    Area
-                  </dt>
-                  <dd className="font-medium text-slate-900">
-                    {project.category}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-slate-500">
-                    Committente
-                  </dt>
-                  <dd>{project.client}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-slate-500">
-                    Località
-                  </dt>
-                  <dd>{project.location}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-slate-500">
-                    Codice progetto
-                  </dt>
-                  <dd className="font-mono text-xs bg-slate-50 inline-block px-2 py-1 rounded-full border border-slate-200">
-                    {project.slug}
-                  </dd>
-                </div>
-              </dl>
-            </div>
+          {/* Colonna destra: riquadro descrizione alto quanto il carosello */}
+          <aside className="h-full">
+            <div className="h-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm flex flex-col">
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
+                Descrizione intervento
+              </h2>
 
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 sm:p-5 text-sm text-emerald-900 space-y-3">
-              <h3 className="text-sm sm:text-base font-semibold">
-                Vuoi valutare un progetto simile?
-              </h3>
-              <p>
-                Se il tuo contesto è vicino a questo caso studio, possiamo
-                analizzare insieme vincoli, iter autorizzativi e possibili
-                alternative progettuali.
+              <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
+                {overview}
               </p>
-              <Link
-                href="/contatti"
-                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-              >
-                Contatta il team
-              </Link>
-              <p className="text-[11px] text-emerald-900/80">
-                Ti rispondiamo entro un giorno lavorativo con un primo feedback
-                su fattibilità e prossimi step.
-              </p>
+
+              <div className="mt-5">
+                <h3 className="text-sm sm:text-base font-semibold tracking-tight text-slate-900">
+                  Attività svolte
+                </h3>
+
+                {activities.length > 0 ? (
+                  <ol className="mt-3 list-decimal pl-5 space-y-1.5 text-sm text-slate-700">
+                    {activities.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-3 text-sm text-slate-600">
+                    Attività non ancora valorizzate in{" "}
+                    <code className="mx-1 rounded bg-slate-50 px-1.5 py-0.5 border border-slate-200 text-[12px]">
+                      app/portfolio/_data.ts
+                    </code>
+                    .
+                  </p>
+                )}
+              </div>
             </div>
           </aside>
+        </section>
+
+        {/* CTA finale (come pagina "Chi siamo", fuori dal riquadro descrizione) */}
+        <section className="mx-auto max-w-7xl pb-20 mt-10">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
+              {ctaTitle}
+            </h3>
+            <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+              {ctaText}
+            </p>
+            <Link
+              href="/contatti"
+              className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
+            >
+              Contatta il team
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Link>
+          </div>
         </section>
       </main>
 
@@ -295,8 +277,7 @@ function Gallery({ images, alt }: { images: string[]; alt: string }) {
 
   // Swipe touch
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) =>
-    setTouchStartX(e.touches[0].clientX);
+  const onTouchStart = (e: React.TouchEvent) => setTouchStartX(e.touches[0].clientX);
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX == null) return;
     const dx = e.changedTouches[0].clientX - touchStartX;
@@ -307,7 +288,7 @@ function Gallery({ images, alt }: { images: string[]; alt: string }) {
   };
 
   return (
-    <div className="space-y-3">
+    <div>
       {/* Slide principale */}
       <div
         className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-slate-100"
@@ -359,31 +340,6 @@ function Gallery({ images, alt }: { images: string[]; alt: string }) {
           </div>
         )}
       </div>
-
-      {/* Thumbnails */}
-      {valid.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {valid.map((base, i) => (
-            <button
-              key={base}
-              type="button"
-              onClick={() => setIdx(i)}
-              className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg border ${
-                i === idx
-                  ? "border-emerald-500 ring-2 ring-emerald-200"
-                  : "border-slate-200"
-              }`}
-            >
-              <ImageWithExtFallback
-                base={base}
-                alt={`${alt} – anteprima ${i + 1}`}
-                fill
-                className="object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

@@ -3,13 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Users,
-  Phone,
-  Mail,
-  Linkedin,
-  ChevronRight,
-} from "lucide-react";
+import { Users, Phone, Mail, Linkedin, ChevronRight } from "lucide-react";
 
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
@@ -51,9 +45,9 @@ export default function ChiSiamoPage() {
             />
           </div>
 
-          {/* Testo mission centrato verticalmente nella colonna di destra */}
-          <div className="flex h-full items-center">
-            <div className="space-y-5">
+          {/* Testo mission centrato verticalmente e orizzontalmente */}
+          <div className="flex h-full items-center justify-center text-center">
+            <div className="space-y-5 max-w-md">
               <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
                 Una missione chiara
               </h2>
@@ -64,8 +58,8 @@ export default function ChiSiamoPage() {
                 operativa.
               </p>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Lavoriamo al fianco di imprese, PA, gestori e consorzi irrigui
-                su interventi che hanno un impatto concreto su acqua, ambiente,
+                Lavoriamo al fianco di imprese, PA, gestori e consorzi irrigui su
+                interventi che hanno un impatto concreto su acqua, ambiente,
                 energia, agricoltura, sicurezza ed edilizia.
               </p>
             </div>
@@ -84,7 +78,8 @@ export default function ChiSiamoPage() {
                 key={person.name}
                 className="rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm group"
               >
-                <div className="relative h-60 bg-slate-100">
+                {/* Riquadro foto PIÙ ALTO */}
+                <div className="relative h-72 sm:h-80 bg-slate-100">
                   <Image
                     src={person.image}
                     alt={person.name}
@@ -92,6 +87,7 @@ export default function ChiSiamoPage() {
                     className="object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
+
                 <div className="p-4">
                   <h3 className="font-semibold text-slate-900">
                     {person.name}
@@ -100,7 +96,7 @@ export default function ChiSiamoPage() {
                     {person.role}
                   </p>
 
-                  {/* Icone contatto sotto il ruolo */}
+                  {/* Icone contatto */}
                   <div className="mt-3 flex items-center gap-3 text-slate-500">
                     {person.phone && (
                       <a
@@ -138,8 +134,8 @@ export default function ChiSiamoPage() {
           </div>
         </section>
 
-        {/* ================= CTA LAVORA CON NOI (stile Trasparenza) ================= */}
-        <section className="mx-auto max-w-7xl px-0 sm:px-0 lg:px-0 pb-20 mt-4">
+        {/* ================= CTA ================= */}
+        <section className="mx-auto max-w-7xl pb-20 mt-4">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
             <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
               Ti piacerebbe lavorare con noi?
@@ -147,7 +143,6 @@ export default function ChiSiamoPage() {
             <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
               Siamo sempre interessati a profili tecnici e consulenziali che
               vogliono crescere su progetti reali, autorizzazioni e cantieri.
-              Puoi inviare una candidatura spontanea o rispondere alle posizioni aperte.
             </p>
             <Link
               href="/lavora-con-noi"

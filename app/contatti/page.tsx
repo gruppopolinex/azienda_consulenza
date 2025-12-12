@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Building2,
-  Clock,
-  Send,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Building2, Clock, Send } from "lucide-react";
 
 /* Layout */
 import Nav from "../components/Nav";
@@ -34,20 +27,15 @@ export default function ContattiPage() {
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex" fill className="object-contain" />
             </div>
           </div>
 
           <h1 className="section-title">Parliamo del tuo progetto</h1>
           <p className="mt-4 text-slate-600 leading-relaxed">
             Raccontaci contesto, vincoli e obiettivi. Ti rispondiamo entro{" "}
-            <strong>1 giorno lavorativo</strong> per definire insieme i
-            prossimi step tecnici e autorizzativi.
+            <strong>1 giorno lavorativo</strong> per definire insieme i prossimi
+            step tecnici e autorizzativi.
           </p>
         </section>
 
@@ -149,7 +137,7 @@ export default function ContattiPage() {
                   <strong>bandi/finanziamenti</strong>.
                 </p>
 
-                <form className="mt-6 space-y-4 flex-1">
+                <form className="mt-6 space-y-4 flex-1 flex flex-col">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Nome e cognome *" type="text" required />
                     <Field label="Azienda / Ente" type="text" />
@@ -196,13 +184,16 @@ export default function ContattiPage() {
                     ricontattare in merito alla richiesta.
                   </p>
 
-                  <button
-                    type="submit"
-                    className="btn-primary mt-3 inline-flex items-center gap-2"
-                  >
-                    Invia richiesta
-                    <Send className="h-4 w-4" />
-                  </button>
+                  {/* Bottone centrato nel riquadro */}
+                  <div className="mt-3 flex justify-center">
+                    <button
+                      type="submit"
+                      className="btn-primary inline-flex items-center gap-2"
+                    >
+                      Invia richiesta
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -278,9 +269,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-slate-700">{label}</label>
       <input type={type} required={required} className="input mt-1" />
     </div>
   );
