@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -16,18 +15,18 @@ export default function Nav() {
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
-  // Dropdown "Servizi" (desktop)
-  const [servicesOpen, setServicesOpen] = useState(false);
+  // Dropdown "Consulenza" (desktop)
+  const [consulenzaOpen, setConsulenzaOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Dropdown "Servizi" (mobile, collassabile)
-  const [servicesMobileOpen, setServicesMobileOpen] = useState(false);
+  // Dropdown "Consulenza" (mobile, collassabile)
+  const [consulenzaMobileOpen, setConsulenzaMobileOpen] = useState(false);
 
   // Chiudi tutto su cambio rotta
   useEffect(() => {
     setOpen(false);
-    setServicesOpen(false);
-    setServicesMobileOpen(false);
+    setConsulenzaOpen(false);
+    setConsulenzaMobileOpen(false);
   }, [pathname]);
 
   // Chiudi con ESC
@@ -35,8 +34,8 @@ export default function Nav() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(false);
-        setServicesOpen(false);
-        setServicesMobileOpen(false);
+        setConsulenzaOpen(false);
+        setConsulenzaMobileOpen(false);
         btnRef.current?.focus();
       }
     };
@@ -47,32 +46,30 @@ export default function Nav() {
   const isActive = (href: string) =>
     pathname === href ? "text-slate-900 font-medium" : "text-slate-700";
 
-  // Link top-level (escludo "Servizi" perché è dropdown)
-  // ordine: Home, Portfolio, Chi siamo, Lavora con noi
+  // Voci del menu (top-level) richieste
   const topLinks: { href: string; label: string }[] = [
-    { href: "/", label: "Home" },
-    { href: "/portfolio", label: "Portfolio" },
-    { href: "/chi-siamo", label: "Chi siamo" },
-    { href: "/lavora-con-noi", label: "Lavora con noi" },
-  ];
-
-  // Voci di CONSULENZA (aree tecniche)
-  const consultancyItems = [
-    { href: "/servizi/acqua", label: "Acqua" },
-    { href: "/servizi/ambiente", label: "Ambiente" },
-    { href: "/servizi/energia", label: "Energia" },
-    { href: "/servizi/agricoltura", label: "Agricoltura" },
-    { href: "/servizi/sicurezza", label: "Sicurezza" },
-    { href: "/servizi/edilizia", label: "Edilizia e Infrastrutture" },
-    { href: "/servizi/finanziamenti", label: "Bandi e Finanziamenti" },
-  ] as const;
-
-  // Altri servizi nella tendina
-  const extraServiceLinks = [
+    { href: "/", label: "Home" }, // <-- aggiunta prima di Consulenza
+    { href: "/consulenza", label: "Consulenza" }, // dropdown
     { href: "/formazione", label: "Formazione" },
     { href: "/editoria", label: "Editoria" },
     { href: "/gestionali", label: "Gestionali" },
     { href: "/coworking", label: "Coworking" },
+    { href: "/portfolio", label: "Portfolio" },
+    { href: "/chi-siamo", label: "Chi siamo" },
+    { href: "/lavora-con-noi", label: "Lavora con noi" },
+    { href: "/contatti", label: "Contatti" },
+    { href: "/trasparenza", label: "Trasparenza" },
+  ];
+
+  // Sottomenu CONSULENZA
+  const consulenzaItems = [
+    { href: "/consulenza/acqua", label: "Acqua" },
+    { href: "/consulenza/ambiente", label: "Ambiente" },
+    { href: "/consulenza/energia", label: "Energia" },
+    { href: "/consulenza/agricoltura", label: "Agricoltura" },
+    { href: "/consulenza/sicurezza", label: "Sicurezza" },
+    { href: "/consulenza/edilizia", label: "Edilizia e Infrastrutture" },
+    { href: "/consulenza/finanziamenti", label: "Bandi e finanziamenti" },
   ] as const;
 
   // JSON-LD per SiteNavigationElement
@@ -81,10 +78,12 @@ export default function Nav() {
     "@type": "SiteNavigationElement",
     name: [
       "Home",
-      "Servizi",
       "Consulenza",
-      ...consultancyItems.map((s) => s.label),
-      ...extraServiceLinks.map((s) => s.label),
+      ...consulenzaItems.map((s) => s.label),
+      "Formazione",
+      "Editoria",
+      "Gestionali",
+      "Coworking",
       "Portfolio",
       "Chi siamo",
       "Lavora con noi",
@@ -94,10 +93,12 @@ export default function Nav() {
     ],
     url: [
       "/",
-      "/servizi",
-      "/servizi", // voce generica Consulenza
-      ...consultancyItems.map((s) => s.href),
-      ...extraServiceLinks.map((s) => s.href),
+      "/consulenza",
+      ...consulenzaItems.map((s) => s.href),
+      "/formazione",
+      "/editoria",
+      "/gestionali",
+      "/coworking",
       "/portfolio",
       "/chi-siamo",
       "/lavora-con-noi",
@@ -108,22 +109,16 @@ export default function Nav() {
   };
 
   // Helpers hover-intent per desktop
-  const openServices = () => {
+  const openConsulenza = () => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    setServicesOpen(true);
+    setConsulenzaOpen(true);
   };
-  const closeServices = () => {
+  const closeConsulenza = () => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    hoverTimer.current = setTimeout(() => setServicesOpen(false), 120);
+    hoverTimer.current = setTimeout(() => setConsulenzaOpen(false), 120);
   };
 
-  // Active style per il trigger Servizi
-  const serviziIsActive =
-    pathname?.startsWith("/servizi") ||
-    pathname === "/formazione" ||
-    pathname === "/editoria" ||
-    pathname === "/gestionali" ||
-    pathname === "/coworking";
+  const consulenzaIsActive = pathname?.startsWith("/consulenza");
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -134,22 +129,7 @@ export default function Nav() {
 
       {/* Altezza navbar 64px */}
       <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center h-16"
-          aria-label="Polinex srl – Home"
-        >
-          <div className="relative h-16 w-[256px] overflow-hidden">
-            <Image
-              src="/logo.png"
-              alt="Polinex srl"
-              fill
-              priority
-              className="object-contain"
-            />
-          </div>
-        </Link>
+        {/* (Logo rimosso) */}
 
         {/* Navigazione desktop */}
         <nav className="hidden md:block" aria-label="Navigazione principale">
@@ -158,40 +138,38 @@ export default function Nav() {
             <li>
               <Link
                 className={`nav-link inline-flex items-center h-16 ${isActive(
-                  topLinks[0].href
+                  "/"
                 )}`}
-                href={topLinks[0].href}
-                aria-current={
-                  pathname === topLinks[0].href ? "page" : undefined
-                }
+                href="/"
+                aria-current={pathname === "/" ? "page" : undefined}
               >
-                {topLinks[0].label}
+                Home
               </Link>
             </li>
 
-            {/* Dropdown Servizi */}
+            {/* Dropdown Consulenza */}
             <li
               className="relative"
-              onMouseEnter={openServices}
-              onMouseLeave={closeServices}
+              onMouseEnter={openConsulenza}
+              onMouseLeave={closeConsulenza}
             >
               <button
                 type="button"
                 className={`nav-link inline-flex items-center h-16 ${
-                  serviziIsActive
+                  consulenzaIsActive
                     ? "text-slate-900 font-medium"
                     : "text-slate-700"
                 }`}
                 aria-haspopup="menu"
-                aria-expanded={servicesOpen}
-                aria-controls="menu-servizi"
-                onFocus={openServices}
-                onBlur={closeServices}
+                aria-expanded={consulenzaOpen}
+                aria-controls="menu-consulenza"
+                onFocus={openConsulenza}
+                onBlur={closeConsulenza}
               >
-                Servizi
+                Consulenza
                 <svg
                   className={`ml-1 h-3 w-3 transition-transform ${
-                    servicesOpen ? "rotate-180" : ""
+                    consulenzaOpen ? "rotate-180" : ""
                   }`}
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -202,47 +180,26 @@ export default function Nav() {
               </button>
 
               <div
-                id="menu-servizi"
+                id="menu-consulenza"
                 role="menu"
-                aria-label="Sottomenu Servizi"
+                aria-label="Sottomenu Consulenza"
                 className={`
                   absolute left-0 top-full mt-1 w-[380px]
                   rounded-xl border border-slate-200 bg-white shadow-lg
                   ring-1 ring-black/5 overflow-hidden
                   ${
-                    servicesOpen
+                    consulenzaOpen
                       ? "opacity-100 translate-y-0 pointer-events-auto"
                       : "opacity-0 -translate-y-1 pointer-events-none"
                   }
                   transition transform duration-150
                 `}
               >
-                {/* Blocco CONSULENZA */}
                 <div className="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Consulenza tecnica
+                  Aree
                 </div>
                 <ul className="pb-2">
-                  {consultancyItems.map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        role="menuitem"
-                        className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="border-t border-slate-200 my-1" />
-
-                {/* Blocco altri servizi: Formazione, Editoria, Gestionali, Coworking */}
-                <div className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Altri servizi
-                </div>
-                <ul className="pb-2">
-                  {extraServiceLinks.map((item) => (
+                  {consulenzaItems.map((item) => (
                     <li key={item.href}>
                       <Link
                         href={item.href}
@@ -257,60 +214,22 @@ export default function Nav() {
               </div>
             </li>
 
-            {/* Portfolio (topLinks[1]) */}
-            <li>
-              <Link
-                className={`nav-link inline-flex items-center h-16 ${isActive(
-                  topLinks[1].href
-                )}`}
-                href={topLinks[1].href}
-                aria-current={
-                  pathname === topLinks[1].href ? "page" : undefined
-                }
-              >
-                {topLinks[1].label}
-              </Link>
-            </li>
-
-            {/* Chi siamo, Lavora con noi (topLinks[2:]) */}
-            {topLinks.slice(2).map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  className={`nav-link inline-flex items-center h-16 ${isActive(
-                    href
-                  )}`}
-                  href={href}
-                  aria-current={pathname === href ? "page" : undefined}
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-
-            {/* Contatti (button) */}
-            <li>
-              <Link
-                className="btn-ghost inline-flex items-center h-16"
-                href="/contatti"
-              >
-                Contatti
-              </Link>
-            </li>
-
-            {/* Trasparenza */}
-            <li>
-              <Link
-                className={`nav-link inline-flex items-center h-16 ${isActive(
-                  "/trasparenza"
-                )}`}
-                href="/trasparenza"
-                aria-current={
-                  pathname === "/trasparenza" ? "page" : undefined
-                }
-              >
-                Trasparenza
-              </Link>
-            </li>
+            {/* Altre voci top-level (escluso Home e Consulenza) */}
+            {topLinks
+              .filter((l) => l.label !== "Home" && l.label !== "Consulenza")
+              .map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    className={`nav-link inline-flex items-center h-16 ${isActive(
+                      href
+                    )}`}
+                    href={href}
+                    aria-current={pathname === href ? "page" : undefined}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
 
             {/* Carrello (icona) */}
             <li>
@@ -373,6 +292,7 @@ export default function Nav() {
           aria-label="Navigazione mobile"
         >
           <ul className="flex flex-col gap-2 text-sm">
+            {/* Home mobile */}
             <li>
               <Link
                 className={`nav-link ${isActive("/")}`}
@@ -383,18 +303,18 @@ export default function Nav() {
               </Link>
             </li>
 
-            {/* Servizi mobile: collassabile */}
+            {/* Consulenza mobile: collassabile */}
             <li>
               <button
                 className="w-full text-left nav-link text-slate-700 inline-flex items-center justify-between py-2"
-                aria-expanded={servicesMobileOpen}
-                aria-controls="mobile-servizi"
-                onClick={() => setServicesMobileOpen((v) => !v)}
+                aria-expanded={consulenzaMobileOpen}
+                aria-controls="mobile-consulenza"
+                onClick={() => setConsulenzaMobileOpen((v) => !v)}
               >
-                <span>Servizi</span>
+                <span>Consulenza</span>
                 <svg
                   className={`ml-2 h-3 w-3 transition-transform ${
-                    servicesMobileOpen ? "rotate-180" : ""
+                    consulenzaMobileOpen ? "rotate-180" : ""
                   }`}
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -403,37 +323,20 @@ export default function Nav() {
                   <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
                 </svg>
               </button>
+
               <div
-                id="mobile-servizi"
+                id="mobile-consulenza"
                 className={`overflow-hidden transition-[max-height,opacity] duration-200 ${
-                  servicesMobileOpen
+                  consulenzaMobileOpen
                     ? "max-height-[999px] max-h-96 opacity-100"
                     : "max-h-0 opacity-70"
                 }`}
               >
-                {/* Consulenza mobile */}
                 <p className="mt-1 pl-2 ml-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Consulenza tecnica
+                  Aree
                 </p>
                 <ul className="pl-3 border-l border-slate-200 ml-2 mb-2">
-                  {consultancyItems.map((s) => (
-                    <li key={s.href}>
-                      <Link
-                        className="block py-2 text-slate-700 hover:text-emerald-700"
-                        href={s.href}
-                      >
-                        {s.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Altri servizi mobile */}
-                <p className="pl-2 ml-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Altri servizi
-                </p>
-                <ul className="pl-3 border-l border-slate-200 ml-2 mb-2">
-                  {extraServiceLinks.map((s) => (
+                  {consulenzaItems.map((s) => (
                     <li key={s.href}>
                       <Link
                         className="block py-2 text-slate-700 hover:text-emerald-700"
@@ -447,42 +350,22 @@ export default function Nav() {
               </div>
             </li>
 
-            {/* Portfolio */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/portfolio")}`}
-                href="/portfolio"
-                aria-current={pathname === "/portfolio" ? "page" : undefined}
-              >
-                Portfolio
-              </Link>
-            </li>
+            {/* Altre voci mobile (escluso Home e Consulenza) */}
+            {topLinks
+              .filter((l) => l.label !== "Home" && l.label !== "Consulenza")
+              .map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    className={`nav-link ${isActive(href)}`}
+                    href={href}
+                    aria-current={pathname === href ? "page" : undefined}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
 
-            {/* Chi siamo */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/chi-siamo")}`}
-                href="/chi-siamo"
-                aria-current={pathname === "/chi-siamo" ? "page" : undefined}
-              >
-                Chi siamo
-              </Link>
-            </li>
-
-            {/* Lavora con noi */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/lavora-con-noi")}`}
-                href="/lavora-con-noi"
-                aria-current={
-                  pathname === "/lavora-con-noi" ? "page" : undefined
-                }
-              >
-                Lavora con noi
-              </Link>
-            </li>
-
-            {/* Carrello mobile */}
+            {/* Carrello mobile (testo) */}
             <li>
               <Link
                 className={`nav-link ${isActive("/carrello")}`}
@@ -490,26 +373,6 @@ export default function Nav() {
                 aria-current={pathname === "/carrello" ? "page" : undefined}
               >
                 Carrello
-              </Link>
-            </li>
-
-            {/* Contatti */}
-            <li>
-              <Link className="btn-ghost" href="/contatti">
-                Contatti
-              </Link>
-            </li>
-
-            {/* Trasparenza */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/trasparenza")}`}
-                href="/trasparenza"
-                aria-current={
-                  pathname === "/trasparenza" ? "page" : undefined
-                }
-              >
-                Trasparenza
               </Link>
             </li>
           </ul>

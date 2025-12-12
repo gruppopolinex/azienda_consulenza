@@ -525,37 +525,37 @@ function ServicesMosaicCompact() {
   const services = [
     {
       title: "Acqua",
-      slug: "servizi/acqua",
+      slug: "consulenza/acqua",
       img: "/services/acqua.jpg",
       desc: "Monitoraggi, concessioni, reti idriche, potabilizzazione.",
     },
     {
       title: "Ambiente",
-      slug: "servizi/ambiente",
+      slug: "consulenza/ambiente",
       img: "/services/ambiente.jpg",
       desc: "VIA/VAS, autorizzazioni ambientali, bonifiche e rifiuti.",
     },
     {
       title: "Energia",
-      slug: "servizi/energia",
+      slug: "consulenza/energia",
       img: "/services/energia.jpg",
       desc: "Audit energetici, diagnosi, comunità energetiche, FER.",
     },
     {
       title: "Agricoltura",
-      slug: "servizi/agricoltura",
+      slug: "consulenza/agricoltura",
       img: "/services/agricoltura.jpg",
       desc: "Piani nitrati, utilizzo reflui, pratiche agevolative.",
     },
     {
       title: "Sicurezza",
-      slug: "servizi/sicurezza",
+      slug: "consulenza/sicurezza",
       img: "/services/sicurezza.jpg",
       desc: "CSP/CSE, PSC, POS, DVR, formazione e cantieri complessi.",
     },
     {
       title: "Edilizia e Infrastrutture",
-      slug: "servizi/edilizia",
+      slug: "consulenza/edilizia",
       img: "/services/edilizia.jpg",
       desc: "Permessi di costruire, computi metrici, due diligence e cantierizzazione.",
     },
@@ -594,7 +594,7 @@ function ServicesMosaicCompact() {
 function BandiFinanziamentiCard() {
   return (
     <Link
-      href="/servizi/finanziamenti"
+      href="/consulenza/finanziamenti"
       className="block group focus:outline-none max-w-6xl mx-auto"
       aria-label="Bandi e Finanziamenti"
     >
@@ -893,9 +893,7 @@ function StudiesCarousel({ items }: { items: Study[] }) {
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <span className="text-[11px] text-slate-500 font-medium">
-          Indietro
-        </span>
+        <span className="text-[11px] text-slate-500 font-medium">Indietro</span>
       </div>
 
       {/* Freccia DESTRA */}
@@ -913,9 +911,7 @@ function StudiesCarousel({ items }: { items: Study[] }) {
         >
           <ArrowRight className="h-5 w-5" />
         </button>
-        <span className="text-[11px] text-slate-500 font-medium">
-          Avanti
-        </span>
+        <span className="text-[11px] text-slate-500 font-medium">Avanti</span>
       </div>
 
       {/* Contenitore scorrevole */}
