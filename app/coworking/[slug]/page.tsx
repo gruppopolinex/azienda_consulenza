@@ -1,7 +1,7 @@
 // app/coworking/[slug]/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -13,15 +13,15 @@ import {
   Wifi,
   Coffee,
   Monitor,
-  Calendar,
-  Clock,
   Laptop,
   Phone,
   Mail,
   ExternalLink,
-  X,
   ChevronLeft,
   ChevronRight,
+  Filter as FilterIcon,
+  Calendar,
+  Clock,
 } from "lucide-react";
 
 import Nav from "../../components/Nav";
@@ -38,12 +38,11 @@ import {
 /* ==================== UTILITY ==================== */
 
 function formatItalianDate(isoDate: string) {
-  // isoDate atteso in formato "YYYY-MM-DD"
   const [year, month, day] = isoDate.split("-");
   return `${day}/${month}/${year}`;
 }
 
-/* ==================== PAGINA DETTAGLIO COWORKING ==================== */
+/* ==================== PAGINA ==================== */
 
 export default function CoworkingDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -51,71 +50,15 @@ export default function CoworkingDetailPage() {
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
-  const space: Location | undefined = LOCATIONS.find(
-    (s) => s.slug === slugParam
+  const space: Location | undefined = useMemo(
+    () => LOCATIONS.find((s) => s.slug === slugParam),
+    [slugParam]
   );
 
-  // Stato per precompilare il form (tipo di spazio)
-  const [selectedSpaceType, setSelectedSpaceType] =
-    useState<SpaceType | "">("");
-
-  // Stato prenotazione (stile Booking)
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTimeSlotId, setSelectedTimeSlotId] = useState<string>("");
-
-  // Stato per il carosello foto in sovraimpressione
-  const [activeGallery, setActiveGallery] = useState<{
-    space: LocationSpace;
-    index: number;
-  } | null>(null);
-
-  const handlePrefillSpace = (type: SpaceType) => {
-    setSelectedSpaceType(type);
-    // scroll morbido al form
-    const el = document.getElementById("booking-form");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const handleOpenGallery = (locationSpace: LocationSpace) => {
-    if (!locationSpace.images || locationSpace.images.length === 0) return;
-    setActiveGallery({ space: locationSpace, index: 0 });
-  };
-
-  const handleCloseGallery = () => {
-    setActiveGallery(null);
-  };
-
-  const handlePrevImage = () => {
-    if (!activeGallery) return;
-    setActiveGallery((prev) =>
-      prev
-        ? {
-            ...prev,
-            index:
-              prev.index === 0
-                ? prev.space.images.length - 1
-                : prev.index - 1,
-          }
-        : prev
-    );
-  };
-
-  const handleNextImage = () => {
-    if (!activeGallery) return;
-    setActiveGallery((prev) =>
-      prev
-        ? {
-            ...prev,
-            index:
-              prev.index === prev.space.images.length - 1
-                ? 0
-                : prev.index + 1,
-          }
-        : prev
-    );
-  };
+  // filtro card spazi
+  const [spaceTypeFilter, setSpaceTypeFilter] = useState<SpaceType | "Tutti">(
+    "Tutti"
+  );
 
   // Fallback se la sede non esiste
   if (!space) {
@@ -150,12 +93,21 @@ export default function CoworkingDetailPage() {
     );
   }
 
+  const availableTypes = Array.from(
+    new Set(space.spaces.map((s) => s.type))
+  ) as SpaceType[];
+
+  const filteredSpaces =
+    spaceTypeFilter === "Tutti"
+      ? space.spaces
+      : space.spaces.filter((s) => s.type === spaceTypeFilter);
+
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <Nav />
 
       <main className="flex-1">
-        {/* HERO stile editoria: breadcrumb + card info sede */}
+        {/* HERO (lasciata come prima) */}
         <section className="border-b border-slate-200 bg-slate-50">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <div className="flex flex-col gap-3">
@@ -238,451 +190,141 @@ export default function CoworkingDetailPage() {
           </div>
         </section>
 
-        {/* BLOCCO PRINCIPALE: colonna media + colonna form */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-stretch">
-            {/* COLONNA SINISTRA: media + panoramica + spazi disponibili */}
-            <div className="flex flex-col gap-6 lg:h-full">
-              {/* Media: video YT se presente, altrimenti immagine grande */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
-                  {space.videoUrl ? (
-                    <iframe
-                      src={space.videoUrl}
-                      title={`Video presentazione spazio ${space.name}`}
-                      className="absolute inset-0 h-full w-full border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  ) : (
-                    <Image
-                      src={space.image}
-                      alt={space.name}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 1024px) 640px, 100vw"
-                    />
-                  )}
-                </div>
+        {/* BLOCCO MINIMALE: video sx, descrizione + mappa dx */}
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
+            {/* sinistra: video (o immagine se manca) */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 h-full">
+              <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
+                {space.videoUrl ? (
+                  <iframe
+                    src={space.videoUrl}
+                    title={`Video presentazione spazio ${space.name}`}
+                    className="absolute inset-0 h-full w-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                ) : (
+                  <Image
+                    src={space.image}
+                    alt={space.name}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1024px) 560px, 100vw"
+                  />
+                )}
               </div>
+            </div>
 
-              {/* Panoramica */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-                <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <Monitor className="h-4 w-4 text-slate-500" />
-                  Panoramica dello spazio
-                </h2>
-                <p className="mt-2 text-sm text-slate-700">
+            {/* destra: descrizione (1/2) + mappa (1/2) */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 h-full flex flex-col">
+              <div className="flex-1 min-h-0">
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {space.description}
                 </p>
 
                 {space.services && space.services.length > 0 && (
-                  <div className="mt-3 grid gap-2 text-xs text-slate-700 sm:grid-cols-2">
-                    {space.services.map((srv) => (
-                      <div
+                  <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-600">
+                    {space.services.slice(0, 6).map((srv) => (
+                      <span
                         key={srv}
-                        className="inline-flex items-start gap-2"
+                        className="inline-flex items-center rounded-full bg-slate-50 border border-slate-200 px-2 py-0.5"
                       >
-                        <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        <span>{srv}</span>
-                      </div>
+                        {srv}
+                      </span>
                     ))}
                   </div>
                 )}
+              </div>
 
-                {space.mapUrl && (
-                  <div className="mt-4 pt-3 border-t border-slate-200">
-                    <Link
-                      href={space.mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      Apri la sede su Google Maps
-                    </Link>
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                {space.mapUrl ? (
+                  <Link
+                    href={space.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-xl border border-slate-200 bg-slate-50 p-4 hover:bg-slate-100 transition"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-900 flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-emerald-700" />
+                          Apri su Google Maps
+                        </p>
+                        <p className="mt-1 text-[11px] text-slate-600 truncate">
+                          {space.address}
+                        </p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-slate-500" />
+                    </div>
+                  </Link>
+                ) : (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold text-slate-900">
+                      Mappa non disponibile
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-600">
+                      Link Google Maps non presente nei dati.
+                    </p>
                   </div>
                 )}
               </div>
-
-              {/* Spazi prenotabili (schede) - altezza allineata col box prenotazioni */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col lg:self-stretch">
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-slate-500" />
-                  Tipologie di spazi disponibili
-                </h3>
-
-                <div className="mt-3 space-y-3 flex-1">
-                  {space.spaces.map((s) => (
-                    <div
-                      key={s.label}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                          {s.type === "Sala riunioni" && (
-                            <Users className="h-3.5 w-3.5 text-slate-500" />
-                          )}
-                          {s.type === "Postazione coworking" && (
-                            <Laptop className="h-3.5 w-3.5 text-slate-500" />
-                          )}
-                          {s.type === "Ufficio privato" && (
-                            <Building2 className="h-3.5 w-3.5 text-slate-500" />
-                          )}
-                          <span>{s.label}</span>
-                        </p>
-                        <p className="text-[11px] text-slate-500">
-                          {s.capacity}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenGallery(s)}
-                          className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 underline underline-offset-2"
-                        >
-                          Guarda foto
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handlePrefillSpace(s.type)}
-                          className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800"
-                        >
-                          Usa per la richiesta
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-500">
-                  <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5">
-                    <Wifi className="h-3 w-3 mr-1" />
-                    Fibra / Wi-Fi ad alta affidabilità
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5">
-                    <Coffee className="h-3 w-3 mr-1" />
-                    Coffee corner &amp; area relax
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5">
-                    <Monitor className="h-3 w-3 mr-1" />
-                    Schermi e dotazioni per meeting ibridi
-                  </span>
-                </div>
-              </div>
             </div>
-
-            {/* COLONNA DESTRA: form di prenotazione dedicato alla sede */}
-            <aside
-              id="booking-form"
-              className="lg:sticky lg:top-24 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm lg:self-stretch"
-            >
-              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
-                Invia una richiesta per questa sede
-              </h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Compila il form con{" "}
-                <strong>data, fascia oraria e tipologia di spazio</strong>. Ti
-                ricontattiamo entro 1 giorno lavorativo con conferma e
-                disponibilità.
-              </p>
-
-              <form className="mt-6 space-y-4">
-                {/* Sede (bloccata) + tipo spazio */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Sede
-                    </label>
-                    <input
-                      type="text"
-                      className="input mt-1 bg-slate-50"
-                      value={space.name}
-                      disabled
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Tipo di spazio *
-                    </label>
-                    <select
-                      className="input mt-1"
-                      required
-                      value={selectedSpaceType || ""}
-                      onChange={(e) =>
-                        setSelectedSpaceType(e.target.value as SpaceType | "")
-                      }
-                    >
-                      <option value="" disabled>
-                        Seleziona il tipo di spazio
-                      </option>
-                      {space.spaces.map((s) => (
-                        <option key={s.label} value={s.type}>
-                          {s.type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Date + fascia oraria (stile Booking: opzioni non disponibili sfumate) */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Data *
-                    </label>
-                    <select
-                      className="input mt-1"
-                      required
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Seleziona una data
-                      </option>
-                      {space.booking.days.map((d) => (
-                        <option
-                          key={d.date}
-                          value={d.date}
-                          disabled={!d.available}
-                        >
-                          {formatItalianDate(d.date)}
-                          {!d.available ? " – non disponibile" : ""}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Le date non disponibili sono disabilitate (in stile
-                      Booking, pronte per collegamento a un calendario reale).
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Fascia oraria *
-                    </label>
-                    <select
-                      className="input mt-1"
-                      required
-                      value={selectedTimeSlotId}
-                      onChange={(e) => setSelectedTimeSlotId(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Seleziona una fascia oraria
-                      </option>
-                      {space.booking.timeSlots.map((slot) => (
-                        <option
-                          key={slot.id}
-                          value={slot.id}
-                          disabled={!slot.available}
-                        >
-                          {slot.label}
-                          {!slot.available ? " – non disponibile" : ""}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Le fasce orarie non disponibili sono sfumate e non
-                      selezionabili.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Persone */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      N. persone *
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      className="input mt-1"
-                      required
-                      placeholder="Es. 4"
-                    />
-                  </div>
-                </div>
-
-                {/* Contatti */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Nome e cognome *
-                    </label>
-                    <input
-                      type="text"
-                      className="input mt-1"
-                      required
-                      placeholder="Nome e cognome"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      className="input mt-1"
-                      required
-                      placeholder="nome@azienda.it"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">
-                    Telefono
-                  </label>
-                  <input
-                    type="tel"
-                    className="input mt-1"
-                    placeholder="+39 ..."
-                  />
-                </div>
-
-                {/* Note */}
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">
-                    Note o esigenze specifiche
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="input mt-1"
-                    placeholder="Es. necessità di videoconferenza, disposizione tavolo, esigenze di riservatezza…"
-                  />
-                </div>
-
-                {/* Privacy */}
-                <div className="flex items-start gap-2 pt-1">
-                  <input
-                    id="privacy"
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                    required
-                  />
-                  <label
-                    htmlFor="privacy"
-                    className="text-xs text-slate-600 leading-snug"
-                  >
-                    Acconsento al trattamento dei dati ai sensi del Regolamento
-                    (UE) 2016/679 ai fini della gestione della richiesta di
-                    prenotazione.
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn-primary mt-3 inline-flex items-center gap-2 w-full justify-center"
-                >
-                  Invia richiesta di prenotazione
-                  <Laptop className="h-4 w-4" />
-                </button>
-
-                <p className="mt-3 text-[11px] text-slate-500">
-                  La richiesta non è una prenotazione automatica. Verifichiamo
-                  disponibilità per questa sede e ti ricontattiamo con una
-                  proposta di dettaglio (spazi, orari, condizioni economiche).
-                </p>
-              </form>
-            </aside>
           </div>
         </section>
 
-        {/* CTA FINALE – STILE IDENTICO A /gestionali */}
-        <section className="mt-12 sm:mt-16 pb-12">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center max-w-6xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
-              Vuoi avere maggiori informazioni su questa sede?
-            </h2>
-
-            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
-              Possiamo aiutarti a capire quale{" "}
-              <strong>tipologia di spazio</strong> è più adatta al tuo team,
-              come organizzare le{" "}
-              <strong>giornate di lavoro, le riunioni o gli eventi</strong> e
-              quali servizi aggiuntivi possiamo mettere a disposizione nella
-              sede di <strong>{space.city}</strong>.
-            </p>
-
-            <div className="mt-6 flex justify-center">
-              <Link
-                href={`/contatti?city=${encodeURIComponent(space.city)}`}
-                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
-              >
-                Contattaci per la sede di {space.city}
-              </Link>
+        {/* SPAZI: filtro + card con carosello + prezzo + booking inline */}
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+                Spazi disponibili
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Filtra e prenota selezionando giorno e fascia oraria.
+              </p>
             </div>
 
-            <p className="mt-3 text-[11px] text-slate-500 max-w-xl mx-auto">
-              Indica la sede, una finestra temporale indicativa e il tipo di
-              utilizzo (coworking, ufficio privato, sala riunioni, evento):
-              ti rispondiamo con una proposta di dettaglio e le opzioni
-              disponibili.
-            </p>
+            <div className="max-w-xs w-full">
+              <label className="block text-xs font-medium text-slate-500 mb-2">
+                Filtra per tipologia
+              </label>
+              <div className="relative">
+                <select
+                  className="input pr-9"
+                  value={spaceTypeFilter}
+                  onChange={(e) =>
+                    setSpaceTypeFilter(e.target.value as SpaceType | "Tutti")
+                  }
+                >
+                  <option value="Tutti">Tutti gli spazi</option>
+                  {availableTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+                <FilterIcon className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredSpaces.map((s) => (
+              <SpaceCard key={s.label} location={space} spaceItem={s} />
+            ))}
+
+            {filteredSpaces.length === 0 && (
+              <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
+                Nessuno spazio trovato per il filtro selezionato.
+              </div>
+            )}
           </div>
         </section>
       </main>
 
       <Footer />
-
-      {/* Carosello in sovraimpressione per le foto degli spazi */}
-      {activeGallery && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center px-4">
-          <div className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-900 truncate">
-                  {activeGallery.space.label}
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  Foto {activeGallery.index + 1} /{" "}
-                  {activeGallery.space.images.length}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleCloseGallery}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200"
-              >
-                <X className="h-4 w-4 text-slate-700" />
-              </button>
-            </div>
-
-            {/* Immagine */}
-            <div className="relative w-full aspect-[16/9] bg-black">
-              <Image
-                src={activeGallery.space.images[activeGallery.index]}
-                alt={activeGallery.space.label}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 768px, 100vw"
-              />
-              {/* Controlli carosello */}
-              {activeGallery.space.images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
-                  >
-                    <ChevronLeft className="h-5 w-5 text-white" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
-                  >
-                    <ChevronRight className="h-5 w-5 text-white" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Stili globali coerenti con le altre pagine */}
       <style jsx global>{`
@@ -697,6 +339,7 @@ export default function CoworkingDetailPage() {
           border: 1px solid #cbd5e1;
           padding: 0.55rem 0.8rem;
           font-size: 0.875rem;
+          background: white;
         }
         .input:focus {
           border-color: #059669;
@@ -706,14 +349,292 @@ export default function CoworkingDetailPage() {
         .btn-primary {
           background: #059669;
           color: white;
-          padding: 0.65rem 1.4rem;
-          border-radius: 999px;
-          font-weight: 600;
+          padding: 0.65rem 1rem;
+          border-radius: 0.9rem;
+          font-weight: 700;
+          font-size: 0.875rem;
         }
         .btn-primary:hover {
           background: #047857;
         }
       `}</style>
     </div>
+  );
+}
+
+/* ==================== COMPONENTI ==================== */
+
+function SpaceIcon({ type }: { type: SpaceType }) {
+  if (type === "Sala riunioni") return <Users className="h-4 w-4 text-slate-500" />;
+  if (type === "Postazione coworking") return <Laptop className="h-4 w-4 text-slate-500" />;
+  return <Building2 className="h-4 w-4 text-slate-500" />;
+}
+
+function SpaceCard({
+  location,
+  spaceItem,
+}: {
+  location: Location;
+  spaceItem: LocationSpace;
+}) {
+  const images = spaceItem.images ?? [];
+  const hasImages = images.length > 0;
+
+  // carosello interno
+  const [imgIndex, setImgIndex] = useState(0);
+
+  // booking inline (apri/chiudi)
+  const [openBooking, setOpenBooking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTimeSlotId, setSelectedTimeSlotId] = useState<string>("");
+
+  // dati booking: per-spazio se esiste, altrimenti per-sede
+  const bookingDays =
+    (spaceItem as any).booking?.days ?? (location as any).booking?.days ?? [];
+  const bookingSlots =
+    (spaceItem as any).booking?.timeSlots ??
+    (location as any).booking?.timeSlots ??
+    [];
+
+  const slotLabel =
+    bookingSlots.find((x: any) => x.id === selectedTimeSlotId)?.label ?? "";
+
+  const priceLabel =
+    (spaceItem as any).price ??
+    (spaceItem as any).priceLabel ??
+    (spaceItem as any).pricing ??
+    "Su richiesta";
+
+  const canSubmit = Boolean(selectedDate && selectedTimeSlotId);
+
+  const mailtoHref = useMemo(() => {
+    const to = location.email || "";
+    const subject = `Richiesta prenotazione – ${location.name} – ${spaceItem.label}`;
+    const bodyLines = [
+      `Sede: ${location.name} (${location.city})`,
+      `Spazio: ${spaceItem.label} (${spaceItem.type})`,
+      `Data: ${selectedDate ? formatItalianDate(selectedDate) : "-"}`,
+      `Fascia oraria: ${selectedTimeSlotId ? slotLabel : "-"}`,
+      `Persone/Capienza: ${spaceItem.capacity ?? "-"}`,
+      ``,
+      `Messaggio:`,
+    ];
+    const body = bodyLines.join("\n");
+    return to
+      ? `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+          body
+        )}`
+      : `/contatti?city=${encodeURIComponent(location.city)}&space=${encodeURIComponent(
+          spaceItem.label
+        )}`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.email, location.city, location.name, spaceItem.label, spaceItem.type, spaceItem.capacity, selectedDate, selectedTimeSlotId, slotLabel]);
+
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+      {/* media */}
+      <div className="relative h-44 bg-slate-100">
+        {hasImages ? (
+          <>
+            <Image
+              src={images[imgIndex]}
+              alt={spaceItem.label}
+              fill
+              className="object-cover"
+              sizes="(min-width: 1024px) 320px, 100vw"
+            />
+
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImgIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+                  aria-label="Foto precedente"
+                >
+                  <ChevronLeft className="h-5 w-5 text-white" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImgIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+                  aria-label="Foto successiva"
+                >
+                  <ChevronRight className="h-5 w-5 text-white" />
+                </button>
+
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                  {images.slice(0, 6).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        i === imgIndex ? "bg-white" : "bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500">
+            Nessuna foto disponibile
+          </div>
+        )}
+
+        <div className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+          <SpaceIcon type={spaceItem.type} />
+          <span className="ml-1">{spaceItem.type}</span>
+        </div>
+      </div>
+
+      {/* content */}
+      <div className="p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-slate-900">{spaceItem.label}</h3>
+        {spaceItem.capacity && (
+          <p className="mt-1 text-[11px] text-slate-500">{spaceItem.capacity}</p>
+        )}
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-900">
+            {typeof priceLabel === "string" ? priceLabel : "Su richiesta"}
+          </p>
+          <button
+            type="button"
+            onClick={() => setOpenBooking((v) => !v)}
+            className="btn-primary"
+          >
+            Prenota
+          </button>
+        </div>
+
+        {/* booking inline */}
+        {openBooking && (
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold text-slate-900 flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-slate-600" />
+              Seleziona giorno e fascia oraria
+            </p>
+
+            {/* giorni */}
+            <div className="mt-3">
+              <p className="text-[11px] font-medium text-slate-600 mb-2">
+                Giorno
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {bookingDays.length > 0 ? (
+                  bookingDays.slice(0, 8).map((d: any) => {
+                    const disabled = d.available === false;
+                    const active = selectedDate === d.date;
+                    return (
+                      <button
+                        key={d.date}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => {
+                          setSelectedDate(d.date);
+                          setSelectedTimeSlotId("");
+                        }}
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                          disabled
+                            ? "border-slate-200 bg-white/60 text-slate-400 cursor-not-allowed"
+                            : active
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                            : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                        }`}
+                      >
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatItalianDate(d.date)}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="text-[11px] text-slate-500 col-span-2">
+                    Date non presenti nei dati.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* fasce */}
+            <div className="mt-4">
+              <p className="text-[11px] font-medium text-slate-600 mb-2">
+                Fascia oraria
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                {bookingSlots.length > 0 ? (
+                  bookingSlots.map((slot: any) => {
+                    const disabled = slot.available === false || !selectedDate;
+                    const active = selectedTimeSlotId === slot.id;
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => setSelectedTimeSlotId(slot.id)}
+                        className={`inline-flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                          disabled
+                            ? "border-slate-200 bg-white/60 text-slate-400 cursor-not-allowed"
+                            : active
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                            : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <Clock className="h-3.5 w-3.5" />
+                          {slot.label}
+                        </span>
+                        {slot.available === false && (
+                          <span className="text-[10px] opacity-70">non disp.</span>
+                        )}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="text-[11px] text-slate-500">
+                    Fasce orarie non presenti nei dati.
+                  </p>
+                )}
+              </div>
+
+              {!selectedDate && bookingSlots.length > 0 && (
+                <p className="mt-2 text-[11px] text-slate-500">
+                  Seleziona prima un giorno.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <p className="text-[11px] text-slate-600">
+                {canSubmit
+                  ? `Selezionato: ${formatItalianDate(selectedDate)} · ${slotLabel}`
+                  : "Completa la selezione per inviare la richiesta."}
+              </p>
+
+              <Link
+                href={mailtoHref}
+                className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-semibold transition ${
+                  canSubmit
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : "bg-slate-200 text-slate-500 pointer-events-none"
+                }`}
+              >
+                Invia richiesta
+              </Link>
+            </div>
+
+            {!location.email && (
+              <p className="mt-2 text-[11px] text-slate-500">
+                Email sede non presente nei dati: invio tramite pagina contatti.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </article>
   );
 }

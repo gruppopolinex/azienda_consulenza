@@ -7,17 +7,6 @@ export type SpaceType =
   | "Ufficio privato"
   | "Sala riunioni";
 
-export type LocationSpace = {
-  type: SpaceType;
-  label: string;
-  capacity: string;
-  /**
-   * Percorsi immagini per il carosello "Guarda foto" di ogni tipologia di spazio.
-   * (Sostituisci i path con quelli reali presenti nel tuo progetto)
-   */
-  images: string[];
-};
-
 export type BookingDay = {
   /** Data in formato ISO (YYYY-MM-DD) */
   date: string;
@@ -39,6 +28,42 @@ export type BookingConfig = {
   timeSlots: BookingTimeSlot[];
 };
 
+export type LocationSpace = {
+  type: SpaceType;
+  label: string;
+  capacity: string;
+
+  /**
+   * Prezzo mostrato nella card (se assente: la UI può mostrare "Su richiesta").
+   * Esempi: "€ 25 / ora", "€ 160 / giornata", "Da € 15 / postazione"
+   */
+  price?: string;
+
+  /**
+   * Percorsi immagini per il carosello interno di ogni tipologia di spazio.
+   * (Sostituisci i path con quelli reali presenti nel tuo progetto)
+   */
+  images: string[];
+
+  /**
+   * (Opzionale) disponibilità specifica per questo spazio.
+   * Se assente, la UI usa location.booking come fallback.
+   */
+  booking?: BookingConfig;
+
+  /**
+   * (Opzionale) micro-descrizione della tipologia di spazio, mostrabile sotto il titolo.
+   * Se assente, la UI può ometterla.
+   */
+  description?: string;
+
+  /**
+   * (Opzionale) elenco tag/feature specifiche dello spazio (es. "Monitor 55”", "Lavagna", "Teams/Zoom").
+   * Se assente, la UI può usare i servizi della sede o omettere.
+   */
+  features?: string[];
+};
+
 export type Location = {
   slug: string; // usato da /coworking/[slug]
   city: City;
@@ -49,7 +74,7 @@ export type Location = {
   tags: string[];
   spaces: LocationSpace[];
 
-  /** Configurazione disponibilità stile Booking (date e fasce orarie) */
+  /** Configurazione disponibilità stile Booking (fallback per gli spazi) */
   booking: BookingConfig;
 
   // Campi opzionali (usati nella pagina slug)
@@ -83,33 +108,38 @@ export const LOCATIONS: Location[] = [
         type: "Postazione coworking",
         label: "Open space vista canale",
         capacity: "Fino a 8 postazioni",
+        price: "Da € 15 / postazione",
         images: [
           "/coworking/venezia/open-space-1.jpg",
           "/coworking/venezia/open-space-2.jpg",
           "/coworking/venezia/open-space-3.jpg",
         ],
+        features: ["Wi-Fi", "Coffee corner", "Luce naturale"],
       },
       {
         type: "Ufficio privato",
         label: "Ufficio 2–3 persone",
         capacity: "Team ridotti",
+        price: "€ 120 / giornata",
         images: [
           "/coworking/venezia/ufficio-privato-1.jpg",
           "/coworking/venezia/ufficio-privato-2.jpg",
         ],
+        features: ["Privacy", "Wi-Fi", "Aria condizionata"],
       },
       {
         type: "Sala riunioni",
         label: "Sala riunioni “Laguna”",
         capacity: "Fino a 10 persone",
+        price: "€ 35 / ora",
         images: [
           "/coworking/venezia/sala-laguna-1.jpg",
           "/coworking/venezia/sala-laguna-2.jpg",
         ],
+        features: ["Schermo", "HDMI", "Video-call"],
       },
     ],
     booking: {
-      // Esempio: alcune date disponibili / non disponibili
       days: [
         { date: "2025-01-15", available: true },
         { date: "2025-01-16", available: false },
@@ -117,14 +147,12 @@ export const LOCATIONS: Location[] = [
         { date: "2025-01-18", available: true },
         { date: "2025-01-19", available: false },
       ],
-      // Fasce orarie in stile Booking (quelle non disponibili sono disabilitate)
       timeSlots: [
         { id: "morning", label: "09:00–13:00", available: true },
         { id: "afternoon", label: "14:00–18:00", available: true },
         { id: "full-day", label: "09:00–18:00", available: false },
       ],
     },
-    // opzionali – li puoi cambiare con i tuoi dati reali
     videoUrl: "https://www.youtube.com/embed/VIDEO_ID_VENEZIA",
     mapUrl:
       "https://www.google.com/maps/search/?api=1&query=Fondamenta+Esempio+12,+Venezia",
@@ -150,28 +178,34 @@ export const LOCATIONS: Location[] = [
         type: "Postazione coworking",
         label: "Area coworking open",
         capacity: "Fino a 16 postazioni",
+        price: "Da € 18 / postazione",
         images: [
           "/coworking/milano/coworking-open-1.jpg",
           "/coworking/milano/coworking-open-2.jpg",
         ],
+        features: ["Wi-Fi", "Prese", "Area relax"],
       },
       {
         type: "Ufficio privato",
         label: "Ufficio 4–6 persone",
         capacity: "Project team",
+        price: "€ 180 / giornata",
         images: [
           "/coworking/milano/ufficio-team-1.jpg",
           "/coworking/milano/ufficio-team-2.jpg",
         ],
+        features: ["Privacy", "Wi-Fi", "Monitor (su richiesta)"],
       },
       {
         type: "Sala riunioni",
         label: "Sala riunioni “Scala”",
         capacity: "Fino a 12 persone",
+        price: "€ 40 / ora",
         images: [
           "/coworking/milano/sala-scala-1.jpg",
           "/coworking/milano/sala-scala-2.jpg",
         ],
+        features: ["Schermo", "Lavagna", "Video-call"],
       },
     ],
     booking: {
@@ -213,28 +247,34 @@ export const LOCATIONS: Location[] = [
         type: "Postazione coworking",
         label: "Open space centrale",
         capacity: "Fino a 10 postazioni",
+        price: "Da € 16 / postazione",
         images: [
           "/coworking/roma/open-space-1.jpg",
           "/coworking/roma/open-space-2.jpg",
         ],
+        features: ["Wi-Fi", "Coffee corner", "Silenzioso"],
       },
       {
         type: "Ufficio privato",
         label: "Ufficio 3–4 persone",
         capacity: "Team tecnici",
+        price: "€ 150 / giornata",
         images: [
           "/coworking/roma/ufficio-tecnici-1.jpg",
           "/coworking/roma/ufficio-tecnici-2.jpg",
         ],
+        features: ["Privacy", "Wi-Fi", "Whiteboard"],
       },
       {
         type: "Sala riunioni",
         label: "Sala riunioni “Fori”",
         capacity: "Fino a 14 persone",
+        price: "€ 45 / ora",
         images: [
           "/coworking/roma/sala-fori-1.jpg",
           "/coworking/roma/sala-fori-2.jpg",
         ],
+        features: ["Schermo", "Audio", "Video-call"],
       },
     ],
     booking: {
@@ -276,28 +316,34 @@ export const LOCATIONS: Location[] = [
         type: "Postazione coworking",
         label: "Zona coworking panoramica",
         capacity: "Fino a 12 postazioni",
+        price: "Da € 14 / postazione",
         images: [
           "/coworking/napoli/coworking-panoramico-1.jpg",
           "/coworking/napoli/coworking-panoramico-2.jpg",
         ],
+        features: ["Wi-Fi", "Vista mare", "Area relax"],
       },
       {
         type: "Ufficio privato",
         label: "Ufficio 2–3 persone",
         capacity: "Focus room",
+        price: "€ 130 / giornata",
         images: [
           "/coworking/napoli/ufficio-focus-1.jpg",
           "/coworking/napoli/ufficio-focus-2.jpg",
         ],
+        features: ["Privacy", "Wi-Fi", "Luce naturale"],
       },
       {
         type: "Sala riunioni",
         label: "Sala riunioni “Partenope”",
         capacity: "Fino a 8 persone",
+        // prezzo volutamente omesso: UI mostrerà "Su richiesta"
         images: [
           "/coworking/napoli/sala-partenope-1.jpg",
           "/coworking/napoli/sala-partenope-2.jpg",
         ],
+        features: ["Schermo", "Video-call", "Tavolo centrale"],
       },
     ],
     booking: {
