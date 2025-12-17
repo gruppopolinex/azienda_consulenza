@@ -163,6 +163,10 @@ export default function ContattiPage() {
                       <option>Sicurezza</option>
                       <option>Edilizia e Infrastrutture</option>
                       <option>Bandi e Finanziamenti</option>
+                      <option>Formazione</option>
+                      <option>Editoria</option>
+                      <option>Gestionali</option>
+                      <option>Coworking</option>
                       <option>Altro</option>
                     </select>
                   </div>
