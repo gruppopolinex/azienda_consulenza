@@ -1,7 +1,13 @@
 // app/lavora-con-noi/page.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -65,6 +71,46 @@ export default function LavoraConNoiPage() {
   const [cityFilter, setCityFilter] = useState<string>("Tutte");
   const [contractFilter, setContractFilter] = useState<ContractFilter>("Tutti");
 
+  /**
+   * ✅ Fix lag:
+   * - Misuriamo SOLO l’altezza naturale della candidatura (a sinistra),
+   * - La “congeliamo” in fixedCardsHeight,
+   * - Il box posizioni (a destra) usa quella stessa altezza,
+   * - Dentro posizioni lo scroll è SOLO nella lista.
+   *
+   * Niente reset a null durante il resize -> evita “saltelli”.
+   */
+  const leftCardRef = useRef<HTMLDivElement | null>(null);
+  const [fixedCardsHeight, setFixedCardsHeight] = useState<number>(0);
+
+  const measure = useCallback(() => {
+    const el = leftCardRef.current;
+    if (!el) return;
+    const h = Math.ceil(el.scrollHeight); // naturale, anche se height fosse impostata
+    if (h > 0 && h !== fixedCardsHeight) setFixedCardsHeight(h);
+  }, [fixedCardsHeight]);
+
+  useLayoutEffect(() => {
+    // prima misura
+    measure();
+
+    // osserva cambi di layout/line-wrap del box candidatura
+    const el = leftCardRef.current;
+    const ro =
+      typeof ResizeObserver !== "undefined" && el
+        ? new ResizeObserver(() => measure())
+        : null;
+    if (ro && el) ro.observe(el);
+
+    const onResize = () => measure();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (ro && el) ro.unobserve(el);
+    };
+  }, [measure]);
+
   // Settori derivati dai dati (job.areas o job.area)
   const sectors = useMemo(() => {
     const set = new Set<string>();
@@ -116,9 +162,11 @@ export default function LavoraConNoiPage() {
     e
   ) => {
     e.preventDefault();
-    // Qui potrai agganciare la logica reale (API / servizio esterno)
     console.log("Spontaneous application submitted");
   };
+
+  const syncedHeightStyle =
+    fixedCardsHeight > 0 ? ({ height: fixedCardsHeight } as const) : undefined;
 
   return (
     <>
@@ -170,121 +218,16 @@ export default function LavoraConNoiPage() {
           </div>
         </section>
 
-        {/* Posizioni aperte + candidatura spontanea */}
+        {/* Candidatura spontanea (sx) + posizioni aperte (dx) */}
         <section className="mt-12 sm:mt-14 pb-16 sm:pb-20">
-          {/* ✅ IMPORTANTISSIMO: items-stretch + min-h-0 per permettere lo “shrink” */}
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] lg:items-stretch">
-            {/* Sinistra: posizioni aperte (stessa altezza della card destra) */}
-            <div className="h-full min-h-0">
-              {/* ✅ h-full + min-h-0 + flex-col: non deve “spingere” la riga */}
-              <div className="h-full min-h-0 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm flex flex-col">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
-                      Posizioni aperte
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-600 max-w-xl">
-                      Clicca sulla posizione per leggere i dettagli e inviare la
-                      candidatura. Usa i filtri per settore, città e tipo di
-                      contratto.
-                    </p>
-                  </div>
-                  <Filter className="hidden sm:block h-5 w-5 text-slate-400 mt-1" />
-                </div>
-
-                {/* Filtri posizioni */}
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">
-                      Settore
-                    </label>
-                    <select
-                      className="input text-xs"
-                      value={sectorFilter}
-                      onChange={(e) => setSectorFilter(e.target.value)}
-                    >
-                      <option value="Tutti">Tutti i settori</option>
-                      {sectors.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">
-                      Città
-                    </label>
-                    <select
-                      className="input text-xs"
-                      value={cityFilter}
-                      onChange={(e) => setCityFilter(e.target.value)}
-                    >
-                      <option value="Tutte">Tutte le città</option>
-                      {cities.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">
-                      Tipo di contratto
-                    </label>
-                    <select
-                      className="input text-xs"
-                      value={contractFilter}
-                      onChange={(e) =>
-                        setContractFilter(e.target.value as ContractFilter)
-                      }
-                    >
-                      {CONTRACT_FILTER_OPTIONS.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt === "Tutti" ? "Tutti i contratti" : opt}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* ✅ “Carosello verticale”: scroll SOLO qui.
-                    ✅ min-h-0 è fondamentale per farlo funzionare davvero. */}
-                <div className="mt-4 flex-1 min-h-0 overflow-y-auto pr-1 space-y-3">
-                  {filteredJobs.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-                      Nessuna posizione trovata con i filtri selezionati. Prova a
-                      modificare settore, città o tipo di contratto.
-                    </div>
-                  )}
-
-                  {filteredJobs.map((job) => (
-                    <JobCard
-                      key={job.slug}
-                      slug={job.slug}
-                      title={job.title}
-                      location={job.location}
-                      level={job.level}
-                      focus={job.intro}
-                      contract={job.contract}
-                    />
-                  ))}
-                </div>
-
-                <p className="mt-3 text-[11px] text-slate-500">
-                  Se non trovi una posizione in linea con il tuo profilo, puoi
-                  comunque inviare una <strong>candidatura spontanea</strong>{" "}
-                  tramite il modulo qui a fianco.
-                </p>
-              </div>
-            </div>
-
-            {/* Destra: form candidatura spontanea (altezza naturale, tutto dentro, NO scroll interno) */}
-            <div className="h-full min-h-0">
-              {/* ✅ h-full per “agganciare” lo stretch della grid */}
-              <div className="h-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm flex flex-col">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] lg:items-start">
+            {/* SINISTRA: candidatura spontanea (altezza naturale misurata, poi fissata) */}
+            <div className="min-h-0">
+              <div
+                ref={leftCardRef}
+                className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm flex flex-col"
+                style={syncedHeightStyle}
+              >
                 <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
                   Candidatura spontanea
                 </h2>
@@ -295,7 +238,10 @@ export default function LavoraConNoiPage() {
                   il tuo <strong>CV in formato PDF</strong>.
                 </p>
 
-                <form className="mt-6 space-y-4" onSubmit={handleSpontaneousSubmit}>
+                <form
+                  className="mt-6 space-y-4"
+                  onSubmit={handleSpontaneousSubmit}
+                >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Nome *" name="nome" type="text" required />
                     <Field
@@ -391,6 +337,113 @@ export default function LavoraConNoiPage() {
                 </form>
               </div>
             </div>
+
+            {/* DESTRA: posizioni aperte (stessa altezza; lista interna scroll) */}
+            <div className="min-h-0">
+              <div
+                className="min-h-0 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm flex flex-col"
+                style={syncedHeightStyle}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
+                      Posizioni aperte
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-600 max-w-xl">
+                      Clicca sulla posizione per leggere i dettagli e inviare la
+                      candidatura. Usa i filtri per settore, città e tipo di
+                      contratto.
+                    </p>
+                  </div>
+                  <Filter className="hidden sm:block h-5 w-5 text-slate-400 mt-1" />
+                </div>
+
+                {/* Filtri posizioni */}
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Settore
+                    </label>
+                    <select
+                      className="input text-xs"
+                      value={sectorFilter}
+                      onChange={(e) => setSectorFilter(e.target.value)}
+                    >
+                      <option value="Tutti">Tutti i settori</option>
+                      {sectors.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Città
+                    </label>
+                    <select
+                      className="input text-xs"
+                      value={cityFilter}
+                      onChange={(e) => setCityFilter(e.target.value)}
+                    >
+                      <option value="Tutte">Tutte le città</option>
+                      {cities.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Tipo di contratto
+                    </label>
+                    <select
+                      className="input text-xs"
+                      value={contractFilter}
+                      onChange={(e) =>
+                        setContractFilter(e.target.value as ContractFilter)
+                      }
+                    >
+                      {CONTRACT_FILTER_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt === "Tutti" ? "Tutti i contratti" : opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* ✅ “carosello verticale”: scroll SOLO qui */}
+                <div className="mt-4 flex-1 min-h-0 overflow-y-auto pr-1 space-y-3">
+                  {filteredJobs.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+                      Nessuna posizione trovata con i filtri selezionati. Prova a
+                      modificare settore, città o tipo di contratto.
+                    </div>
+                  )}
+
+                  {filteredJobs.map((job) => (
+                    <JobCard
+                      key={job.slug}
+                      slug={job.slug}
+                      title={job.title}
+                      location={job.location}
+                      level={job.level}
+                      focus={job.intro}
+                      contract={job.contract}
+                    />
+                  ))}
+                </div>
+
+                <p className="mt-3 text-[11px] text-slate-500">
+                  Se non trovi una posizione in linea con il tuo profilo, puoi
+                  comunque inviare una <strong>candidatura spontanea</strong>.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Riga indirizzo / nota finale */}
@@ -404,7 +457,7 @@ export default function LavoraConNoiPage() {
             </span>
           </div>
 
-          {/* CTA finale: sedi / coworking (stile come pagina "Chi siamo") */}
+          {/* CTA finale: sedi / coworking */}
           <section className="mx-auto max-w-7xl pb-20 mt-10">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
               <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
@@ -474,7 +527,12 @@ function Field({ label, name, type, required }: FieldProps) {
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700">{label}</label>
-      <input name={name} type={type} required={required} className="input mt-1" />
+      <input
+        name={name}
+        type={type}
+        required={required}
+        className="input mt-1"
+      />
     </div>
   );
 }
