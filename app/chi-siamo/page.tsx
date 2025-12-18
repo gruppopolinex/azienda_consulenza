@@ -192,12 +192,12 @@ type TeamMember = {
 
 const TEAM: TeamMember[] = [
   {
-    name: "Andrea Granara",
+    name: "Luigi Bianchi",
     role: "CEO / Ingegnere Civile",
-    image: "/team/andrea_granara.jpg",
+    image: "/team/luigi.jpg",
     phone: "+39 342 3396219",
-    email: "andrea.granara@polinex.it",
-    linkedin: "https://www.linkedin.com/in/andrea-granara",
+    email: "luigi.bianchi@polinex.it",
+    linkedin: "https://www.linkedin.com/in/luigi-bianchi",
   },
   {
     name: "Giulia Verdi",

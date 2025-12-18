@@ -12,7 +12,6 @@ import {
   Coffee,
   Monitor,
   Laptop,
-  PhoneCall,
   ChevronRight,
   Filter as FilterIcon,
 } from "lucide-react";
@@ -37,13 +36,21 @@ export default function CoworkingPage() {
     "Qualsiasi"
   );
 
+  // ✅ Città derivate dai dati: se aggiungi una sede/città in _data.ts,
+  // automaticamente comparirà nel filtro.
+  const availableCities = useMemo(() => {
+    const set = new Set<City>();
+    for (const loc of LOCATIONS) set.add(loc.city);
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "it"));
+  }, []);
+
   const filteredLocations = useMemo(() => {
     return LOCATIONS.filter((loc) => {
       const byCity = selectedCity === "Tutte" ? true : loc.city === selectedCity;
       const bySpaceType =
         spaceType === "Qualsiasi"
           ? true
-          : loc.spaces.some((s) => s.type === spaceType);
+          : (loc.spaces ?? []).some((s) => s.type === spaceType);
 
       return byCity && bySpaceType;
     });
@@ -69,10 +76,8 @@ export default function CoworkingPage() {
 
           <h1 className="section-title">Spazi di lavoro & coworking</h1>
           <p className="mt-4 text-slate-600 leading-relaxed">
-            Uffici, postazioni coworking e sale riunioni nelle sedi Polinex di{" "}
-            <strong>Venezia</strong>, <strong>Milano</strong>,{" "}
-            <strong>Roma</strong> e <strong>Napoli</strong>. Scegli la sede e
-            apri la relativa scheda per{" "}
+            Uffici, postazioni coworking e sale riunioni nelle sedi Polinex.
+            Scegli la sede e apri la relativa scheda per{" "}
             <strong>
               vedere i dettagli e inviare una richiesta di prenotazione
             </strong>
@@ -100,7 +105,7 @@ export default function CoworkingPage() {
 
           {/* Barra filtri */}
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Filtri città (pill) */}
+            {/* Filtri città */}
             <div>
               <p className="text-xs font-medium text-slate-500 mb-2">
                 Filtra per sede
@@ -111,16 +116,15 @@ export default function CoworkingPage() {
                   label="Tutte le sedi"
                   onClick={() => setSelectedCity("Tutte")}
                 />
-                {(["Venezia", "Milano", "Roma", "Napoli"] as City[]).map(
-                  (city) => (
-                    <FilterPill
-                      key={city}
-                      active={selectedCity === city}
-                      label={city}
-                      onClick={() => setSelectedCity(city)}
-                    />
-                  )
-                )}
+
+                {availableCities.map((city) => (
+                  <FilterPill
+                    key={city}
+                    active={selectedCity === city}
+                    label={city}
+                    onClick={() => setSelectedCity(city)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -166,7 +170,7 @@ export default function CoworkingPage() {
           </div>
         </section>
 
-        {/* CTA FINALE – stile Trasparenza/Portfolio */}
+        {/* CTA FINALE */}
         <section className="mx-auto max-w-7xl pb-20 mt-10">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
             <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
@@ -174,7 +178,7 @@ export default function CoworkingPage() {
             </h3>
             <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
               Dalla scheda di ogni sede puoi inviare una{" "}
-              <strong>richiesta di prenotazione</strong>. Se preferisci, possiamo
+              <strong>richiesta di prenotazione</strong>. Possiamo anche
               organizzare una visita o progettare insieme{" "}
               <strong>riunioni, workshop o periodi di lavoro</strong> del tuo
               team.
@@ -186,22 +190,13 @@ export default function CoworkingPage() {
               Contattaci per maggiori informazioni
               <ChevronRight className="ml-2 h-4 w-4" />
             </Link>
-            <p className="mt-3 text-xs text-slate-500 flex items-center justify-center gap-1">
-              <PhoneCall className="h-3.5 w-3.5" />
-              In alternativa puoi scriverci o chiamarci direttamente dalla
-              pagina{" "}
-              <Link href="/contatti" className="underline underline-offset-2">
-                Contatti
-              </Link>
-              .
-            </p>
           </div>
         </section>
       </main>
 
       <Footer />
 
-      {/* Stili globali coerenti con le altre pagine */}
+      {/* Stili globali */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -280,42 +275,48 @@ function LocationCard({ location }: { location: Location }) {
           <p className="mt-2 text-sm text-slate-600">{location.description}</p>
 
           {/* Tag features */}
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {location.tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5 text-[11px] text-slate-700 border border-slate-200"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {location.tags?.length ? (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {location.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5 text-[11px] text-slate-700 border border-slate-200"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
 
           {/* Tipi di spazi */}
-          <div className="mt-4 space-y-2">
-            {location.spaces.map((s) => (
-              <div
-                key={s.label}
-                className="flex items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2"
-              >
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                    {s.type === "Sala riunioni" && (
-                      <Users className="h-3.5 w-3.5 text-slate-500" />
+          {location.spaces?.length ? (
+            <div className="mt-4 space-y-2">
+              {location.spaces.map((s) => (
+                <div
+                  key={`${location.slug}-${s.label}`}
+                  className="flex items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                      {s.type === "Sala riunioni" && (
+                        <Users className="h-3.5 w-3.5 text-slate-500" />
+                      )}
+                      {s.type === "Postazione coworking" && (
+                        <Laptop className="h-3.5 w-3.5 text-slate-500" />
+                      )}
+                      {s.type === "Ufficio privato" && (
+                        <Building2 className="h-3.5 w-3.5 text-slate-500" />
+                      )}
+                      <span>{s.label}</span>
+                    </p>
+                    {s.capacity && (
+                      <p className="text-[11px] text-slate-500">{s.capacity}</p>
                     )}
-                    {s.type === "Postazione coworking" && (
-                      <Laptop className="h-3.5 w-3.5 text-slate-500" />
-                    )}
-                    {s.type === "Ufficio privato" && (
-                      <Building2 className="h-3.5 w-3.5 text-slate-500" />
-                    )}
-                    <span>{s.label}</span>
-                  </p>
-                  <p className="text-[11px] text-slate-500">{s.capacity}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       </article>
     </Link>
