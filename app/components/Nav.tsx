@@ -44,11 +44,11 @@ export default function Nav() {
   }, []);
 
   const isActive = (href: string) =>
-    pathname === href ? "text-slate-900 font-medium" : "text-slate-700";
+    pathname === href ? "text-slate-900 font-semibold" : "text-slate-700";
 
   // Voci del menu (top-level) richieste
   const topLinks: { href: string; label: string }[] = [
-    { href: "/", label: "Home" }, // <-- aggiunta prima di Consulenza
+    { href: "/", label: "Home" },
     { href: "/consulenza", label: "Consulenza" }, // dropdown
     { href: "/formazione", label: "Formazione" },
     { href: "/editoria", label: "Editoria" },
@@ -121,7 +121,7 @@ export default function Nav() {
   const consulenzaIsActive = pathname?.startsWith("/consulenza");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       {/* JSON-LD */}
       <Script id="ld-sitenav" type="application/ld+json">
         {JSON.stringify(ldNav)}
@@ -129,8 +129,6 @@ export default function Nav() {
 
       {/* Altezza navbar 64px */}
       <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* (Logo rimosso) */}
-
         {/* Navigazione desktop */}
         <nav className="hidden md:block" aria-label="Navigazione principale">
           <ul className="flex items-center gap-6 lg:gap-8 text-sm">
@@ -157,7 +155,7 @@ export default function Nav() {
                 type="button"
                 className={`nav-link inline-flex items-center h-16 ${
                   consulenzaIsActive
-                    ? "text-slate-900 font-medium"
+                    ? "text-slate-900 font-semibold"
                     : "text-slate-700"
                 }`}
                 aria-haspopup="menu"
@@ -244,139 +242,221 @@ export default function Nav() {
           </ul>
         </nav>
 
-        {/* Toggle mobile */}
-        <button
-          ref={btnRef}
-          className="md:hidden inline-flex items-center gap-2 h-16 rounded-lg border border-slate-300 px-3 text-sm text-slate-700"
-          aria-label={open ? "Chiudi menu" : "Apri menu"}
-          aria-expanded={open}
-          aria-controls={menuId}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            className="text-slate-700"
-            aria-hidden="true"
+        {/* Toggle mobile (più “pulito”) */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link
+            href="/carrello"
+            aria-label="Vai al carrello"
+            className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-300 text-slate-700 active:scale-[0.98]"
           >
-            {open ? (
-              <path
-                d="M6 6l12 12M6 18L18 6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            ) : (
-              <path
-                d="M4 6h16M4 12h16M4 18h16"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            )}
-          </svg>
-          Menu
-        </button>
+            <ShoppingCart className="h-4 w-4" />
+          </Link>
+
+          <button
+            ref={btnRef}
+            className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-300 text-slate-700 active:scale-[0.98]"
+            aria-label={open ? "Chiudi menu" : "Apri menu"}
+            aria-expanded={open}
+            aria-controls={menuId}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              className="text-slate-700"
+              aria-hidden="true"
+            >
+              {open ? (
+                <path
+                  d="M6 6l12 12M6 18L18 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 6h16M4 12h16M4 18h16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Drawer mobile */}
+      {/* Overlay + Drawer mobile (più moderno) */}
       <div
-        ref={drawerRef}
-        id={menuId}
-        hidden={!open}
-        className="md:hidden border-t border-slate-200 bg-white"
+        className={`md:hidden fixed inset-0 z-40 ${
+          open ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+        aria-hidden={!open}
       >
-        <nav
-          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3"
-          aria-label="Navigazione mobile"
+        {/* Overlay */}
+        <button
+          type="button"
+          aria-label="Chiudi menu"
+          onClick={() => setOpen(false)}
+          className={`absolute inset-0 bg-black/30 transition-opacity ${
+            open ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* Sheet */}
+        <div
+          ref={drawerRef}
+          id={menuId}
+          className={`
+            absolute right-0 top-0 h-full w-[88%] max-w-sm
+            bg-white shadow-2xl border-l border-slate-200
+            transition-transform duration-200
+            ${open ? "translate-x-0" : "translate-x-full"}
+          `}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
         >
-          <ul className="flex flex-col gap-2 text-sm">
-            {/* Home mobile */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/")}`}
-                href="/"
-                aria-current={pathname === "/" ? "page" : undefined}
+          {/* Header sheet */}
+          <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200">
+            <span className="text-sm font-semibold text-slate-900">Menu</span>
+            <button
+              type="button"
+              aria-label="Chiudi menu"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-300 text-slate-700 active:scale-[0.98]"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                className="text-slate-700"
+                aria-hidden="true"
               >
-                Home
-              </Link>
-            </li>
+                <path
+                  d="M6 6l12 12M6 18L18 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
 
-            {/* Consulenza mobile: collassabile */}
-            <li>
-              <button
-                className="w-full text-left nav-link text-slate-700 inline-flex items-center justify-between py-2"
-                aria-expanded={consulenzaMobileOpen}
-                aria-controls="mobile-consulenza"
-                onClick={() => setConsulenzaMobileOpen((v) => !v)}
-              >
-                <span>Consulenza</span>
-                <svg
-                  className={`ml-2 h-3 w-3 transition-transform ${
-                    consulenzaMobileOpen ? "rotate-180" : ""
-                  }`}
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
+          <nav className="px-4 py-4" aria-label="Navigazione mobile">
+            <ul className="flex flex-col text-sm">
+              {/* Home mobile */}
+              <li>
+                <Link
+                  className={`flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${isActive(
+                    "/"
+                  )}`}
+                  href="/"
+                  aria-current={pathname === "/" ? "page" : undefined}
                 >
-                  <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
-                </svg>
-              </button>
+                  Home
+                </Link>
+              </li>
 
-              <div
-                id="mobile-consulenza"
-                className={`overflow-hidden transition-[max-height,opacity] duration-200 ${
-                  consulenzaMobileOpen
-                    ? "max-height-[999px] max-h-96 opacity-100"
-                    : "max-h-0 opacity-70"
-                }`}
-              >
-                <p className="mt-1 pl-2 ml-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Aree
-                </p>
-                <ul className="pl-3 border-l border-slate-200 ml-2 mb-2">
-                  {consulenzaItems.map((s) => (
-                    <li key={s.href}>
-                      <Link
-                        className="block py-2 text-slate-700 hover:text-emerald-700"
-                        href={s.href}
-                      >
-                        {s.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-
-            {/* Altre voci mobile (escluso Home e Consulenza) */}
-            {topLinks
-              .filter((l) => l.label !== "Home" && l.label !== "Consulenza")
-              .map(({ href, label }) => (
-                <li key={href}>
-                  <Link
-                    className={`nav-link ${isActive(href)}`}
-                    href={href}
-                    aria-current={pathname === href ? "page" : undefined}
+              {/* Consulenza mobile: collassabile, stile card */}
+              <li className="mt-1">
+                <button
+                  className={`w-full flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${
+                    consulenzaIsActive
+                      ? "text-slate-900 font-semibold"
+                      : "text-slate-700"
+                  }`}
+                  aria-expanded={consulenzaMobileOpen}
+                  aria-controls="mobile-consulenza"
+                  onClick={() => setConsulenzaMobileOpen((v) => !v)}
+                >
+                  <span>Consulenza</span>
+                  <svg
+                    className={`ml-2 h-4 w-4 transition-transform ${
+                      consulenzaMobileOpen ? "rotate-180" : ""
+                    }`}
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
                   >
-                    {label}
-                  </Link>
-                </li>
-              ))}
+                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
+                  </svg>
+                </button>
 
-            {/* Carrello mobile (testo) */}
-            <li>
-              <Link
-                className={`nav-link ${isActive("/carrello")}`}
-                href="/carrello"
-                aria-current={pathname === "/carrello" ? "page" : undefined}
-              >
-                Carrello
-              </Link>
-            </li>
-          </ul>
-        </nav>
+                <div
+                  id="mobile-consulenza"
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ${
+                    consulenzaMobileOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50/60 p-2">
+                      <p className="px-2 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        Aree
+                      </p>
+                      <ul className="flex flex-col">
+                        {consulenzaItems.map((s) => (
+                          <li key={s.href}>
+                            <Link
+                              className="block rounded-lg px-2.5 py-2 text-slate-700 hover:bg-white hover:text-emerald-700"
+                              href={s.href}
+                            >
+                              {s.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              {/* Divider */}
+              <li className="my-3 border-t border-slate-200" />
+
+              {/* Altre voci mobile (escluso Home e Consulenza) */}
+              {topLinks
+                .filter((l) => l.label !== "Home" && l.label !== "Consulenza")
+                .map(({ href, label }) => (
+                  <li key={href} className="mt-1">
+                    <Link
+                      className={`flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${isActive(
+                        href
+                      )}`}
+                      href={href}
+                      aria-current={pathname === href ? "page" : undefined}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+
+              {/* Carrello mobile (rimane anche come voce) */}
+              <li className="mt-1">
+                <Link
+                  className={`flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${isActive(
+                    "/carrello"
+                  )}`}
+                  href="/carrello"
+                  aria-current={pathname === "/carrello" ? "page" : undefined}
+                >
+                  Carrello
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Footer sheet */}
+          <div className="mt-auto px-4 pb-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600">
+              <span className="font-semibold text-slate-900">Tip:</span> Tocca
+              fuori dal pannello per chiudere.
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
