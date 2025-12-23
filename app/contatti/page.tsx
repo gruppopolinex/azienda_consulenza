@@ -9,14 +9,14 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
 export default function ContattiPage() {
-  const ADDRESS = "Via Esempio 123, 35100 Padova (PD)";
+  const ADDRESS = "Piazzale Roma, Venezia";
   const PHONE = "+39 000 000 0000";
   const EMAIL = "info@polinex.it";
   const PEC = "polinex@pec.it";
   const PIVA = "P.IVA / CF 00000000000";
 
   const mapsEmbed =
-    "https://www.google.com/maps/embed?pb=!1m18!2m3!1d0!2d11.878!3d45.407!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2zNDUuNDA3LCAxMS44Nzg!5e0!3m2!1sit!2sit!4v0000000000";
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2795.2817137792016!2d12.3093150762663!3d45.43825297107219!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x477eb1c7e9f9b7d1%3A0x7dcbcf4b66fdb1f7!2sPiazzale%20Roma%2C%2030121%20Venezia%20VE!5e0!3m2!1sit!2sit!4v1700000000000";
 
   return (
     <>
@@ -27,7 +27,12 @@ export default function ContattiPage() {
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image src="/logo.png" alt="Polinex" fill className="object-contain" />
+              <Image
+                src="/logo.png"
+                alt="Polinex"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
 
@@ -67,19 +72,29 @@ export default function ContattiPage() {
                     label="Email"
                     value={
                       <>
-                        <a href={`mailto:${EMAIL}`} className="hover:text-emerald-700">
+                        <a
+                          href={`mailto:${EMAIL}`}
+                          className="hover:text-emerald-700"
+                        >
                           {EMAIL}
                         </a>
                         <div className="text-xs text-slate-500">
                           PEC:{" "}
-                          <a href={`mailto:${PEC}`} className="underline hover:text-emerald-700">
+                          <a
+                            href={`mailto:${PEC}`}
+                            className="underline hover:text-emerald-700"
+                          >
                             {PEC}
                           </a>
                         </div>
                       </>
                     }
                   />
-                  <InfoRow icon={<Building2 />} label="Dati societari" value={PIVA} />
+                  <InfoRow
+                    icon={<Building2 />}
+                    label="Dati societari"
+                    value={PIVA}
+                  />
                   <InfoRow
                     icon={<Clock />}
                     label="Orari"
@@ -89,7 +104,13 @@ export default function ContattiPage() {
               </div>
 
               <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 flex-1">
-                <iframe src={mapsEmbed} className="w-full h-full" loading="lazy" />
+                <iframe
+                  src={mapsEmbed}
+                  className="w-full h-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
               </div>
             </div>
 
@@ -127,19 +148,31 @@ export default function ContattiPage() {
 
                     if (res.ok) {
                       form.reset();
-                      alert("Richiesta inviata! Ti risponderemo entro 1 giorno lavorativo.");
+                      alert(
+                        "Richiesta inviata! Ti risponderemo entro 1 giorno lavorativo."
+                      );
                     } else {
                       alert(data?.error ?? "Errore nell’invio. Riprova.");
                     }
                   }}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Nome e cognome *" name="nome" type="text" required />
+                    <Field
+                      label="Nome e cognome *"
+                      name="nome"
+                      type="text"
+                      required
+                    />
                     <Field label="Azienda / Ente" name="azienda" type="text" />
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Email *" name="email" type="email" required />
+                    <Field
+                      label="Email *"
+                      name="email"
+                      type="email"
+                      required
+                    />
                     <Field label="Telefono" name="telefono" type="tel" />
                   </div>
 
@@ -168,7 +201,10 @@ export default function ContattiPage() {
                   />
 
                   <div className="mt-3 flex justify-center">
-                    <button type="submit" className="btn-primary inline-flex items-center gap-2">
+                    <button
+                      type="submit"
+                      className="btn-primary inline-flex items-center gap-2"
+                    >
                       Invia richiesta <Send className="h-4 w-4" />
                     </button>
                   </div>
@@ -242,7 +278,12 @@ function Field({
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700">{label}</label>
-      <input name={name} type={type} required={required} className="input mt-1" />
+      <input
+        name={name}
+        type={type}
+        required={required}
+        className="input mt-1"
+      />
     </div>
   );
 }
