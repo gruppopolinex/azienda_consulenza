@@ -54,7 +54,10 @@ export default function ContattiPage() {
                     icon={<Phone />}
                     label="Telefono"
                     value={
-                      <a href={`tel:${PHONE.replace(/\s+/g, "")}`} className="hover:text-emerald-700">
+                      <a
+                        href={`tel:${PHONE.replace(/\s+/g, "")}`}
+                        className="hover:text-emerald-700"
+                      >
                         {PHONE}
                       </a>
                     }
@@ -77,7 +80,11 @@ export default function ContattiPage() {
                     }
                   />
                   <InfoRow icon={<Building2 />} label="Dati societari" value={PIVA} />
-                  <InfoRow icon={<Clock />} label="Orari" value="Lun–Ven: 9:00–13:00 / 14:00–18:00" />
+                  <InfoRow
+                    icon={<Clock />}
+                    label="Orari"
+                    value="Lun–Ven: 9:00–13:00 / 14:00–18:00"
+                  />
                 </div>
               </div>
 
@@ -145,6 +152,10 @@ export default function ContattiPage() {
                     <option>Sicurezza</option>
                     <option>Edilizia e Infrastrutture</option>
                     <option>Bandi e Finanziamenti</option>
+                    <option>Formazione</option>
+                    <option>Editoria</option>
+                    <option>Gestionali</option>
+                    <option>Coworking</option>
                     <option>Altro</option>
                   </select>
 
@@ -163,6 +174,27 @@ export default function ContattiPage() {
                   </div>
                 </form>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA finale – Coworking */}
+        <section className="mx-auto max-w-7xl pb-20">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+              Vuoi vedere da vicino le nostre sedi?
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
+              Esplora gli spazi di coworking, gli uffici e le sale riunioni
+              disponibili nelle sedi Polinex.
+            </p>
+            <div className="mt-6">
+              <Link
+                href="/coworking"
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-sm sm:text-base font-medium text-white hover:bg-emerald-700"
+              >
+                Scopri le nostre sedi e gli spazi di lavoro
+              </Link>
             </div>
           </div>
         </section>
