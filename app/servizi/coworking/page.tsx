@@ -1,4 +1,4 @@
-// app/coworking/page.tsx
+// app/servizi/coworking/page.tsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -16,8 +16,8 @@ import {
   Filter as FilterIcon,
 } from "lucide-react";
 
-import Nav from "../components/Nav";
-import Footer from "../components/Footer";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer";
 
 // Dati centralizzati in _data.ts
 import {
@@ -139,7 +139,8 @@ export default function CoworkingPage() {
                   value={spaceType}
                   onChange={(e) =>
                     setSpaceType(
-                      (e.target.value as SpaceType | "Qualsiasi") || "Qualsiasi"
+                      (e.target.value as SpaceType | "Qualsiasi") ||
+                        "Qualsiasi"
                     )
                   }
                 >
@@ -249,7 +250,7 @@ function FilterPill({
 function LocationCard({ location }: { location: Location }) {
   return (
     <Link
-      href={`/coworking/${location.slug}`}
+      href={`/servizi/coworking/${location.slug}`}
       aria-label={`Apri la scheda di ${location.name}`}
       className="block rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
     >

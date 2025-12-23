@@ -1,4 +1,4 @@
-// app/servizi/finanziamenti/_data.ts
+// app/finanziamenti/_data.ts
 
 export type Status = "Aperti" | "Chiusi" | "In programma";
 
@@ -29,14 +29,14 @@ export type Grant = {
   ente: string;
   beneficiari: string;
   contributo: string;
-  scadenza?: string;      // es. "2026-03-03"
+  scadenza?: string; // es. "2026-03-03"
   territorio?: string;
-  teaser?: string;        // descrizione breve per la card
-  description?: string;   // descrizione estesa per la pagina dettaglio
-  pdfHref?: string;       // link al PDF in /public/finanziamenti/
-  youtubeId?: string;     // ID del video YouTube
-  officialUrl?: string;   // link al sito ufficiale
-  aree?: Area[];          // settori di riferimento (Acqua, Ambiente, …)
+  teaser?: string; // descrizione breve per la card
+  description?: string; // descrizione estesa per la pagina dettaglio
+  pdfHref?: string; // link al PDF in /public/finanziamenti/
+  youtubeId?: string; // ID del video YouTube
+  officialUrl?: string; // link al sito ufficiale
+  aree?: Area[]; // settori di riferimento (Acqua, Ambiente, …)
 };
 
 export const GRANTS: Grant[] = [

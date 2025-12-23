@@ -1,4 +1,4 @@
-// app/formazione/[slug]/page.tsx
+// app/servizi/formazione/[slug]/page.tsx
 "use client";
 
 import type React from "react";
@@ -20,8 +20,8 @@ import {
   Linkedin,
 } from "lucide-react";
 
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer";
+import Nav from "../../../components/Nav";
+import Footer from "../../../components/Footer";
 
 // Importo tipi e dati da _data.ts
 import type { Course, Teacher } from "../_data";
@@ -40,33 +40,22 @@ const formatPrice = (price: number) =>
  * Sostituisci "VIDEO_ID" con gli ID reali dei tuoi video YouTube.
  */
 const COURSE_VIDEOS: Record<string, string> = {
-  "acqua-progettazione-reti-idriche":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "acqua-monitoraggi-campi-pozzi":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "ambiente-via-vas-laboratorio":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "ambiente-bonifiche-rifiuti":
-    "https://www.youtube.com/embed/VIDEO_ID",
+  "acqua-progettazione-reti-idriche": "https://www.youtube.com/embed/VIDEO_ID",
+  "acqua-monitoraggi-campi-pozzi": "https://www.youtube.com/embed/VIDEO_ID",
+  "ambiente-via-vas-laboratorio": "https://www.youtube.com/embed/VIDEO_ID",
+  "ambiente-bonifiche-rifiuti": "https://www.youtube.com/embed/VIDEO_ID",
   "energia-audit-iso50001": "https://www.youtube.com/embed/VIDEO_ID",
-  "energia-comunita-energetiche":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "agricoltura-piani-nitrati-pratico":
-    "https://www.youtube.com/embed/VIDEO_ID",
+  "energia-comunita-energetiche": "https://www.youtube.com/embed/VIDEO_ID",
+  "agricoltura-piani-nitrati-pratico": "https://www.youtube.com/embed/VIDEO_ID",
   "agricoltura-gestione-idrica-aziende":
     "https://www.youtube.com/embed/VIDEO_ID",
-  "sicurezza-cantieri-csp-cse":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "sicurezza-dvr-e-valutazioni":
-    "https://www.youtube.com/embed/VIDEO_ID",
+  "sicurezza-cantieri-csp-cse": "https://www.youtube.com/embed/VIDEO_ID",
+  "sicurezza-dvr-e-valutazioni": "https://www.youtube.com/embed/VIDEO_ID",
   "edilizia-riqualificazione-sismica-corso":
     "https://www.youtube.com/embed/VIDEO_ID",
-  "edilizia-permessi-iter-pratico":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "finanza-agevolata-progetti-tecnici":
-    "https://www.youtube.com/embed/VIDEO_ID",
-  "finanza-rendicontazione-bandi":
-    "https://www.youtube.com/embed/VIDEO_ID",
+  "edilizia-permessi-iter-pratico": "https://www.youtube.com/embed/VIDEO_ID",
+  "finanza-agevolata-progetti-tecnici": "https://www.youtube.com/embed/VIDEO_ID",
+  "finanza-rendicontazione-bandi": "https://www.youtube.com/embed/VIDEO_ID",
 };
 
 /* ==================== PAGINA DETTAGLIO CORSO ==================== */
@@ -76,9 +65,7 @@ export default function CourseDetailPage() {
   const router = useRouter();
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const course: Course | undefined = COURSES.find(
-    (c) => c.slug === slugParam
-  );
+  const course: Course | undefined = COURSES.find((c) => c.slug === slugParam);
 
   // Fallback se il corso non esiste
   if (!course) {
@@ -88,7 +75,7 @@ export default function CourseDetailPage() {
         <main className="flex-1 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
           <button
             type="button"
-            onClick={() => router.push("/formazione")}
+            onClick={() => router.push("/servizi/formazione")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -101,7 +88,7 @@ export default function CourseDetailPage() {
               disponibile a catalogo.
             </p>
             <Link
-              href="/formazione"
+              href="/servizi/formazione"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Vai al catalogo corsi
@@ -139,7 +126,7 @@ export default function CourseDetailPage() {
             <div className="flex flex-col gap-3">
               <button
                 type="button"
-                onClick={() => router.push("/formazione")}
+                onClick={() => router.push("/servizi/formazione")}
                 className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 w-fit"
               >
                 <ArrowLeft className="h-3 w-3" />
@@ -229,9 +216,7 @@ export default function CourseDetailPage() {
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-slate-200">
-                      <span>
-                        Video di presentazione non ancora disponibile.
-                      </span>
+                      <span>Video di presentazione non ancora disponibile.</span>
                     </div>
                   )}
 
@@ -330,8 +315,8 @@ export default function CourseDetailPage() {
                     <li className="flex items-start gap-2">
                       <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
                       <span>
-                        Realtà aziendali che vogliono aggiornare il proprio
-                        team su normative e prassi operative.
+                        Realtà aziendali che vogliono aggiornare il proprio team
+                        su normative e prassi operative.
                       </span>
                     </li>
                   </ul>
@@ -379,10 +364,9 @@ export default function CourseDetailPage() {
                   </p>
 
                   <p className="mt-2 text-xs text-slate-600">
-                    Il prezzo si intende{" "}
-                    <strong>IVA esclusa</strong> e comprende materiali didattici
-                    digitali e attestato di partecipazione rilasciato da Polinex
-                    srl.
+                    Il prezzo si intende <strong>IVA esclusa</strong> e
+                    comprende materiali didattici digitali e attestato di
+                    partecipazione rilasciato da Polinex srl.
                   </p>
 
                   <button
@@ -454,13 +438,10 @@ export default function CourseDetailPage() {
 
               {/* CTA aziende / gruppi */}
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs text-emerald-900 space-y-2">
-                <p className="font-semibold text-[13px]">
-                  Per aziende e gruppi
-                </p>
+                <p className="font-semibold text-[13px]">Per aziende e gruppi</p>
                 <p>
-                  Se vuoi iscrivere più persone o attivare una edizione
-                  dedicata del corso (in presenza o online), possiamo
-                  strutturare un{" "}
+                  Se vuoi iscrivere più persone o attivare una edizione dedicata
+                  del corso (in presenza o online), possiamo strutturare un{" "}
                   <strong>percorso personalizzato</strong> sulle esigenze del
                   tuo team.
                 </p>
@@ -494,8 +475,8 @@ export default function CourseDetailPage() {
                   </p>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  Puoi contattare i docenti per chiarire dubbi sull&apos;adeguatezza
-                  del corso rispetto al tuo profilo.
+                  Puoi contattare i docenti per chiarire dubbi
+                  sull&apos;adeguatezza del corso rispetto al tuo profilo.
                 </p>
               </div>
 
@@ -518,9 +499,7 @@ export default function CourseDetailPage() {
                         <h3 className="text-sm font-semibold text-slate-900">
                           {teacher.name}
                         </h3>
-                        <p className="text-xs text-slate-600">
-                          {teacher.role}
-                        </p>
+                        <p className="text-xs text-slate-600">{teacher.role}</p>
                       </div>
                     </div>
 
@@ -571,7 +550,7 @@ export default function CourseDetailPage() {
                 {related.map((r) => (
                   <Link
                     key={r.slug}
-                    href={`/formazione/${r.slug}`}
+                    href={`/servizi/formazione/${r.slug}`}
                     className="group rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-emerald-400 hover:shadow-sm"
                   >
                     <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">

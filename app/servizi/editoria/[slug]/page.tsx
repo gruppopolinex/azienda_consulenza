@@ -1,4 +1,4 @@
-// app/editoria/[slug]/page.tsx
+// app/servizi/editoria/[slug]/page.tsx
 "use client";
 
 import type React from "react";
@@ -18,15 +18,11 @@ import {
   Linkedin,
 } from "lucide-react";
 
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer";
+import Nav from "../../../components/Nav";
+import Footer from "../../../components/Footer";
 
 // Import dati centralizzati
-import {
-  BOOKS,
-  type Book,
-  type Author,
-} from "../_data";
+import { BOOKS, type Book, type Author } from "../_data";
 
 /* ===== Helper prezzo (stile altre pagine) ===== */
 const formatPrice = (price: number) =>
@@ -53,7 +49,7 @@ export default function BookDetailPage() {
         <main className="flex-1 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
           <button
             type="button"
-            onClick={() => router.push("/editoria")}
+            onClick={() => router.push("/servizi/editoria")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -66,7 +62,7 @@ export default function BookDetailPage() {
               disponibile a catalogo.
             </p>
             <Link
-              href="/editoria"
+              href="/servizi/editoria"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Vai al catalogo
@@ -78,9 +74,10 @@ export default function BookDetailPage() {
     );
   }
 
-  const related = BOOKS.filter(
-    (b) => b.area === book.area && b.slug !== book.slug
-  ).slice(0, 3);
+  const related = BOOKS.filter((b) => b.area === book.area && b.slug !== book.slug).slice(
+    0,
+    3
+  );
 
   const hasAuthors = book.authors && book.authors.length > 0;
 
@@ -100,7 +97,7 @@ export default function BookDetailPage() {
             <div className="flex flex-col gap-3">
               <button
                 type="button"
-                onClick={() => router.push("/editoria")}
+                onClick={() => router.push("/servizi/editoria")}
                 className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 w-fit"
               >
                 <ArrowLeft className="h-3 w-3" />
@@ -122,18 +119,12 @@ export default function BookDetailPage() {
                   )}
                   <p className="mt-3 text-sm text-slate-600">
                     Area:{" "}
-                    <span className="font-medium text-slate-800">
-                      {book.area}
-                    </span>
+                    <span className="font-medium text-slate-800">{book.area}</span>
                     {" · "}
                     Formato:{" "}
-                    <span className="font-medium text-slate-800">
-                      {book.format}
-                    </span>
+                    <span className="font-medium text-slate-800">{book.format}</span>
                     {" · "}
-                    <span className="font-medium text-slate-800">
-                      {book.year}
-                    </span>
+                    <span className="font-medium text-slate-800">{book.year}</span>
                   </p>
                 </div>
 
@@ -146,9 +137,7 @@ export default function BookDetailPage() {
                   )}
                   <p className="text-xs text-slate-500">
                     Codice interno:{" "}
-                    <span className="font-mono text-slate-700">
-                      {book.slug}
-                    </span>
+                    <span className="font-mono text-slate-700">{book.slug}</span>
                   </p>
                 </div>
               </div>
@@ -179,9 +168,7 @@ export default function BookDetailPage() {
                   <FileText className="h-4 w-4 text-slate-500" />
                   Panoramica del volume
                 </h2>
-                <p className="mt-2 text-sm text-slate-700">
-                  {book.description}
-                </p>
+                <p className="mt-2 text-sm text-slate-700">{book.description}</p>
               </div>
 
               {book.previewUrl && (
@@ -199,8 +186,8 @@ export default function BookDetailPage() {
                     <span>Apri un estratto in PDF</span>
                   </Link>
                   <p className="mt-2 text-[11px] text-slate-500">
-                    L&apos;estratto include indice, introduzione e alcune pagine
-                    di esempio.
+                    L&apos;estratto include indice, introduzione e alcune pagine di
+                    esempio.
                   </p>
                 </div>
               )}
@@ -215,10 +202,9 @@ export default function BookDetailPage() {
                 </p>
 
                 <p className="mt-2 text-xs text-slate-600">
-                  Il prezzo si intende{" "}
-                  <strong>IVA esclusa</strong>. Dettagli su spese di spedizione
-                  e fatturazione sono mostrati nel carrello, prima del
-                  pagamento.
+                  Il prezzo si intende <strong>IVA esclusa</strong>. Dettagli su
+                  spese di spedizione e fatturazione sono mostrati nel carrello, prima
+                  del pagamento.
                 </p>
 
                 <button
@@ -231,8 +217,8 @@ export default function BookDetailPage() {
                 </button>
 
                 <p className="mt-3 text-[11px] text-slate-500">
-                  Per ordini multipli o personalizzazioni aziendali, puoi
-                  contattarci direttamente dalla pagina{" "}
+                  Per ordini multipli o personalizzazioni aziendali, puoi contattarci
+                  direttamente dalla pagina{" "}
                   <Link
                     href="/contatti"
                     className="underline underline-offset-2 hover:text-slate-800"
@@ -286,24 +272,18 @@ export default function BookDetailPage() {
                   <dd>{book.pages}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Anno di pubblicazione
-                  </dt>
+                  <dt className="font-medium text-slate-600">Anno di pubblicazione</dt>
                   <dd>{book.year}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Aggiornamento normativo
-                  </dt>
+                  <dt className="font-medium text-slate-600">Aggiornamento normativo</dt>
                   <dd>Allineato alle principali norme in vigore alla data.</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Utilizzo consigliato
-                  </dt>
+                  <dt className="font-medium text-slate-600">Utilizzo consigliato</dt>
                   <dd>
-                    Come manuale operativo di riferimento per casi concreti e
-                    iter autorizzativi.
+                    Come manuale operativo di riferimento per casi concreti e iter
+                    autorizzativi.
                   </dd>
                 </div>
               </dl>
@@ -334,7 +314,7 @@ export default function BookDetailPage() {
                 {related.map((r) => (
                   <Link
                     key={r.slug}
-                    href={`/editoria/${r.slug}`}
+                    href={`/servizi/editoria/${r.slug}`}
                     className="group rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-emerald-400 hover:shadow-sm"
                   >
                     <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg bg-slate-100">
@@ -412,12 +392,8 @@ function AuthorCard({ author }: { author: Author }) {
         )}
       </div>
       <div className="flex-1">
-        <p className="text-sm font-semibold text-slate-900">
-          {author.name}
-        </p>
-        <p className="text-[11px] text-emerald-700 font-medium">
-          {author.role}
-        </p>
+        <p className="text-sm font-semibold text-slate-900">{author.name}</p>
+        <p className="text-[11px] text-emerald-700 font-medium">{author.role}</p>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
           {author.phone && (

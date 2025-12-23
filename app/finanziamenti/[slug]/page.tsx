@@ -1,4 +1,4 @@
-// app/servizi/finanziamenti/[slug]/page.tsx
+// app/finanziamenti/[slug]/page.tsx
 "use client";
 
 import type React from "react";
@@ -16,8 +16,8 @@ import {
   Youtube,
 } from "lucide-react";
 
-import Nav from "../../../components/Nav";
-import Footer from "../../../components/Footer";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer";
 
 import { getGrantBySlug, type Status, type Grant } from "../_data";
 
@@ -41,7 +41,6 @@ function statusBadgeClass(s: Status) {
 }
 
 /* ===== Pagina dettaglio bando (client) ===== */
-
 export default function GrantPage() {
   const params = useParams<{ slug: string | string[] }>();
   const router = useRouter();
@@ -59,7 +58,7 @@ export default function GrantPage() {
         <main className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
           <button
             type="button"
-            onClick={() => router.push("/servizi/finanziamenti")}
+            onClick={() => router.push("/finanziamenti")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -76,7 +75,7 @@ export default function GrantPage() {
               completo dei bandi e finanziamenti.
             </p>
             <Link
-              href="/servizi/finanziamenti"
+              href="/finanziamenti"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Vai all&apos;elenco bandi
@@ -99,7 +98,7 @@ export default function GrantPage() {
         <div className="flex flex-col gap-3 mb-4">
           <button
             type="button"
-            onClick={() => router.push("/servizi/finanziamenti")}
+            onClick={() => router.push("/finanziamenti")}
             className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 w-fit"
           >
             <ArrowLeft className="h-3 w-3" />
@@ -111,10 +110,7 @@ export default function GrantPage() {
               Home
             </Link>{" "}
             <span className="mx-1">/</span>
-            <Link
-              className="hover:underline"
-              href="/servizi/finanziamenti"
-            >
+            <Link className="hover:underline" href="/finanziamenti">
               Bandi e Finanziamenti
             </Link>{" "}
             <span className="mx-1">/</span>
@@ -280,7 +276,7 @@ export default function GrantPage() {
         {/* back link in fondo */}
         <section className="mt-10">
           <Link
-            href="/servizi/finanziamenti"
+            href="/finanziamenti"
             className="inline-flex items-center gap-2 text-sm text-slate-700 hover:text-slate-900"
           >
             ← Torna ai bandi

@@ -1,4 +1,4 @@
-// app/editoria/_data.ts
+// app/servizi/editoria/_data.ts
 
 export type Area =
   | "Acqua"
@@ -33,8 +33,8 @@ export type Book = {
   year: number;
   cover: string;
   badge?: string;
-  authors?: Author[]; // <-- aggiunto
-  previewUrl?: string; // <-- estratto PDF
+  authors?: Author[]; // <-- autori opzionali
+  previewUrl?: string; // <-- estratto PDF (es. in /public/pdf-preview/)
 };
 
 export const AREAS: Area[] = [
@@ -73,7 +73,6 @@ export const BOOKS: Book[] = [
       },
     ],
   },
-
   {
     slug: "acqua-monitoraggi-pozzi",
     title: "Monitoraggi di pozzi e falde",
@@ -140,7 +139,6 @@ export const BOOKS: Book[] = [
       },
     ],
   },
-
   {
     slug: "energia-comunita-energetiche",
     title: "Comunità energetiche rinnovabili",
@@ -155,7 +153,7 @@ export const BOOKS: Book[] = [
     cover: "/editoria/energia-comunita-energetiche.jpg",
   },
 
-  // Finanza
+  // Finanza e Contabilità
   {
     slug: "finanza-progetti-pubblici",
     title: "Finanza agevolata per progetti tecnici",
@@ -178,7 +176,6 @@ export const BOOKS: Book[] = [
       },
     ],
   },
-
   {
     slug: "finanza-rendicontazione",
     title: "Rendicontazione e controlli",

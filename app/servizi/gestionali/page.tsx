@@ -1,4 +1,4 @@
-// app/gestionali/page.tsx
+// app/servizi/gestionali/page.tsx
 "use client";
 
 import type React from "react";
@@ -6,8 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Building2, Factory, Sprout, Check, ArrowRight } from "lucide-react";
 
-import Nav from "../components/Nav";
-import Footer from "../components/Footer";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer";
 
 import { GESTIONALI, type Gestionale, type Sector } from "./_data";
 
@@ -133,7 +133,7 @@ function GestionaleCard({ gestionale }: { gestionale: Gestionale }) {
 
   return (
     <Link
-      href={`/gestionali/${gestionale.slug}`}
+      href={`/servizi/gestionali/${gestionale.slug}`}
       aria-label={`Apri ${gestionale.name}`}
       className="block h-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm transition hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
     >

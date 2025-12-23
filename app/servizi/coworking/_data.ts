@@ -1,4 +1,4 @@
-// app/coworking/_data.ts
+// app/servizi/coworking/_data.ts
 
 /* ==================== TIPI BASE ==================== */
 
@@ -51,7 +51,7 @@ export type SpacePricing = {
 };
 
 export type LocationSpace = {
-  slug: string; // /coworking/[locationslug]/[spaceslug]
+  slug: string; // /servizi/coworking/[locationslug]/[spaceslug]
   type: SpaceType;
   label: string;
   capacity: string;
@@ -251,7 +251,10 @@ export const LOCATIONS: Location[] = [
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [0, 1, 2], slotIds: ["morning", "afternoon"] }),
+    booking: baseBooking({
+      dayIndexes: [0, 1, 2],
+      slotIds: ["morning", "afternoon"],
+    }),
 
     videoUrl: "https://www.youtube.com/embed/VIDEO_ID_VENEZIA",
     mapUrl:
@@ -263,7 +266,11 @@ export const LOCATIONS: Location[] = [
 
     regularClients: [
       { name: "Cliente A", logoSrc: "/clients/cliente-a.svg" },
-      { name: "Cliente B", logoSrc: "/clients/cliente-b.svg", href: "https://cliente-b.it" },
+      {
+        name: "Cliente B",
+        logoSrc: "/clients/cliente-b.svg",
+        href: "https://cliente-b.it",
+      },
     ],
 
     cta: defaultCTA,
@@ -290,7 +297,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 45,
         pricing: { hourly: 45 },
-        images: ["/coworking/roma/sala-fori-1.jpg", "/coworking/roma/sala-fori-2.jpg"],
+        images: [
+          "/coworking/roma/sala-fori-1.jpg",
+          "/coworking/roma/sala-fori-2.jpg",
+        ],
       },
       {
         slug: "coworking-centrale",
@@ -300,11 +310,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 17,
         pricing: { hourly: 17 },
-        images: ["/coworking/roma/coworking-1.jpg", "/coworking/roma/coworking-2.jpg"],
+        images: [
+          "/coworking/roma/coworking-1.jpg",
+          "/coworking/roma/coworking-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [3, 2, 0], slotIds: ["morning", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [3, 2, 0],
+      slotIds: ["morning", "full-day"],
+    }),
 
     email: "roma@polinex.it",
     mapUrl:
@@ -322,7 +338,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Napoli",
     address: "Via Mare 7, 80100 Napoli (NA)",
     image: "/coworking/napoli/hero.jpg",
-    description: "Ambiente informale per riunioni, formazione e lavoro in team.",
+    description:
+      "Ambiente informale per riunioni, formazione e lavoro in team.",
     tags: ["Vista mare", "Formazione"],
 
     spaces: [
@@ -334,7 +351,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
-        images: ["/coworking/napoli/coworking-1.jpg", "/coworking/napoli/coworking-2.jpg"],
+        images: [
+          "/coworking/napoli/coworking-1.jpg",
+          "/coworking/napoli/coworking-2.jpg",
+        ],
       },
       {
         slug: "sala-partenope",
@@ -344,11 +364,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 32,
         pricing: { hourly: 32 },
-        images: ["/coworking/napoli/sala-1.jpg", "/coworking/napoli/sala-2.jpg"],
+        images: [
+          "/coworking/napoli/sala-1.jpg",
+          "/coworking/napoli/sala-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [4, 3, 2], slotIds: ["afternoon", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [4, 3, 2],
+      slotIds: ["afternoon", "full-day"],
+    }),
 
     email: "napoli@polinex.it",
     mapUrl:
@@ -405,7 +431,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 40,
         pricing: { hourly: 40 },
-        images: ["/coworking/milano/sala-1.jpg", "/coworking/milano/sala-2.jpg"],
+        images: [
+          "/coworking/milano/sala-1.jpg",
+          "/coworking/milano/sala-2.jpg",
+        ],
       },
     ],
 
@@ -427,7 +456,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Torino",
     address: "Corso Esempio 21, 10100 Torino (TO)",
     image: "/coworking/torino/hero.jpg",
-    description: "Spazi funzionali per team e consulenti, in un’area ben collegata.",
+    description:
+      "Spazi funzionali per team e consulenti, in un’area ben collegata.",
     tags: ["Ben collegato", "Team room", "Silenzioso"],
 
     spaces: [
@@ -439,7 +469,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
-        images: ["/coworking/torino/coworking-1.jpg", "/coworking/torino/coworking-2.jpg"],
+        images: [
+          "/coworking/torino/coworking-1.jpg",
+          "/coworking/torino/coworking-2.jpg",
+        ],
       },
       {
         slug: "ufficio-privato-3-4",
@@ -449,11 +482,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "both",
         minHourlyPrice: 22,
         pricing: { hourly: 22, monthlyFrom: 980 },
-        images: ["/coworking/torino/ufficio-1.jpg", "/coworking/torino/ufficio-2.jpg"],
+        images: [
+          "/coworking/torino/ufficio-1.jpg",
+          "/coworking/torino/ufficio-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [2, 3, 4], slotIds: ["morning", "afternoon"] }),
+    booking: baseBooking({
+      dayIndexes: [2, 3, 4],
+      slotIds: ["morning", "afternoon"],
+    }),
 
     email: "torino@polinex.it",
     mapUrl:
@@ -483,7 +522,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
-        images: ["/coworking/padova/open-1.jpg", "/coworking/padova/open-2.jpg"],
+        images: [
+          "/coworking/padova/open-1.jpg",
+          "/coworking/padova/open-2.jpg",
+        ],
       },
       {
         slug: "sala-galileo",
@@ -497,7 +539,10 @@ export const LOCATIONS: Location[] = [
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [0, 2, 4], slotIds: ["morning", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [0, 2, 4],
+      slotIds: ["morning", "full-day"],
+    }),
 
     email: "padova@polinex.it",
     mapUrl:
@@ -515,7 +560,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Verona",
     address: "Via Arena 3, 37100 Verona (VR)",
     image: "/coworking/verona/hero.jpg",
-    description: "Spazio accogliente per incontri e giornate operative in centro.",
+    description:
+      "Spazio accogliente per incontri e giornate operative in centro.",
     tags: ["Centro", "Riunioni", "Accogliente"],
 
     spaces: [
@@ -527,7 +573,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
-        images: ["/coworking/verona/coworking-1.jpg", "/coworking/verona/coworking-2.jpg"],
+        images: [
+          "/coworking/verona/coworking-1.jpg",
+          "/coworking/verona/coworking-2.jpg",
+        ],
       },
       {
         slug: "sala-scaligera",
@@ -541,7 +590,10 @@ export const LOCATIONS: Location[] = [
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [1, 3, 4], slotIds: ["afternoon", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [1, 3, 4],
+      slotIds: ["afternoon", "full-day"],
+    }),
 
     email: "verona@polinex.it",
     mapUrl:
@@ -559,7 +611,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Firenze",
     address: "Via Rinascimento 9, 50100 Firenze (FI)",
     image: "/coworking/firenze/hero.jpg",
-    description: "Spazio curato per creativi, consulenti e meeting con clienti.",
+    description:
+      "Spazio curato per creativi, consulenti e meeting con clienti.",
     tags: ["Creatività", "Workshop", "Luce naturale"],
 
     spaces: [
@@ -571,7 +624,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
-        images: ["/coworking/firenze/open-1.jpg", "/coworking/firenze/open-2.jpg"],
+        images: [
+          "/coworking/firenze/open-1.jpg",
+          "/coworking/firenze/open-2.jpg",
+        ],
       },
       {
         slug: "ufficio-privato-2",
@@ -581,11 +637,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "both",
         minHourlyPrice: 24,
         pricing: { hourly: 24, monthlyFrom: 920 },
-        images: ["/coworking/firenze/ufficio-1.jpg", "/coworking/firenze/ufficio-2.jpg"],
+        images: [
+          "/coworking/firenze/ufficio-1.jpg",
+          "/coworking/firenze/ufficio-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [0, 3, 4], slotIds: ["morning", "afternoon"] }),
+    booking: baseBooking({
+      dayIndexes: [0, 3, 4],
+      slotIds: ["morning", "afternoon"],
+    }),
 
     email: "firenze@polinex.it",
     mapUrl:
@@ -615,7 +677,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
-        images: ["/coworking/bari/coworking-1.jpg", "/coworking/bari/coworking-2.jpg"],
+        images: [
+          "/coworking/bari/coworking-1.jpg",
+          "/coworking/bari/coworking-2.jpg",
+        ],
       },
       {
         slug: "sala-adriatico",
@@ -647,7 +712,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Genova",
     address: "Via Porto 5, 16100 Genova (GE)",
     image: "/coworking/genova/hero.jpg",
-    description: "Ambiente pratico per professionisti e riunioni vicino al porto.",
+    description:
+      "Ambiente pratico per professionisti e riunioni vicino al porto.",
     tags: ["Porto", "Business", "Riunioni"],
 
     spaces: [
@@ -659,7 +725,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
-        images: ["/coworking/genova/coworking-1.jpg", "/coworking/genova/coworking-2.jpg"],
+        images: [
+          "/coworking/genova/coworking-1.jpg",
+          "/coworking/genova/coworking-2.jpg",
+        ],
       },
       {
         slug: "ufficio-privato-4",
@@ -669,11 +738,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "request",
         price: "Locazione su richiesta",
         pricing: { monthlyFrom: 1100 },
-        images: ["/coworking/genova/ufficio-1.jpg", "/coworking/genova/ufficio-2.jpg"],
+        images: [
+          "/coworking/genova/ufficio-1.jpg",
+          "/coworking/genova/ufficio-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [0, 1, 2], slotIds: ["morning", "afternoon"] }),
+    booking: baseBooking({
+      dayIndexes: [0, 1, 2],
+      slotIds: ["morning", "afternoon"],
+    }),
 
     email: "genova@polinex.it",
     mapUrl:
@@ -703,7 +778,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
-        images: ["/coworking/bologna/coworking-1.jpg", "/coworking/bologna/coworking-2.jpg"],
+        images: [
+          "/coworking/bologna/coworking-1.jpg",
+          "/coworking/bologna/coworking-2.jpg",
+        ],
       },
       {
         slug: "sala-due-torri",
@@ -717,7 +795,10 @@ export const LOCATIONS: Location[] = [
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [3, 2, 1], slotIds: ["morning", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [3, 2, 1],
+      slotIds: ["morning", "full-day"],
+    }),
 
     email: "bologna@polinex.it",
     mapUrl:
@@ -747,7 +828,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 11,
         pricing: { hourly: 11 },
-        images: ["/coworking/ferrara/coworking-1.jpg", "/coworking/ferrara/coworking-2.jpg"],
+        images: [
+          "/coworking/ferrara/coworking-1.jpg",
+          "/coworking/ferrara/coworking-2.jpg",
+        ],
       },
       {
         slug: "sala-este",
@@ -761,7 +845,10 @@ export const LOCATIONS: Location[] = [
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [0, 2, 3], slotIds: ["afternoon", "full-day"] }),
+    booking: baseBooking({
+      dayIndexes: [0, 2, 3],
+      slotIds: ["afternoon", "full-day"],
+    }),
 
     email: "ferrara@polinex.it",
     mapUrl:
@@ -779,7 +866,8 @@ export const LOCATIONS: Location[] = [
     name: "Polinex – Vicenza",
     address: "Via Palladio 6, 36100 Vicenza (VI)",
     image: "/coworking/vicenza/hero.jpg",
-    description: "Spazio elegante per meeting e giornate operative ben organizzate.",
+    description:
+      "Spazio elegante per meeting e giornate operative ben organizzate.",
     tags: ["Elegante", "Meeting", "Business"],
 
     spaces: [
@@ -791,7 +879,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
-        images: ["/coworking/vicenza/coworking-1.jpg", "/coworking/vicenza/coworking-2.jpg"],
+        images: [
+          "/coworking/vicenza/coworking-1.jpg",
+          "/coworking/vicenza/coworking-2.jpg",
+        ],
       },
       {
         slug: "ufficio-privato-2",
@@ -801,11 +892,17 @@ export const LOCATIONS: Location[] = [
         bookingMode: "both",
         minHourlyPrice: 21,
         pricing: { hourly: 21, monthlyFrom: 780 },
-        images: ["/coworking/vicenza/ufficio-1.jpg", "/coworking/vicenza/ufficio-2.jpg"],
+        images: [
+          "/coworking/vicenza/ufficio-1.jpg",
+          "/coworking/vicenza/ufficio-2.jpg",
+        ],
       },
     ],
 
-    booking: baseBooking({ dayIndexes: [1, 2, 4], slotIds: ["morning", "afternoon"] }),
+    booking: baseBooking({
+      dayIndexes: [1, 2, 4],
+      slotIds: ["morning", "afternoon"],
+    }),
 
     email: "vicenza@polinex.it",
     mapUrl:

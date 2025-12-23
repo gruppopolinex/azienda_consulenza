@@ -1,4 +1,4 @@
-// app/servizi/energia/page.tsx
+// app/consulenza/energia/page.tsx
 "use client";
 
 import type React from "react";
@@ -25,13 +25,13 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
 // Bandi & finanziamenti
-import { GRANTS, type Grant } from "../finanziamenti/_data";
+import { GRANTS, type Grant } from "../../finanziamenti/_data";
 
 // Formazione
-import { COURSES, type Course } from "../../formazione/_data";
+import { COURSES, type Course } from "../../servizi/formazione/_data";
 
 // Editoria
-import { BOOKS, type Book } from "../../editoria/_data";
+import { BOOKS, type Book } from "../../servizi/editoria/_data";
 
 // Portfolio / progetti
 import { PROJECTS, type Project } from "../../portfolio/_data";
@@ -58,14 +58,10 @@ const ENERGIA_CASES: EnergiaCase[] = PROJECTS.filter(
 }));
 
 // Bandi energia (nuovo campo aree)
-const ENERGIA_GRANTS: Grant[] = GRANTS.filter((g) =>
-  g.aree?.includes("Energia")
-);
+const ENERGIA_GRANTS: Grant[] = GRANTS.filter((g) => g.aree?.includes("Energia"));
 
 // Corsi formazione area Energia
-const ENERGIA_COURSES: Course[] = COURSES.filter(
-  (c) => c.area === "Energia"
-);
+const ENERGIA_COURSES: Course[] = COURSES.filter((c) => c.area === "Energia");
 
 // Libri / editoria area Energia
 const ENERGIA_BOOKS: Book[] = BOOKS.filter((b) => b.area === "Energia");
@@ -141,24 +137,16 @@ export default function EnergiaPage() {
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex" fill className="object-contain" />
             </div>
           </div>
 
-          <h1 className="section-title">
-            Aree di intervento in ambito energia
-          </h1>
+          <h1 className="section-title">Aree di intervento in ambito energia</h1>
         </section>
 
         {/* MACRO AREE DI INTERVENTO */}
         <section className="mt-2 sm:mt-4">
           <div className="grid gap-6 md:grid-cols-2 items-stretch">
-            {/* Diagnosi energetiche & audit */}
             <MacroAreaCard
               icon={<Zap className="h-6 w-6 text-emerald-300" />}
               title="Diagnosi energetiche e audit"
@@ -171,7 +159,6 @@ export default function EnergiaPage() {
               ]}
             />
 
-            {/* Legge 10 & APE */}
             <MacroAreaCard
               icon={<ThermometerSun className="h-6 w-6 text-emerald-300" />}
               title="Relazioni ex Legge 10 e APE"
@@ -184,7 +171,6 @@ export default function EnergiaPage() {
               ]}
             />
 
-            {/* HVAC & impianti tecnologici */}
             <MacroAreaCard
               icon={<Wind className="h-6 w-6 text-emerald-300" />}
               title="Progettazione HVAC e impianti"
@@ -197,7 +183,6 @@ export default function EnergiaPage() {
               ]}
             />
 
-            {/* FER, autorizzazioni e incentivi */}
             <MacroAreaCard
               icon={<Factory className="h-6 w-6 text-emerald-300" />}
               title="Impianti FER, autorizzazioni e incentivi"
@@ -241,7 +226,6 @@ export default function EnergiaPage() {
             <SectionHeader title="Bandi e finanziamenti per interventi energetici" />
             <EnergiaGrantsCarousel items={ENERGIA_GRANTS} />
 
-            {/* CTA finale sezione bandi */}
             <div className="mt-6 text-center">
               <Link
                 href="/servizi/finanziamenti"
@@ -262,7 +246,7 @@ export default function EnergiaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/formazione"
+                href="/servizi/formazione"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutti i corsi di formazione
@@ -280,7 +264,7 @@ export default function EnergiaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/editoria"
+                href="/servizi/editoria"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutte le pubblicazioni
@@ -296,7 +280,6 @@ export default function EnergiaPage() {
             <SectionHeader title="Progetti e casi studio in ambito energia" />
             <EnergiaCasesCarousel items={ENERGIA_CASES} />
 
-            {/* CTA finale sezione portfolio */}
             <div className="mt-6 text-center">
               <Link
                 href="/portfolio"
@@ -316,9 +299,8 @@ export default function EnergiaPage() {
               Vuoi ridurre i consumi energetici?
             </h2>
             <p className="mt-3 text-sm text-slate-600">
-              Dalle diagnosi ai progetti HVAC, fino a incentivi e bandi:
-              raccontaci il contesto, ti proponiamo un percorso concreto e
-              sostenibile.
+              Dalle diagnosi ai progetti HVAC, fino a incentivi e bandi: raccontaci il
+              contesto, ti proponiamo un percorso concreto e sostenibile.
             </p>
             <Link
               href="/contatti"
@@ -333,7 +315,6 @@ export default function EnergiaPage() {
 
       <Footer />
 
-      {/* Stili globali allineati alle altre pagine servizi */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -377,9 +358,7 @@ function MacroAreaCard({
       <div className="p-5 sm:p-6 flex flex-col gap-3">
         <div className="flex items-center gap-2 text-emerald-300">
           {icon}
-          <h3 className="font-semibold text-base sm:text-lg text-white">
-            {title}
-          </h3>
+          <h3 className="font-semibold text-base sm:text-lg text-white">{title}</h3>
         </div>
 
         <ul className="space-y-1.5 text-[13px] sm:text-sm text-white/95">
@@ -469,10 +448,7 @@ function EnergiaCasesCarousel({ items }: { items: EnergiaCase[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((c) => (
             <EnergiaCaseCard key={c.slug} c={c} />
@@ -579,10 +555,7 @@ function EnergiaGrantsCarousel({ items }: { items: Grant[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((g) => (
             <GrantCard key={g.slug} g={g} />
@@ -622,16 +595,10 @@ function GrantCard({ g }: { g: Grant }) {
             label="Scadenza"
             value={fmtDate(g.scadenza)}
           />
-          {g.territorio && (
-            <GrantMeta label="Territorio" value={g.territorio} />
-          )}
+          {g.territorio && <GrantMeta label="Territorio" value={g.territorio} />}
         </div>
 
-        {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">
-            {g.teaser}
-          </p>
-        )}
+        {g.teaser && <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>}
 
         <div className="mt-4 flex items-center justify-between">
           <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-3 py-1 text-[11px] font-semibold">
@@ -714,10 +681,7 @@ function EnergiaFormazioneCarousel({ items }: { items: Course[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((c) => (
             <EnergiaCourseCard key={c.slug} c={c} />
@@ -731,7 +695,7 @@ function EnergiaFormazioneCarousel({ items }: { items: Course[] }) {
 function EnergiaCourseCard({ c }: { c: Course }) {
   return (
     <Link
-      href={`/formazione/${c.slug}`}
+      href={`/servizi/formazione/${c.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="p-5 flex flex-col h-full">
@@ -742,12 +706,8 @@ function EnergiaCourseCard({ c }: { c: Course }) {
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {c.title}
         </h3>
-        {c.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {c.description}
-        </p>
+        {c.subtitle && <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{c.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>
@@ -824,10 +784,7 @@ function EnergiaEditoriaCarousel({ items }: { items: Book[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((b) => (
             <EnergiaBookCard key={b.slug} b={b} />
@@ -841,7 +798,7 @@ function EnergiaEditoriaCarousel({ items }: { items: Book[] }) {
 function EnergiaBookCard({ b }: { b: Book }) {
   return (
     <Link
-      href={`/editoria/${b.slug}`}
+      href={`/servizi/editoria/${b.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="relative h-40 bg-slate-100">
@@ -861,12 +818,8 @@ function EnergiaBookCard({ b }: { b: Book }) {
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {b.title}
         </h3>
-        {b.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {b.description}
-        </p>
+        {b.subtitle && <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{b.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>

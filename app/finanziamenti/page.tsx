@@ -1,4 +1,4 @@
-// app/servizi/finanziamenti/page.tsx
+// app/finanziamenti/page.tsx
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
@@ -21,8 +21,8 @@ import {
   ALL_AREAS,
   type Area,
 } from "./_data";
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer";
 
 /* ===================== Utils ===================== */
 function fmtDate(iso?: string) {
@@ -257,7 +257,7 @@ export default function FinanziamentiPage() {
 function GrantRow({ g }: { g: Grant }) {
   return (
     <Link
-      href={`/servizi/finanziamenti/${g.slug}`}
+      href={`/finanziamenti/${g.slug}`}
       className="group rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition"
       aria-label={`Vai al dettaglio del bando: ${g.title}`}
     >
@@ -308,9 +308,7 @@ function GrantRow({ g }: { g: Grant }) {
             </div>
           )}
 
-          {g.teaser && (
-            <p className="mt-2 text-sm text-slate-600">{g.teaser}</p>
-          )}
+          {g.teaser && <p className="mt-2 text-sm text-slate-600">{g.teaser}</p>}
         </div>
 
         <div className="flex flex-row sm:flex-col items-center justify-between gap-3 sm:items-end">

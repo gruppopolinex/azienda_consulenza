@@ -1,4 +1,4 @@
-// app/coworking/[locationslug]/page.tsx
+// app/servizi/coworking/[locationslug]/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -18,8 +18,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer";
+import Nav from "../../../components/Nav";
+import Footer from "../../../components/Footer";
 
 import {
   LOCATIONS,
@@ -31,17 +31,13 @@ import {
 /* ==================== UTILS ==================== */
 
 function extractMinHourlyPrice(spaceItem: any): number | null {
-  if (typeof spaceItem?.minHourlyPrice === "number")
-    return spaceItem.minHourlyPrice;
+  if (typeof spaceItem?.minHourlyPrice === "number") return spaceItem.minHourlyPrice;
 
-  if (typeof spaceItem?.pricing?.minHourly === "number")
-    return spaceItem.pricing.minHourly;
+  if (typeof spaceItem?.pricing?.minHourly === "number") return spaceItem.pricing.minHourly;
 
-  if (typeof spaceItem?.priceHourlyFrom === "number")
-    return spaceItem.priceHourlyFrom;
+  if (typeof spaceItem?.priceHourlyFrom === "number") return spaceItem.priceHourlyFrom;
 
   const str = spaceItem?.price || spaceItem?.priceLabel || "";
-
   const m = String(str).replace(",", ".").match(/(\d+(\.\d+)?)/);
   return m?.[1] ? Number(m[1]) : null;
 }
@@ -65,9 +61,7 @@ export default function CoworkingLocationPage() {
     [locationSlug]
   );
 
-  const [spaceTypeFilter, setSpaceTypeFilter] = useState<SpaceType | "Tutti">(
-    "Tutti"
-  );
+  const [spaceTypeFilter, setSpaceTypeFilter] = useState<SpaceType | "Tutti">("Tutti");
 
   if (!location) {
     return (
@@ -75,7 +69,7 @@ export default function CoworkingLocationPage() {
         <Nav />
         <main className="flex-1 mx-auto max-w-3xl px-4 py-16">
           <button
-            onClick={() => router.push("/coworking")}
+            onClick={() => router.push("/servizi/coworking")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 mb-6 hover:text-slate-900 transition"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -94,9 +88,7 @@ export default function CoworkingLocationPage() {
     );
   }
 
-  const availableTypes = Array.from(
-    new Set((location.spaces ?? []).map((s) => s.type))
-  ) as SpaceType[];
+  const availableTypes = Array.from(new Set((location.spaces ?? []).map((s) => s.type))) as SpaceType[];
 
   const filteredSpaces =
     spaceTypeFilter === "Tutti"
@@ -109,8 +101,7 @@ export default function CoworkingLocationPage() {
   const cta =
     (location as any).cta ?? {
       title: "Vuoi avere maggiori informazioni su questa sede?",
-      description:
-        "Contattaci per disponibilità, visite o preventivi personalizzati.",
+      description: "Contattaci per disponibilità, visite o preventivi personalizzati.",
       buttonLabel: "Contattaci",
       href: "/contatti",
     };
@@ -124,7 +115,7 @@ export default function CoworkingLocationPage() {
         <section className="border-b bg-gradient-to-b from-slate-50 to-white">
           <div className="mx-auto max-w-6xl px-4 py-8">
             <button
-              onClick={() => router.push("/coworking")}
+              onClick={() => router.push("/servizi/coworking")}
               className="inline-flex items-center gap-2 text-xs text-slate-600 mb-5 hover:text-slate-900 transition"
             >
               <ArrowLeft className="h-3 w-3" />
@@ -175,12 +166,12 @@ export default function CoworkingLocationPage() {
                   Come funziona la prenotazione
                 </h2>
                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  Seleziona qui sotto lo spazio che ti interessa e apri la scheda
-                  dedicata. Puoi <strong>prenotare a ore</strong> e completare il{" "}
+                  Seleziona qui sotto lo spazio che ti interessa e apri la scheda dedicata. Puoi{" "}
+                  <strong>prenotare a ore</strong> e completare il{" "}
                   <strong>pagamento online in modo sicuro</strong>, oppure{" "}
                   <strong>inviare una richiesta</strong> per{" "}
-                  <strong>locazioni continuative</strong> (uffici o utilizzi
-                  ricorrenti), così da ricevere una proposta personalizzata.
+                  <strong>locazioni continuative</strong> (uffici o utilizzi ricorrenti),
+                  così da ricevere una proposta personalizzata.
                 </p>
               </div>
             </div>
@@ -238,9 +229,7 @@ export default function CoworkingLocationPage() {
               <select
                 className="input"
                 value={spaceTypeFilter}
-                onChange={(e) =>
-                  setSpaceTypeFilter(e.target.value as SpaceType | "Tutti")
-                }
+                onChange={(e) => setSpaceTypeFilter(e.target.value as SpaceType | "Tutti")}
               >
                 <option value="Tutti">Tutti</option>
                 {availableTypes.map((t) => (
@@ -338,10 +327,8 @@ export default function CoworkingLocationPage() {
 /* ==================== COMPONENTI ==================== */
 
 function SpaceIcon({ type }: { type: SpaceType }) {
-  if (type === "Sala riunioni")
-    return <Users className="h-4 w-4 text-slate-200" />;
-  if (type === "Postazione coworking")
-    return <Laptop className="h-4 w-4 text-slate-200" />;
+  if (type === "Sala riunioni") return <Users className="h-4 w-4 text-slate-200" />;
+  if (type === "Postazione coworking") return <Laptop className="h-4 w-4 text-slate-200" />;
   return <Building2 className="h-4 w-4 text-slate-200" />;
 }
 
@@ -363,21 +350,14 @@ function SpaceCard({
     <article className="rounded-[2rem] border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
       <div className="relative h-44 bg-slate-100">
         {images.length > 0 && (
-          <Image
-            src={images[imgIndex]}
-            alt={spaceItem.label}
-            fill
-            className="object-cover"
-          />
+          <Image src={images[imgIndex]} alt={spaceItem.label} fill className="object-cover" />
         )}
 
         {images.length > 1 && (
           <>
             <button
               type="button"
-              onClick={() =>
-                setImgIndex((i) => (i === 0 ? images.length - 1 : i - 1))
-              }
+              onClick={() => setImgIndex((i) => (i === 0 ? images.length - 1 : i - 1))}
               className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/45 hover:bg-black/55 transition rounded-full p-2"
               aria-label="Immagine precedente"
             >
@@ -385,9 +365,7 @@ function SpaceCard({
             </button>
             <button
               type="button"
-              onClick={() =>
-                setImgIndex((i) => (i === images.length - 1 ? 0 : i + 1))
-              }
+              onClick={() => setImgIndex((i) => (i === images.length - 1 ? 0 : i + 1))}
               className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/45 hover:bg-black/55 transition rounded-full p-2"
               aria-label="Immagine successiva"
             >
@@ -404,14 +382,12 @@ function SpaceCard({
 
       <div className="p-5">
         <h3 className="font-semibold">{spaceItem.label}</h3>
-        {spaceItem.capacity && (
-          <p className="mt-1 text-xs text-slate-500">{spaceItem.capacity}</p>
-        )}
+        {spaceItem.capacity && <p className="mt-1 text-xs text-slate-500">{spaceItem.capacity}</p>}
 
         <div className="mt-4 flex justify-between items-center gap-3">
           <span className="font-semibold text-slate-900">{minLabel}</span>
           <Link
-            href={`/coworking/${location.slug}/${spaceItem.slug}`}
+            href={`/servizi/coworking/${location.slug}/${spaceItem.slug}`}
             className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition"
           >
             Approfondisci

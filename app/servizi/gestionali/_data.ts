@@ -1,4 +1,4 @@
-// app/gestionali/_data.ts
+// app/servizi/gestionali/_data.ts
 
 export type Sector =
   | "Azienda di consulenza"
@@ -46,8 +46,7 @@ export const GESTIONALI: Gestionale[] = [
     slug: "gestionale-azienda-consulenza",
     name: "Polinex Studio",
     sector: "Azienda di consulenza",
-    short:
-      "Per studi tecnici, consulenti HSE, ingegneri e società di servizi.",
+    short: "Per studi tecnici, consulenti HSE, ingegneri e società di servizi.",
     description:
       "Gestione commesse, pratiche autorizzative, scadenze e documentazione tecnica in un unico ambiente, pensato per studi di ingegneria e consulenza ambientale.",
     monthlyPrice: 79,
@@ -91,8 +90,7 @@ export const GESTIONALI: Gestionale[] = [
     slug: "gestionale-azienda-agricola",
     name: "Polinex Agro",
     sector: "Azienda agricola",
-    short:
-      "Per aziende agricole e zootecniche orientate a bandi e conformità.",
+    short: "Per aziende agricole e zootecniche orientate a bandi e conformità.",
     description:
       "Gestione piani nitrati, reflui, appezzamenti, pratiche PSR/PNRR e scadenze documentali in un ambiente unico, condivisibile con consulenti e tecnici.",
     monthlyPrice: 59,
@@ -122,8 +120,7 @@ export const BASE_FAQ: FAQItem[] = [
       "Per la maggior parte dei casi, con un set minimo di dati e utenze, si riesce ad andare in produzione in 2–4 settimane. Per progetti più articolati definiamo un piano di rilascio per step.",
   },
   {
-    question:
-      "Cosa cambia tra abbonamento mensile e acquisto tutto subito?",
+    question: "Cosa cambia tra abbonamento mensile e acquisto tutto subito?",
     answer:
       "Con l’abbonamento mensile hai un investimento iniziale ridotto e un canone ricorrente che include aggiornamenti e supporto secondo contratto. Con l’acquisto tutto subito capitalizzi il gestionale come investimento, mantenendo eventualmente un canone di manutenzione minimo.",
   },

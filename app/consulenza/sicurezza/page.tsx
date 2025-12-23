@@ -1,13 +1,13 @@
-// app/servizi/sicurezza/page.tsx
+// app/consulenza/sicurezza/page.tsx
 "use client";
 
+import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ShieldCheck,
   HardHat,
   Flame,
-  AlertTriangle,
   Users,
   MapPin,
   ArrowRight,
@@ -25,13 +25,13 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
 // Bandi & finanziamenti
-import { GRANTS, type Grant } from "../finanziamenti/_data";
+import { GRANTS, type Grant } from "../../finanziamenti/_data";
 
 // Formazione
-import { COURSES, type Course } from "../../formazione/_data";
+import { COURSES, type Course } from "../../servizi/formazione/_data";
 
 // Editoria
-import { BOOKS, type Book } from "../../editoria/_data";
+import { BOOKS, type Book } from "../../servizi/editoria/_data";
 
 // Portfolio / progetti
 import { PROJECTS, type Project } from "../../portfolio/_data";
@@ -63,14 +63,10 @@ const SICUREZZA_GRANTS: Grant[] = GRANTS.filter((g) =>
 );
 
 // Corsi formazione area Sicurezza
-const SICUREZZA_COURSES: Course[] = COURSES.filter(
-  (c) => c.area === "Sicurezza"
-);
+const SICUREZZA_COURSES: Course[] = COURSES.filter((c) => c.area === "Sicurezza");
 
 // Libri / editoria area Sicurezza
-const SICUREZZA_BOOKS: Book[] = BOOKS.filter(
-  (b) => b.area === "Sicurezza"
-);
+const SICUREZZA_BOOKS: Book[] = BOOKS.filter((b) => b.area === "Sicurezza");
 
 function fmtDate(iso?: string) {
   if (!iso) return "A sportello";
@@ -143,24 +139,16 @@ export default function SicurezzaPage() {
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex" fill className="object-contain" />
             </div>
           </div>
 
-          <h1 className="section-title">
-            Aree di intervento in ambito sicurezza
-          </h1>
+          <h1 className="section-title">Aree di intervento in ambito sicurezza</h1>
         </section>
 
         {/* MACRO AREE DI INTERVENTO – CARD CON SFONDO IMMAGINE */}
         <section className="mt-2 sm:mt-4">
           <div className="grid gap-6 md:grid-cols-2 items-stretch">
-            {/* Cantieri & CSP/CSE */}
             <MacroAreaCard
               icon={<HardHat className="h-6 w-6 text-emerald-300" />}
               title="Cantieri, CSP/CSE e PSC"
@@ -173,7 +161,6 @@ export default function SicurezzaPage() {
               ]}
             />
 
-            {/* Sicurezza sul lavoro & RSPP */}
             <MacroAreaCard
               icon={<ShieldCheck className="h-6 w-6 text-emerald-300" />}
               title="Sicurezza sul lavoro & RSPP"
@@ -186,7 +173,6 @@ export default function SicurezzaPage() {
               ]}
             />
 
-            {/* Antincendio & emergenze */}
             <MacroAreaCard
               icon={<Flame className="h-6 w-6 text-emerald-300" />}
               title="Antincendio e gestione emergenze"
@@ -199,7 +185,6 @@ export default function SicurezzaPage() {
               ]}
             />
 
-            {/* Eventi & pubblico spettacolo */}
             <MacroAreaCard
               icon={<Users className="h-6 w-6 text-emerald-300" />}
               title="Sicurezza per eventi e luoghi di pubblico spettacolo"
@@ -243,7 +228,6 @@ export default function SicurezzaPage() {
             <SectionHeader title="Bandi e finanziamenti per la sicurezza" />
             <SicurezzaGrantsCarousel items={SICUREZZA_GRANTS} />
 
-            {/* CTA finale sezione bandi */}
             <div className="mt-6 text-center">
               <Link
                 href="/servizi/finanziamenti"
@@ -264,7 +248,7 @@ export default function SicurezzaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/formazione"
+                href="/servizi/formazione"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutti i corsi di formazione
@@ -282,7 +266,7 @@ export default function SicurezzaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/editoria"
+                href="/servizi/editoria"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutte le pubblicazioni
@@ -298,7 +282,6 @@ export default function SicurezzaPage() {
             <SectionHeader title="Progetti e casi studio in ambito sicurezza" />
             <SicurezzaCasesCarousel items={SICUREZZA_CASES} />
 
-            {/* CTA finale sezione portfolio */}
             <div className="mt-6 text-center">
               <Link
                 href="/portfolio"
@@ -318,9 +301,9 @@ export default function SicurezzaPage() {
               Vuoi rafforzare la sicurezza in azienda o in cantiere?
             </h2>
             <p className="mt-3 text-sm text-slate-600">
-              Possiamo affiancarti come CSP/CSE, RSPP o consulenti per
-              antincendio, eventi e audit. Raccontaci il tuo contesto, ti
-              rispondiamo in tempi brevi.
+              Possiamo affiancarti come CSP/CSE, RSPP o consulenti per antincendio,
+              eventi e audit. Raccontaci il tuo contesto, ti rispondiamo in tempi
+              brevi.
             </p>
             <Link
               href="/contatti"
@@ -335,7 +318,6 @@ export default function SicurezzaPage() {
 
       <Footer />
 
-      {/* Stili globali */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -379,9 +361,7 @@ function MacroAreaCard({
       <div className="p-5 sm:p-6 flex flex-col gap-3">
         <div className="flex items-center gap-2 text-emerald-300">
           {icon}
-          <h3 className="font-semibold text-base sm:text-lg text-white">
-            {title}
-          </h3>
+          <h3 className="font-semibold text-base sm:text-lg text-white">{title}</h3>
         </div>
 
         <ul className="space-y-1.5 text-[13px] sm:text-sm text-white/95">
@@ -471,10 +451,7 @@ function SicurezzaCasesCarousel({ items }: { items: SicurezzaCase[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((c) => (
             <SicurezzaCaseCard key={c.slug} c={c} />
@@ -581,10 +558,7 @@ function SicurezzaGrantsCarousel({ items }: { items: Grant[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((g) => (
             <GrantCard key={g.slug} g={g} />
@@ -608,32 +582,14 @@ function GrantCard({ g }: { g: Grant }) {
         </h3>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-slate-800">
-          <GrantMeta
-            icon={<Building2 className="h-4 w-4" />}
-            label="Ente"
-            value={g.ente}
-          />
-          <GrantMeta
-            icon={<Wallet className="h-4 w-4" />}
-            label="Contributo"
-            value={g.contributo}
-          />
+          <GrantMeta icon={<Building2 className="h-4 w-4" />} label="Ente" value={g.ente} />
+          <GrantMeta icon={<Wallet className="h-4 w-4" />} label="Contributo" value={g.contributo} />
           <GrantMeta label="Beneficiari" value={g.beneficiari} />
-          <GrantMeta
-            icon={<Calendar className="h-4 w-4" />}
-            label="Scadenza"
-            value={fmtDate(g.scadenza)}
-          />
-          {g.territorio && (
-            <GrantMeta label="Territorio" value={g.territorio} />
-          )}
+          <GrantMeta icon={<Calendar className="h-4 w-4" />} label="Scadenza" value={fmtDate(g.scadenza)} />
+          {g.territorio && <GrantMeta label="Territorio" value={g.territorio} />}
         </div>
 
-        {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">
-            {g.teaser}
-          </p>
-        )}
+        {g.teaser && <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>}
 
         <div className="mt-4 flex items-center justify-between">
           <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-3 py-1 text-[11px] font-semibold">
@@ -716,10 +672,7 @@ function SicurezzaFormazioneCarousel({ items }: { items: Course[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((c) => (
             <SicurezzaCourseCard key={c.slug} c={c} />
@@ -733,7 +686,7 @@ function SicurezzaFormazioneCarousel({ items }: { items: Course[] }) {
 function SicurezzaCourseCard({ c }: { c: Course }) {
   return (
     <Link
-      href={`/formazione/${c.slug}`}
+      href={`/servizi/formazione/${c.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="p-5 flex flex-col h-full">
@@ -741,15 +694,14 @@ function SicurezzaCourseCard({ c }: { c: Course }) {
           <GraduationCap className="h-4 w-4" />
           <span>Formazione in ambito sicurezza</span>
         </div>
+
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {c.title}
         </h3>
-        {c.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {c.description}
-        </p>
+
+        {c.subtitle && <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>}
+
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{c.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>
@@ -826,10 +778,7 @@ function SicurezzaEditoriaCarousel({ items }: { items: Book[] }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((b) => (
             <SicurezzaBookCard key={b.slug} b={b} />
@@ -843,7 +792,7 @@ function SicurezzaEditoriaCarousel({ items }: { items: Book[] }) {
 function SicurezzaBookCard({ b }: { b: Book }) {
   return (
     <Link
-      href={`/editoria/${b.slug}`}
+      href={`/servizi/editoria/${b.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="relative h-40 bg-slate-100">
@@ -855,20 +804,20 @@ function SicurezzaBookCard({ b }: { b: Book }) {
           sizes="(min-width: 1024px) 420px, 90vw"
         />
       </div>
+
       <div className="p-5 flex flex-col h-full">
         <div className="inline-flex items-center gap-2 text-slate-700 text-xs font-semibold">
           <BookOpen className="h-4 w-4" />
           <span>Manuale in ambito sicurezza</span>
         </div>
+
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {b.title}
         </h3>
-        {b.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {b.description}
-        </p>
+
+        {b.subtitle && <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>}
+
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{b.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>

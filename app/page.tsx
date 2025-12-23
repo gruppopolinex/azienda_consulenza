@@ -10,14 +10,9 @@ import {
   ChevronRight as ArrowRight,
   MapPin,
   Building2,
+  ArrowUpRight,
 } from "lucide-react";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 
 // Import Nav & Footer (cartella /app/components)
 import Nav from "./components/Nav";
@@ -41,7 +36,6 @@ export default function Home() {
             playsInline
             aria-label="Polinex srl - consulenza tecnica e ambientale"
           >
-            {/* Metti un video in public/hero-video.mp4 (fallback .MP4 incluso) */}
             <source src="/hero-video.mp4" type="video/mp4" />
             <source src="/hero-video.MP4" type="video/mp4" />
           </video>
@@ -53,7 +47,6 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="py-2 sm:py-5">
               <div className="max-w-4xl mx-auto text-white text-center">
-                {/* LOGO BIANCO SOPRA IL TITOLO */}
                 <div className="flex justify-center mb-0">
                   <div className="relative w-40 h-16 sm:w-160 sm:h-70">
                     <Image
@@ -287,7 +280,6 @@ type Study = {
 };
 
 const STUDIES: Study[] = [
-  // Acqua
   {
     slug: "acqua-monitoraggi",
     title: "Monitoraggi idrici multi-pozzo",
@@ -302,8 +294,6 @@ const STUDIES: Study[] = [
     location: "Treviso (TV)",
     client: "Gestore Idrico",
   },
-
-  // Ambiente
   {
     slug: "ambiente-via",
     title: "Screening ambientale per ampliamento produttivo (VIA)",
@@ -311,8 +301,6 @@ const STUDIES: Study[] = [
     location: "Venezia (VE)",
     client: "Manifattura locale",
   },
-
-  // Energia
   {
     slug: "energia-audit",
     title: "Audit energetico ISO 50001",
@@ -320,8 +308,6 @@ const STUDIES: Study[] = [
     location: "Vicenza (VI)",
     client: "Azienda Metalmeccanica",
   },
-
-  // Agricoltura
   {
     slug: "agricoltura-nitrati",
     title: "Piano di gestione nitrati in ZVN",
@@ -329,8 +315,6 @@ const STUDIES: Study[] = [
     location: "Rovigo (RO)",
     client: "Azienda Agricola",
   },
-
-  // Sicurezza
   {
     slug: "sicurezza-cantieri",
     title: "Coordinamento sicurezza in cantiere (CSP/CSE)",
@@ -338,8 +322,6 @@ const STUDIES: Study[] = [
     location: "Mestre (VE)",
     client: "Impresa edile",
   },
-
-  // Edilizia e Infrastrutture
   {
     slug: "edilizia-riqualificazione",
     title: "Riqualificazione strutturale con adeguamento sismico",
@@ -347,8 +329,6 @@ const STUDIES: Study[] = [
     location: "Verona (VR)",
     client: "Proprietà immobiliare",
   },
-
-  // Bandi e Finanziamenti
   {
     slug: "bandi-psr",
     title: "PSR e PNRR: domanda finanziamento per efficienza impianti",
@@ -385,7 +365,6 @@ function KPI({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** Header di sezione: titolo + sottotitolo centrati, senza logo. */
 function SectionHeader({
   title,
   subtitle,
@@ -475,25 +454,25 @@ function KnowledgeProductsGrid() {
   const items = [
     {
       title: "Coworking",
-      slug: "/coworking",
+      slug: "/servizi/coworking",
       img: "/meta/coworking.jpg",
       desc: "Spazi di lavoro, uffici e sale riunioni prenotabili nelle sedi Polinex.",
     },
     {
       title: "Formazione",
-      slug: "/formazione",
+      slug: "/servizi/formazione",
       img: "/meta/formazione.jpg",
       desc: "Corsi intensivi e percorsi on-demand per studenti STEM, tecnici e aziende.",
     },
     {
       title: "Editoria",
-      slug: "/editoria",
+      slug: "/servizi/editoria",
       img: "/meta/editoria.jpg",
       desc: "Manuali e casi studio per acqua, ambiente, energia, agricoltura e sicurezza.",
     },
     {
       title: "Gestionali",
-      slug: "/gestionali",
+      slug: "/servizi/gestionali",
       img: "/meta/gestionali.jpg",
       desc: "Software verticali per studi tecnici, aziende produttive e aziende agricole.",
     },
@@ -520,7 +499,7 @@ function KnowledgeProductsGrid() {
   );
 }
 
-/* ==================== SERVIZI: 6 voci Polinex + sezione Bandi ==================== */
+/* ==================== SERVIZI: 6 voci Polinex + sezione FINANZA (VIDEO + CTA) ==================== */
 function ServicesMosaicCompact() {
   const services = [
     {
@@ -576,7 +555,7 @@ function ServicesMosaicCompact() {
         ))}
       </div>
 
-      {/* Titolo sezione Bandi & Finanziamenti */}
+      {/* Titolo sezione (COME PRIMA) */}
       <div className="pt-4">
         <SectionHeader
           title="Finanza agevolata integrata al progetto"
@@ -584,122 +563,70 @@ function ServicesMosaicCompact() {
         />
       </div>
 
-      {/* Card unica: Bandi e Finanziamenti */}
-      <BandiFinanziamentiCard />
-    </div>
-  );
-}
+      {/* NUOVO LAYOUT: pulito, bilanciato, niente “vuoto” */}
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
+          {/* SINISTRA: video “incorniciato” con cover */}
+          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="p-6 sm:p-7">
+              <h3 className="text-lg font-semibold tracking-tight text-slate-900">
+                Che cos’è la finanza agevolata?
+              </h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Un video breve per capire come funziona e quando conviene.
+              </p>
+            </div>
 
-/* ====== Card Finanza agevolata: enumerate + CTA sotto + sfumatura nera da sinistra ====== */
-function BandiFinanziamentiCard() {
-  return (
-    <Link
-      href="/consulenza/finanziamenti"
-      className="block group focus:outline-none max-w-6xl mx-auto"
-      aria-label="Bandi e Finanziamenti"
-    >
-      <div className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-black text-white">
-        {/* Immagine di sfondo */}
-        <div className="absolute inset-0">
-          <SmartImage
-            srcJpg="/services/finanziamenti.jpg"
-            alt="Finanza agevolata"
-            fill
-            className="object-cover"
-            sizes="(min-width: 1024px) 480px, 100vw"
-          />
-        </div>
-
-        {/* SFUMATURA NERA PIÙ FORTE, CHE PARTE DA SINISTRA */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/95 via-black/80 to-transparent" />
-
-        {/* contenuto */}
-        <div className="relative px-6 py-7 sm:px-8 sm:py-9 max-w-3xl">
-          <div className="inline-flex items-center rounded-full border border-white/30 bg-black/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 mb-3">
-            Bandi &amp; Finanziamenti
+            <div className="px-6 sm:px-7 pb-7">
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200">
+                {/* Sostituisci VIDEO_ID con l’ID reale */}
+                <iframe
+                  className="absolute inset-0 h-full w-full"
+                  src="https://www.youtube.com/embed/VIDEO_ID?rel=0"
+                  title="Che cos’è la finanza agevolata"
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-semibold text-white mb-2 leading-tight">
-            Finanza agevolata integrata al progetto
-          </h3>
+          {/* DESTRA: CTA super semplice */}
+          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
+                Finanza agevolata
+              </div>
 
-          <p className="text-sm sm:text-[15px] text-white/85 mb-4">
-            Ti accompagniamo in tutte le fasi: dall&apos;idea tecnica alla
-            chiusura del contributo.
-          </p>
+              <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 leading-tight">
+                Scopri i bandi e i finanziamenti che fanno al caso tuo
+              </h3>
 
-          <ol className="space-y-2.5 text-sm sm:text-[15px] text-white/90">
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-[11px] font-semibold text-slate-900">
-                1
-              </span>
-              <div>
-                <p className="font-semibold">Analisi tecnica e ammissibilità</p>
-                <p className="text-white/75 text-xs sm:text-[13px]">
-                  Inquadramento del progetto, requisiti minimi e budget
-                  finanziabile.
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/85 text-[11px] font-semibold text-slate-900">
-                2
-              </span>
-              <div>
-                <p className="font-semibold">Scelta del bando e strategia</p>
-                <p className="text-white/75 text-xs sm:text-[13px]">
-                  Matching tra progetto, tempistiche di cantiere e finestre di
-                  finanziamento.
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[11px] font-semibold text-slate-900">
-                3
-              </span>
-              <div>
-                <p className="font-semibold">Domanda e documentazione</p>
-                <p className="text-white/75 text-xs sm:text-[13px]">
-                  Redazione pratica, allegati tecnici coordinati e invio
-                  telematico.
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/75 text-[11px] font-semibold text-slate-900">
-                4
-              </span>
-              <div>
-                <p className="font-semibold">Gestione SAL e rendicontazione</p>
-                <p className="text-white/75 text-xs sm:text-[13px]">
-                  Supporto in fase esecutiva, stati avanzamento e chiusura del
-                  contributo.
-                </p>
-              </div>
-            </li>
-          </ol>
+              <p className="mt-3 text-sm text-slate-600 max-w-prose">
+                Ti aiutiamo a capire se il tuo progetto è finanziabile e quali
+                opportunità sono realmente applicabili.
+              </p>
+            </div>
 
-          {/* CTA SOTTO L'ENUMERATE */}
-          <div className="mt-5">
-            <span
-              className="
-                inline-flex items-center justify-center
-                rounded-full px-6 py-3
-                text-sm sm:text-[15px] font-semibold uppercase tracking-wide
-                bg-white text-slate-900
-                shadow-[0_14px_30px_rgba(0,0,0,0.55)]
-                group-hover:translate-y-0.5
-                group-hover:bg-slate-50
-                transition
-              "
-            >
-              Vai a Bandi &amp; Finanziamenti
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </span>
+            <div className="mt-6">
+              <Link
+                href="/finanziamenti"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-white font-semibold hover:bg-emerald-700 transition"
+              >
+                Scopri bandi e finanziamenti
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Link>
+              <p className="mt-3 text-[11px] text-slate-500 text-center">
+                Link a:{" "}
+                <span className="font-medium">app/finanziamenti/page.tsx</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -715,6 +642,24 @@ function FlippableCard({
   desc: string;
   heightClass?: string;
 }) {
+  const bulletize = (text: string) => {
+    const bySemicolon = text
+      .split(";")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (bySemicolon.length >= 2) return bySemicolon;
+
+    const byDot = text
+      .split(".")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (byDot.length >= 2) return byDot;
+
+    return [text.trim()].filter(Boolean);
+  };
+
+  const bullets = bulletize(desc);
+
   return (
     <div
       className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg hover:scale-[1.015] will-change-transform focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
@@ -754,29 +699,40 @@ function FlippableCard({
           </div>
         </div>
 
-        {/* RETRO */}
+        {/* RETRO (desktop) */}
         <div
-          className="absolute inset-0 rounded-xl text-white hidden md:flex"
+          className="absolute inset-0 rounded-xl hidden md:flex"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
         >
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: "url('/logo.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative flex items-end w-full">
-            <div className="w-full bg-gradient-to-t from-black/85 via-black/70 to-transparent px-4 py-4 text-center">
-              <p className="text-xs sm:text-sm md:text-[15px] leading-relaxed">
-                {desc}
-              </p>
+          <div className="absolute inset-0 bg-white" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src="/logo_grigio.png"
+              alt="Polinex"
+              width={560}
+              height={260}
+              className="object-contain opacity-25"
+              priority={false}
+            />
+          </div>
+
+          <div className="relative w-full h-full flex items-center justify-center p-6">
+            <div className="w-full max-w-[420px] text-center">
+              <h4 className="text-slate-900 font-extrabold tracking-wide text-base md:text-lg uppercase">
+                {title}
+              </h4>
+
+              <ul className="mt-3 space-y-2 text-sm md:text-[15px] text-black">
+                {bullets.map((b, i) => (
+                  <li key={`${title}-${i}`} className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-black" />
+                    <span className="text-left">{b}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -820,7 +776,6 @@ function StudiesWithFilter() {
 
   return (
     <div className="mt-6">
-      {/* Filtri */}
       <div className="flex flex-wrap items-center justify-center gap-3">
         {FILTERS.map((f) => (
           <button
@@ -837,7 +792,6 @@ function StudiesWithFilter() {
         ))}
       </div>
 
-      {/* Slider */}
       <StudiesCarousel items={filtered} />
     </div>
   );
@@ -874,11 +828,9 @@ function StudiesCarousel({ items }: { items: Study[] }) {
 
   return (
     <div className="relative mt-6">
-      {/* Fade ai lati */}
       <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white via-white/70 to-transparent hidden md:block" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white via-white/70 to-transparent hidden md:block" />
 
-      {/* Freccia SINISTRA */}
       <div className="hidden md:flex flex-col items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 z-10 space-y-1">
         <button
           aria-label="Scorri a sinistra"
@@ -896,7 +848,6 @@ function StudiesCarousel({ items }: { items: Study[] }) {
         <span className="text-[11px] text-slate-500 font-medium">Indietro</span>
       </div>
 
-      {/* Freccia DESTRA */}
       <div className="hidden md:flex flex-col items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 z-10 space-y-1">
         <button
           aria-label="Scorri a destra"
@@ -914,7 +865,6 @@ function StudiesCarousel({ items }: { items: Study[] }) {
         <span className="text-[11px] text-slate-500 font-medium">Avanti</span>
       </div>
 
-      {/* Contenitore scorrevole */}
       <div
         ref={ref}
         className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
@@ -937,7 +887,6 @@ function StudyCard({ study }: { study: Study }) {
 
   return (
     <div className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[400px] rounded-2xl border border-slate-200 bg-white overflow-hidden hover:shadow-sm transition">
-      {/* immagine di copertina */}
       <div className="relative aspect-[16/9] bg-slate-100">
         <SmartImage
           srcJpg={cover(study.slug)}
@@ -948,7 +897,6 @@ function StudyCard({ study }: { study: Study }) {
         />
       </div>
 
-      {/* contenuto */}
       <div className="p-5">
         <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-2.5 py-1 text-[11px] font-medium">
           {study.category}

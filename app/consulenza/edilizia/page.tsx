@@ -1,4 +1,4 @@
-// app/servizi/edilizia/page.tsx
+// app/consulenza/edilizia/page.tsx
 "use client";
 
 import type React from "react";
@@ -24,13 +24,13 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
 // Bandi & finanziamenti
-import { GRANTS, type Grant } from "../finanziamenti/_data";
+import { GRANTS, type Grant } from "../../finanziamenti/_data";
 
 // Formazione
-import { COURSES, type Course } from "../../formazione/_data";
+import { COURSES, type Course } from "../../servizi/formazione/_data";
 
 // Editoria
-import { BOOKS, type Book } from "../../editoria/_data";
+import { BOOKS, type Book } from "../../servizi/editoria/_data";
 
 // Portfolio / progetti
 import { PROJECTS, type Project } from "../../portfolio/_data";
@@ -78,6 +78,7 @@ function fmtDate(iso?: string) {
 }
 
 /* ========= SmartImage ========= */
+
 function SmartImage({
   srcJpg,
   alt,
@@ -242,7 +243,6 @@ export default function EdiliziaPage() {
 
             <EdiliziaGrantsCarousel items={EDILIZIA_GRANTS} />
 
-            {/* CTA finale sezione bandi */}
             <div className="mt-6 text-center">
               <Link
                 href="/servizi/finanziamenti"
@@ -264,7 +264,7 @@ export default function EdiliziaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/formazione"
+                href="/servizi/formazione"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutti i corsi di formazione
@@ -283,7 +283,7 @@ export default function EdiliziaPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/editoria"
+                href="/servizi/editoria"
                 className="inline-flex items-center text-sm font-medium text-emerald-700 hover:underline"
               >
                 Vai a tutte le pubblicazioni
@@ -300,7 +300,6 @@ export default function EdiliziaPage() {
 
             <EdiliziaProjectsCarousel items={EDILIZIA_PROJECTS} />
 
-            {/* CTA finale sezione portfolio */}
             <div className="mt-6 text-center">
               <Link
                 href="/portfolio"
@@ -337,7 +336,6 @@ export default function EdiliziaPage() {
 
       <Footer />
 
-      {/* Stili globali per coerenza con le altre pagine */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -632,9 +630,7 @@ function GrantCard({ g }: { g: Grant }) {
         </div>
 
         {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">
-            {g.teaser}
-          </p>
+          <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>
         )}
 
         <div className="mt-4 flex items-center justify-between">
@@ -735,7 +731,7 @@ function EdiliziaFormazioneCarousel({ items }: { items: Course[] }) {
 function EdiliziaCourseCard({ c }: { c: Course }) {
   return (
     <Link
-      href={`/formazione/${c.slug}`}
+      href={`/servizi/formazione/${c.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="p-5 flex flex-col h-full">
@@ -746,12 +742,8 @@ function EdiliziaCourseCard({ c }: { c: Course }) {
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {c.title}
         </h3>
-        {c.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {c.description}
-        </p>
+        {c.subtitle && <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{c.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>
@@ -845,7 +837,7 @@ function EdiliziaEditoriaCarousel({ items }: { items: Book[] }) {
 function EdiliziaBookCard({ b }: { b: Book }) {
   return (
     <Link
-      href={`/editoria/${b.slug}`}
+      href={`/servizi/editoria/${b.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="relative h-40 bg-slate-100">
@@ -865,12 +857,8 @@ function EdiliziaBookCard({ b }: { b: Book }) {
         <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-emerald-700">
           {b.title}
         </h3>
-        {b.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
-        )}
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {b.description}
-        </p>
+        {b.subtitle && <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>}
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{b.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>

@@ -1,4 +1,4 @@
-// app/coworking/[locationslug]/[spaceslug]/page.tsx
+// app/servizi/coworking/[locationslug]/[spaceslug]/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -18,8 +18,8 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-import Nav from "../../../components/Nav";
-import Footer from "../../../components/Footer";
+import Nav from "../../../../components/Nav";
+import Footer from "../../../../components/Footer";
 import { LOCATIONS, type Location, type LocationSpace } from "../../_data";
 
 /* ================== UTILS ================== */
@@ -60,7 +60,7 @@ export default function CoworkingSpacePage() {
               Lo spazio richiesto non è disponibile o non esiste.
             </p>
             <Link
-              href="/coworking"
+              href="/servizi/coworking"
               className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
             >
               Torna al coworking
@@ -124,7 +124,7 @@ export default function CoworkingSpacePage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <button
               type="button"
-              onClick={() => router.push(`/coworking/${location.slug}`)}
+              onClick={() => router.push(`/servizi/coworking/${location.slug}`)}
               className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900"
             >
               <ArrowLeft className="h-3 w-3" />
@@ -231,7 +231,10 @@ export default function CoworkingSpacePage() {
             </article>
 
             {/* DX: BOOKING / RICHIESTA */}
-            <article className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm h-full flex flex-col">
+            <article
+              id="booking-box"
+              className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm h-full flex flex-col"
+            >
               <div className="flex-1 flex flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -239,8 +242,8 @@ export default function CoworkingSpacePage() {
                       Prenotazione & richieste
                     </h2>
                     <p className="mt-1 text-sm text-slate-600">
-                      Scegli la modalità più adatta: prenotazione a ore o
-                      richiesta per periodi più lunghi.
+                      Scegli la modalità più adatta: prenotazione a ore o richiesta
+                      per periodi più lunghi.
                     </p>
                   </div>
                 </div>
@@ -287,20 +290,18 @@ export default function CoworkingSpacePage() {
                       Prenota a ore (online)
                     </p>
                     <p className="mt-1 text-[11px] text-slate-600">
-                      Seleziona un giorno e una fascia oraria. Pagamento online
-                      (checkout).
+                      Seleziona un giorno e una fascia oraria. Pagamento online (checkout).
                     </p>
 
                     {/* giorni */}
                     <div className="mt-4">
-                      <p className="text-[11px] font-medium text-slate-500 mb-2">
-                        Giorno
-                      </p>
+                      <p className="text-[11px] font-medium text-slate-500 mb-2">Giorno</p>
                       <div className="grid grid-cols-2 gap-2">
                         {bookingDays.length > 0 ? (
                           bookingDays.slice(0, 6).map((d: any) => {
                             const disabled = d.available === false;
                             const active = selectedDate === d.date;
+
                             return (
                               <button
                                 key={d.date}
@@ -338,9 +339,9 @@ export default function CoworkingSpacePage() {
                       <div className="grid grid-cols-1 gap-2">
                         {bookingSlots.length > 0 ? (
                           bookingSlots.map((slot: any) => {
-                            const disabled =
-                              slot.available === false || !selectedDate;
+                            const disabled = slot.available === false || !selectedDate;
                             const active = selectedTimeSlotId === slot.id;
+
                             return (
                               <button
                                 key={slot.id}
@@ -360,9 +361,7 @@ export default function CoworkingSpacePage() {
                                   {slot.label}
                                 </span>
                                 {slot.available === false && (
-                                  <span className="text-[10px] opacity-70">
-                                    non disp.
-                                  </span>
+                                  <span className="text-[10px] opacity-70">non disp.</span>
                                 )}
                               </button>
                             );
@@ -384,9 +383,7 @@ export default function CoworkingSpacePage() {
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <p className="text-[11px] text-slate-600">
                         {canSubmit
-                          ? `Selezionato: ${formatItalianDate(
-                              selectedDate
-                            )} · ${slotLabel}`
+                          ? `Selezionato: ${formatItalianDate(selectedDate)} · ${slotLabel}`
                           : "Completa la selezione per procedere al pagamento."}
                       </p>
 
@@ -412,8 +409,7 @@ export default function CoworkingSpacePage() {
                       Utilizzo continuativo (richiesta)
                     </p>
                     <p className="mt-1 text-[11px] text-slate-600">
-                      Per periodi più lunghi organizziamo visita, preventivo e
-                      contratto.
+                      Per periodi più lunghi organizziamo visita, preventivo e contratto.
                     </p>
 
                     <Link
@@ -430,22 +426,20 @@ export default function CoworkingSpacePage() {
               {/* footer del box (sempre visibile) */}
               <div className="mt-6 pt-4 border-t border-slate-100">
                 <p className="text-[11px] text-slate-500">
-                  Nota: disponibilità e prezzi possono variare. Conferma finale
-                  tramite prenotazione online o contatto.
+                  Nota: disponibilità e prezzi possono variare. Conferma finale tramite
+                  prenotazione online o contatto.
                 </p>
               </div>
             </article>
 
-            {/* SOTTO: CARATTERISTICHE (stessa larghezza del blocco sopra: span 2 colonne) */}
+            {/* SOTTO: CARATTERISTICHE */}
             <article className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm">
               <h2 className="text-lg font-semibold tracking-tight text-slate-900">
                 Caratteristiche dello spazio
               </h2>
 
               {space.description ? (
-                <p className="mt-2 text-sm text-slate-600 max-w-3xl">
-                  {space.description}
-                </p>
+                <p className="mt-2 text-sm text-slate-600 max-w-3xl">{space.description}</p>
               ) : (
                 <p className="mt-2 text-sm text-slate-600 max-w-3xl">
                   Informazioni e dotazioni principali dello spazio.
@@ -469,30 +463,27 @@ export default function CoworkingSpacePage() {
                 )}
               </div>
 
-              {/* mini “info” coerente */}
               <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold text-slate-900">
-                  Suggerimento
-                </p>
+                <p className="text-xs font-semibold text-slate-900">Suggerimento</p>
                 <p className="mt-1 text-[11px] text-slate-600">
-                  Se ti serve un allestimento specifico (workshop, training,
-                  riunioni ibride), indicacelo nella richiesta: ti proponiamo la
-                  configurazione migliore.
+                  Se ti serve un allestimento specifico (workshop, training, riunioni
+                  ibride), indicacelo nella richiesta: ti proponiamo la configurazione
+                  migliore.
                 </p>
               </div>
             </article>
           </div>
         </section>
 
-        {/* CTA FINALE (coerente) */}
+        {/* CTA FINALE */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-20">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
             <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
               Vuoi usare questo spazio?
             </h3>
             <p className="mt-3 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
-              Prenota a ore direttamente online oppure inviaci una richiesta per
-              utilizzi continuativi e visite in sede.
+              Prenota a ore direttamente online oppure inviaci una richiesta per utilizzi
+              continuativi e visite in sede.
             </p>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
@@ -500,7 +491,6 @@ export default function CoworkingSpacePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    // scroll al box booking
                     const el = document.querySelector("#booking-box");
                     el?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}

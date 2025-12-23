@@ -1,4 +1,4 @@
-// app/formazione/_data.ts
+// app/servizi/formazione/_data.ts
 
 export type Area =
   | "Acqua"

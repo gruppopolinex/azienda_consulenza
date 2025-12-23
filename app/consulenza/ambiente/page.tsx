@@ -1,4 +1,4 @@
-// app/servizi/ambiente/page.tsx
+// app/consulenza/ambiente/page.tsx
 "use client";
 
 import type React from "react";
@@ -25,13 +25,13 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
 // Bandi & finanziamenti
-import { GRANTS, type Grant } from "../finanziamenti/_data";
+import { GRANTS, type Grant } from "../../finanziamenti/_data";
 
 // Formazione
-import { COURSES, type Course } from "../../formazione/_data";
+import { COURSES, type Course } from "../../servizi/formazione/_data";
 
 // Editoria
-import { BOOKS, type Book } from "../../editoria/_data";
+import { BOOKS, type Book } from "../../servizi/editoria/_data";
 
 // Portfolio / progetti
 import { PROJECTS, type Project } from "../../portfolio/_data";
@@ -53,14 +53,10 @@ const AMBIENTE_GRANTS: Grant[] = GRANTS.filter((g) =>
 );
 
 // --- Corsi formazione area ambiente ---
-const AMBIENTE_COURSES: Course[] = COURSES.filter(
-  (c) => c.area === "Ambiente"
-);
+const AMBIENTE_COURSES: Course[] = COURSES.filter((c) => c.area === "Ambiente");
 
 // --- Libri / editoria area ambiente ---
-const AMBIENTE_BOOKS: Book[] = BOOKS.filter(
-  (b) => b.area === "Ambiente"
-);
+const AMBIENTE_BOOKS: Book[] = BOOKS.filter((b) => b.area === "Ambiente");
 
 // --- Progetti portfolio categoria ambiente ---
 const AMBIENTE_PROJECTS: AmbienteProject[] = PROJECTS.filter(
@@ -263,7 +259,7 @@ export default function AmbientePage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/formazione"
+                href="/servizi/formazione"
                 className="inline-flex items-center rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
               >
                 Vedi tutti i corsi di formazione
@@ -281,7 +277,7 @@ export default function AmbientePage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/editoria"
+                href="/servizi/editoria"
                 className="inline-flex items-center rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
               >
                 Vedi tutte le pubblicazioni
@@ -731,7 +727,7 @@ function AmbienteFormazioneCarousel({ items }: { items: Course[] }) {
 function AmbienteCourseCard({ c }: { c: Course }) {
   return (
     <Link
-      href={`/formazione/${c.slug}`}
+      href={`/servizi/formazione/${c.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="p-5 flex flex-col h-full">
@@ -841,7 +837,7 @@ function AmbienteEditoriaCarousel({ items }: { items: Book[] }) {
 function AmbienteBookCard({ b }: { b: Book }) {
   return (
     <Link
-      href={`/editoria/${b.slug}`}
+      href={`/servizi/editoria/${b.slug}`}
       className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[420px] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group"
     >
       <div className="relative h-40 bg-slate-100">

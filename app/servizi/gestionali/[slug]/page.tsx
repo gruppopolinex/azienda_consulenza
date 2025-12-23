@@ -1,4 +1,4 @@
-// app/gestionali/[slug]/page.tsx
+// app/servizi/gestionali/[slug]/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -18,8 +18,8 @@ import {
   PlayCircle,
 } from "lucide-react";
 
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer";
+import Nav from "../../../components/Nav";
+import Footer from "../../../components/Footer";
 
 import {
   GESTIONALI,
@@ -54,10 +54,12 @@ function SectorIcon({ sector }: { sector: Sector }) {
 /* ==================== PAGINA DETTAGLIO GESTIONALE ==================== */
 
 export default function GestionaleDetailPage() {
-  const params = useParams<{ slug: string }>();
+  const params = useParams<{ slug: string | string[] }>();
   const router = useRouter();
 
-  const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const rawSlug = params?.slug;
+  const slugParam = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+
   const gestionale: Gestionale | undefined = GESTIONALI.find(
     (g) => g.slug === slugParam
   );
@@ -72,7 +74,7 @@ export default function GestionaleDetailPage() {
         <main className="flex-1 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
           <button
             type="button"
-            onClick={() => router.push("/gestionali")}
+            onClick={() => router.push("/servizi/gestionali")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -85,7 +87,7 @@ export default function GestionaleDetailPage() {
               disponibile a catalogo.
             </p>
             <Link
-              href="/gestionali"
+              href="/servizi/gestionali"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Vai alla pagina Gestionali
@@ -101,13 +103,12 @@ export default function GestionaleDetailPage() {
     billing === "mensile"
       ? formatPrice(gestionale.monthlyPrice)
       : formatPrice(gestionale.oneOffPrice);
+
   const billingLabel = billing === "mensile" ? "/mese" : " una tantum";
 
   const faqs: FAQItem[] = BASE_FAQ.map((f) => ({ ...f }));
 
-  const appUrl = `https://${gestionale.appDomain}${
-    gestionale.appAuthPath ?? ""
-  }`;
+  const appUrl = `https://${gestionale.appDomain}${gestionale.appAuthPath ?? ""}`;
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -117,7 +118,7 @@ export default function GestionaleDetailPage() {
         {/* Back link in alto */}
         <button
           type="button"
-          onClick={() => router.push("/gestionali")}
+          onClick={() => router.push("/servizi/gestionali")}
           className="mt-2 inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900"
         >
           <ArrowLeft className="h-3 w-3" />
@@ -161,12 +162,12 @@ export default function GestionaleDetailPage() {
           </p>
         </section>
 
-        {/* CONTENUTO PRINCIPALE: top simmetrico + blocchi full width */}
+        {/* CONTENUTO PRINCIPALE */}
         <section className="mt-10 sm:mt-12 pb-16">
           <div className="space-y-6">
-            {/* TOP: VIDEO + BOX ABBONAMENTO (STESSA ALTEZZA) */}
+            {/* TOP: VIDEO + BOX ABBONAMENTO */}
             <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-              {/* Video YouTube */}
+              {/* Video */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 flex flex-col h-full">
                 <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-slate-900">
                   {gestionale.videoUrl ? (
@@ -180,9 +181,7 @@ export default function GestionaleDetailPage() {
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-slate-200">
-                      <span>
-                        Video di presentazione non ancora disponibile.
-                      </span>
+                      <span>Video di presentazione non ancora disponibile.</span>
                     </div>
                   )}
 
@@ -193,7 +192,7 @@ export default function GestionaleDetailPage() {
                 </div>
               </div>
 
-              {/* Box abbonamento / accesso – altezza allineata al video */}
+              {/* Box abbonamento / accesso */}
               <aside className="rounded-2xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-sm flex flex-col h-full">
                 <p className="text-sm font-medium text-emerald-900 flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-emerald-600" />
@@ -207,7 +206,6 @@ export default function GestionaleDetailPage() {
                   <strong>dominio dedicato</strong> al gestionale.
                 </p>
 
-                {/* Toggle mensile / una tantum (marketing) */}
                 <div className="mt-4 inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-medium w-full">
                   <button
                     type="button"
@@ -252,7 +250,6 @@ export default function GestionaleDetailPage() {
                   </p>
                 </div>
 
-                {/* CTA: Accedi o registrati al gestionale sul dominio dedicato */}
                 <a
                   href={appUrl}
                   className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
@@ -263,18 +260,14 @@ export default function GestionaleDetailPage() {
 
                 <p className="mt-3 text-[11px] text-slate-500">
                   Verrai reindirizzato su{" "}
-                  <span className="font-semibold">
-                    {gestionale.appDomain}
-                  </span>
-                  , il dominio dedicato al gestionale, per completare l&apos;
+                  <span className="font-semibold">{gestionale.appDomain}</span>,
+                  il dominio dedicato al gestionale, per completare l&apos;
                   accesso o creare un nuovo account.
                 </p>
               </aside>
             </div>
 
-            {/* SOTTO: BLOCCHI FULL WIDTH (stessa larghezza video + abbonamento) */}
-
-            {/* Moduli / Funzionalità */}
+            {/* Moduli */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
               <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Info className="h-4 w-4 text-slate-500" />
@@ -293,70 +286,6 @@ export default function GestionaleDetailPage() {
                 report personalizzati) possono essere aggiunti in fase di
                 progetto, partendo dai vostri processi reali.
               </p>
-            </div>
-
-            {/* Cosa risolve / Avvio progetto */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Cosa risolve in pratica
-                  </h3>
-                  <ul className="mt-3 space-y-2 text-xs text-slate-700">
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Riduce file sparsi, cartelle disordinate e fogli Excel
-                        scollegati.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Tiene sotto controllo{" "}
-                        <strong>scadenze</strong>, autorizzazioni, monitoraggi
-                        e adempimenti.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Allinea direzione, tecnici e consulenti su un{" "}
-                        <strong>unico cruscotto</strong>.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Come avviene l&apos;avvio
-                  </h3>
-                  <ul className="mt-3 space-y-2 text-xs text-slate-700">
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Raccolta dei flussi e dei documenti che già usate
-                        (Excel, modelli, report).
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Configurazione <strong>ambiente pilota</strong> con
-                        utenti chiave e primi dataset.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        Avvio in produzione e formazione operativa sul vostro
-                        caso reale.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
             </div>
 
             {/* FAQ */}
@@ -382,7 +311,7 @@ export default function GestionaleDetailPage() {
           </div>
         </section>
 
-        {/* CTA FINALE – STILE IDENTICO A /gestionali */}
+        {/* CTA FINALE */}
         <section className="mt-12 sm:mt-16 pb-12">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
             <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
@@ -420,7 +349,6 @@ export default function GestionaleDetailPage() {
 
       <Footer />
 
-      {/* Stili globali per titoli */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
