@@ -201,7 +201,7 @@ const TEAM: TeamMember[] = [
   },
   {
     name: "Giulia Verdi",
-    role: "Project Engineer – Acqua e Ambiente",
+    role: "Ingegnere Energetico",
     image: "/team/giulia.jpg",
     phone: "+39 333 1111111",
     email: "giulia.verdi@polinex.it",
@@ -209,7 +209,7 @@ const TEAM: TeamMember[] = [
   },
   {
     name: "Luca Bianchi",
-    role: "Tecnico Sicurezza Cantieri",
+    role: "Ingegnere Informatico",
     image: "/team/luca.jpg",
     phone: "+39 333 2222222",
     email: "luca.bianchi@polinex.it",
