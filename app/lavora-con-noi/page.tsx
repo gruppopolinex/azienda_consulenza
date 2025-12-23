@@ -158,12 +158,27 @@ export default function LavoraConNoiPage() {
     });
   }, [sectorFilter, cityFilter, contractFilter]);
 
-  const handleSpontaneousSubmit: React.FormEventHandler<HTMLFormElement> = (
-    e
-  ) => {
-    e.preventDefault();
-    console.log("Spontaneous application submitted");
-  };
+  const handleSpontaneousSubmit: React.FormEventHandler<HTMLFormElement> =
+    async (e) => {
+      e.preventDefault();
+
+      const form = e.currentTarget;
+      const fd = new FormData(form);
+
+      const res = await fetch("/api/lavora-con-noi/spontanea", {
+        method: "POST",
+        body: fd, // multipart/form-data automatico
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        form.reset();
+        alert("Candidatura inviata! Ti ricontatteremo se il profilo è in linea.");
+      } else {
+        alert(data?.error ?? "Errore nell’invio. Riprova.");
+      }
+    };
 
   const syncedHeightStyle =
     fixedCardsHeight > 0 ? ({ height: fixedCardsHeight } as const) : undefined;
@@ -242,6 +257,15 @@ export default function LavoraConNoiPage() {
                   className="mt-6 space-y-4"
                   onSubmit={handleSpontaneousSubmit}
                 >
+                  {/* honeypot anti-spam (non visibile) */}
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    className="hidden"
+                  />
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Nome *" name="nome" type="text" required />
                     <Field
@@ -295,7 +319,7 @@ export default function LavoraConNoiPage() {
                     <input
                       name="cv"
                       type="file"
-                      accept=".pdf"
+                      accept=".pdf,application/pdf"
                       required
                       className="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
                     />

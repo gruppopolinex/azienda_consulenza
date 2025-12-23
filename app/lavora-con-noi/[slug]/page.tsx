@@ -70,10 +70,29 @@ export default function JobDetailPage() {
     );
   }
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    // Qui potrai agganciare invio a backend / servizio esterno
-    console.log("Application form submitted for job:", job.slug);
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    // assicuriamo che i hidden ci siano sempre (anche se qualcuno li rimuove dal DOM)
+    fd.set("jobSlug", job.slug);
+    fd.set("jobTitle", job.title);
+
+    const res = await fetch("/api/lavora-con-noi/posizione", {
+      method: "POST",
+      body: fd, // multipart/form-data automatico
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (res.ok) {
+      form.reset();
+      alert("Candidatura inviata! Ti ricontatteremo se il profilo è in linea.");
+    } else {
+      alert(data?.error ?? "Errore nell’invio. Riprova.");
+    }
   };
 
   return (
@@ -206,6 +225,19 @@ export default function JobDetailPage() {
                 className="mt-5 space-y-4 flex-1 flex flex-col"
               >
                 <div className="space-y-4">
+                  {/* Hidden per associare la candidatura alla posizione */}
+                  <input type="hidden" name="jobSlug" value={job.slug} />
+                  <input type="hidden" name="jobTitle" value={job.title} />
+
+                  {/* honeypot anti-spam (non visibile) */}
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    className="hidden"
+                  />
+
                   {/* Posizione (read-only) */}
                   <div>
                     <label className="block text-xs font-medium text-slate-600">
@@ -246,7 +278,7 @@ export default function JobDetailPage() {
                     <input
                       name="cv"
                       type="file"
-                      accept=".pdf"
+                      accept=".pdf,application/pdf"
                       required
                       className="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
                     />
@@ -257,7 +289,7 @@ export default function JobDetailPage() {
                       Breve presentazione
                     </label>
                     <textarea
-                      name="presentazione"
+                      name="messaggio"
                       rows={4}
                       className="input mt-1"
                       placeholder="Raccontaci il tuo percorso, le esperienze più rilevanti per questo ruolo e cosa ti piacerebbe seguire in Polinex…"
@@ -411,3 +443,4 @@ function Field({
     </div>
   );
 }
+
