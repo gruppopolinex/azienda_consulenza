@@ -226,7 +226,7 @@ export default function ContattiPage() {
             </p>
             <div className="mt-6">
               <Link
-                href="/coworking"
+                href="/servizi/coworking"
                 className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-sm sm:text-base font-medium text-white hover:bg-emerald-700"
               >
                 Scopri le nostre sedi e gli spazi di lavoro

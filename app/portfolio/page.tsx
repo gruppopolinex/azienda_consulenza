@@ -3,7 +3,7 @@
 
 import type React from "react";
 import { useMemo, useState, useCallback } from "react";
-import { MapPin, Building2, ChevronRight, ChevronLeft } from "lucide-react";
+import { MapPin, Building2, ChevronRight, ChevronLeft, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -58,14 +58,21 @@ type Filter = (typeof FILTERS)[number];
 
 export default function PortfolioPage() {
   const [filter, setFilter] = useState<Filter>("Tutti");
+  const [query, setQuery] = useState<string>("");
 
-  const list = useMemo(
-    () =>
-      filter === "Tutti"
-        ? PROJECTS
-        : PROJECTS.filter((p) => p.category === (filter as Category)),
-    [filter]
-  );
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    return PROJECTS.filter((p) => {
+      const categoryMatch =
+        filter === "Tutti" ? true : p.category === (filter as Category);
+
+      const text = `${p.title} ${p.client} ${p.location} ${p.category}`.toLowerCase();
+      const queryMatch = q.length === 0 ? true : text.includes(q);
+
+      return categoryMatch && queryMatch;
+    });
+  }, [filter, query]);
 
   return (
     <>
@@ -96,25 +103,45 @@ export default function PortfolioPage() {
             <strong>soluzioni gestionali</strong>.
           </p>
           <p className="mt-2 text-sm text-slate-500">
-            Filtra per area di competenza e approfondisci i casi studio più
-            vicini al tuo contesto.
+            Filtra per area di competenza e cerca per parola chiave (titolo,
+            cliente o località).
           </p>
 
-          {/* Filtri per area */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {FILTERS.map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-full px-4 py-2 text-sm border transition ${
-                  filter === f
-                    ? "border-emerald-600 text-emerald-700 bg-emerald-50"
-                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
-                }`}
+          {/* Toolbar filtri: tendina a sinistra, ricerca a destra */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,240px)_minmax(0,1fr)] items-center">
+            {/* Filtro a tendina */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Area di competenza
+              </label>
+              <select
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as Filter)}
               >
-                {f === "Tutti" ? "Tutti i progetti" : f}
-              </button>
-            ))}
+                {FILTERS.map((f) => (
+                  <option key={f} value={f}>
+                    {f === "Tutti" ? "Tutti i progetti" : f}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Ricerca */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Cerca
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Cerca per titolo, cliente o località…"
+                  className="w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -126,7 +153,7 @@ export default function PortfolioPage() {
 
           {list.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-              Nessun progetto trovato per il filtro selezionato.
+              Nessun progetto trovato con i filtri selezionati.
             </div>
           )}
         </section>

@@ -22,6 +22,55 @@ export const ALL_AREAS: Area[] = [
   "Bandi e Finanziamenti",
 ];
 
+/* ===================== Regioni (per filtro) ===================== */
+
+export type Regione =
+  | "Abruzzo"
+  | "Basilicata"
+  | "Calabria"
+  | "Campania"
+  | "Emilia-Romagna"
+  | "Friuli-Venezia Giulia"
+  | "Lazio"
+  | "Liguria"
+  | "Lombardia"
+  | "Marche"
+  | "Molise"
+  | "Piemonte"
+  | "Puglia"
+  | "Sardegna"
+  | "Sicilia"
+  | "Toscana"
+  | "Trentino-Alto Adige"
+  | "Umbria"
+  | "Valle d'Aosta"
+  | "Veneto";
+
+export const ALL_REGIONI: Regione[] = [
+  "Abruzzo",
+  "Basilicata",
+  "Calabria",
+  "Campania",
+  "Emilia-Romagna",
+  "Friuli-Venezia Giulia",
+  "Lazio",
+  "Liguria",
+  "Lombardia",
+  "Marche",
+  "Molise",
+  "Piemonte",
+  "Puglia",
+  "Sardegna",
+  "Sicilia",
+  "Toscana",
+  "Trentino-Alto Adige",
+  "Umbria",
+  "Valle d'Aosta",
+  "Veneto",
+];
+
+/* ===================== Tipi dati ===================== */
+
 export type Grant = {
   slug: string;
   title: string;
@@ -30,7 +79,19 @@ export type Grant = {
   beneficiari: string;
   contributo: string;
   scadenza?: string; // es. "2026-03-03"
+
+  /**
+   * Territorio "testuale" da mostrare in UI (es. Italia, Nazionale, Mezzogiorno, Veneto...)
+   * Non usare questo campo per filtri precisi: per quello usare "regioni".
+   */
   territorio?: string;
+
+  /**
+   * ✅ Campo strutturato per filtro "Regione" (multi-regione).
+   * - assente -> bando nazionale / non regionale / macro-area (es. "Mezzogiorno")
+   */
+  regioni?: Regione[];
+
   teaser?: string; // descrizione breve per la card
   description?: string; // descrizione estesa per la pagina dettaglio
   pdfHref?: string; // link al PDF in /public/finanziamenti/
@@ -38,6 +99,8 @@ export type Grant = {
   officialUrl?: string; // link al sito ufficiale
   aree?: Area[]; // settori di riferimento (Acqua, Ambiente, …)
 };
+
+/* ===================== Dati ===================== */
 
 export const GRANTS: Grant[] = [
   {
@@ -49,6 +112,8 @@ export const GRANTS: Grant[] = [
     contributo: "Fondo perduto",
     scadenza: "2026-03-03",
     territorio: "Mezzogiorno",
+    // ✅ macro-area: lasciamo regioni NON valorizzato (oppure puoi popolarlo quando vuoi)
+    // regioni: ["Campania", "Puglia", ...] // opzionale
     teaser:
       "Incentivo per impianti fotovoltaici nel Mezzogiorno con focus sull’autoproduzione energetica.",
     description:
@@ -67,6 +132,7 @@ export const GRANTS: Grant[] = [
     contributo: "Contributo 30–50%",
     scadenza: "2025-12-15",
     territorio: "Veneto",
+    regioni: ["Veneto"],
     teaser:
       "Contributi per interventi di efficientamento energetico degli stabilimenti produttivi.",
     description:
@@ -84,6 +150,7 @@ export const GRANTS: Grant[] = [
     beneficiari: "Imprese",
     contributo: "Fondo perduto 40–65%",
     territorio: "Italia",
+    // ✅ nazionale: niente regioni (così non appare quando filtro per una regione specifica)
     teaser:
       "Contributi per migliorare salute e sicurezza nei luoghi di lavoro. Click day atteso nel 2025.",
     description:
@@ -94,6 +161,8 @@ export const GRANTS: Grant[] = [
     aree: ["Sicurezza", "Bandi e Finanziamenti"],
   },
 ];
+
+/* ===================== Helper ===================== */
 
 // helper per pagina [slug]
 export const getGrantBySlug = (slug: string) => {

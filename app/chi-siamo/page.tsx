@@ -148,7 +148,7 @@ export default function ChiSiamoPage() {
               href="/lavora-con-noi"
               className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
             >
-              Vai alla sezione “Lavora con noi”
+              Scopri le posizioni aperte
               <ChevronRight className="ml-2 h-4 w-4" />
             </Link>
           </div>

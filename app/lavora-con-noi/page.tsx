@@ -470,17 +470,6 @@ export default function LavoraConNoiPage() {
             </div>
           </div>
 
-          {/* Riga indirizzo / nota finale */}
-          <div className="mt-10 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-            <MapPin className="h-4 w-4 text-slate-400" />
-            <span>Sede principale: {ADDRESS}</span>
-            <span className="hidden sm:inline">•</span>
-            <span>
-              Possibili attività in presenza, in smart working e presso clienti
-              / cantieri, in funzione del ruolo.
-            </span>
-          </div>
-
           {/* CTA finale: sedi / coworking */}
           <section className="mx-auto max-w-7xl pb-20 mt-10">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
@@ -492,7 +481,7 @@ export default function LavoraConNoiPage() {
                 tra ufficio, incontri con i clienti e momenti di collaborazione.
               </p>
               <Link
-                href="/coworking"
+                href="/servizi/coworking"
                 className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium hover:bg-emerald-700"
               >
                 Vedi le nostre sedi
