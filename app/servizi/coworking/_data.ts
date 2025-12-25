@@ -215,9 +215,9 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 15,
         pricing: { hourly: 15 },
         images: [
-          "/coworking/venezia/open-space-1.jpg",
-          "/coworking/venezia/open-space-2.jpg",
-          "/coworking/venezia/open-space-3.jpg",
+          "/coworking/venezia/open-space/1.jpg",
+          "/coworking/venezia/open-space/2.jpg",
+          "/coworking/venezia/open-space/3.jpg",
         ],
         features: ["Wi-Fi", "Coffee corner", "Luce naturale"],
       },
@@ -231,8 +231,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 25,
         pricing: { hourly: 25, monthlyFrom: 850 },
         images: [
-          "/coworking/venezia/ufficio-privato-1.jpg",
-          "/coworking/venezia/ufficio-privato-2.jpg",
+          "/coworking/venezia/ufficio-privato/1.jpg",
+          "/coworking/venezia/ufficio-privato/2.jpg",
         ],
       },
       {
@@ -245,8 +245,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 35,
         pricing: { hourly: 35 },
         images: [
-          "/coworking/venezia/sala-laguna-1.jpg",
-          "/coworking/venezia/sala-laguna-2.jpg",
+          "/coworking/venezia/sala-laguna/1.jpg",
+          "/coworking/venezia/sala-laguna/2.jpg",
         ],
       },
     ],
@@ -298,8 +298,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 45,
         pricing: { hourly: 45 },
         images: [
-          "/coworking/roma/sala-fori-1.jpg",
-          "/coworking/roma/sala-fori-2.jpg",
+          "/coworking/roma/sala-fori/1.jpg",
+          "/coworking/roma/sala-fori/2.jpg",
         ],
       },
       {
@@ -311,8 +311,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 17,
         pricing: { hourly: 17 },
         images: [
-          "/coworking/roma/coworking-1.jpg",
-          "/coworking/roma/coworking-2.jpg",
+          "/coworking/roma/coworking-centrale/1.jpg",
+          "/coworking/roma/coworking-centrale/2.jpg",
         ],
       },
     ],
@@ -352,8 +352,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
         images: [
-          "/coworking/napoli/coworking-1.jpg",
-          "/coworking/napoli/coworking-2.jpg",
+          "/coworking/napoli/coworking-panoramico/1.jpg",
+          "/coworking/napoli/coworking-panoramico/2.jpg",
         ],
       },
       {
@@ -365,8 +365,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 32,
         pricing: { hourly: 32 },
         images: [
-          "/coworking/napoli/sala-1.jpg",
-          "/coworking/napoli/sala-2.jpg",
+          "/coworking/napoli/sala-partenope/1.jpg",
+          "/coworking/napoli/sala-partenope/2.jpg",
         ],
       },
     ],
@@ -406,8 +406,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 18,
         pricing: { hourly: 18 },
         images: [
-          "/coworking/milano/coworking-open-1.jpg",
-          "/coworking/milano/coworking-open-2.jpg",
+          "/coworking/milano/coworking-open/1.jpg",
+          "/coworking/milano/coworking-open/2.jpg",
         ],
       },
       {
@@ -419,8 +419,8 @@ export const LOCATIONS: Location[] = [
         price: "Locazione su richiesta",
         pricing: { monthlyFrom: 1400 },
         images: [
-          "/coworking/milano/ufficio-team-1.jpg",
-          "/coworking/milano/ufficio-team-2.jpg",
+          "/coworking/milano/ufficio-team/1.jpg",
+          "/coworking/milano/ufficio-team/2.jpg",
         ],
       },
       {
@@ -432,8 +432,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 40,
         pricing: { hourly: 40 },
         images: [
-          "/coworking/milano/sala-1.jpg",
-          "/coworking/milano/sala-2.jpg",
+          "/coworking/milano/sala-board/1.jpg",
+          "/coworking/milano/sala-board/2.jpg",
         ],
       },
     ],
@@ -470,8 +470,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
         images: [
-          "/coworking/torino/coworking-1.jpg",
-          "/coworking/torino/coworking-2.jpg",
+          "/coworking/torino/coworking-light/1.jpg",
+          "/coworking/torino/coworking-light/2.jpg",
         ],
       },
       {
@@ -483,8 +483,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 22,
         pricing: { hourly: 22, monthlyFrom: 980 },
         images: [
-          "/coworking/torino/ufficio-1.jpg",
-          "/coworking/torino/ufficio-2.jpg",
+          "/coworking/torino/ufficio-privato/1.jpg",
+          "/coworking/torino/ufficio-privato/2.jpg",
         ],
       },
     ],
@@ -523,8 +523,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
         images: [
-          "/coworking/padova/open-1.jpg",
-          "/coworking/padova/open-2.jpg",
+          "/coworking/padova/open-space/1.jpg",
+          "/coworking/padova/open-space/2.jpg",
         ],
       },
       {
@@ -535,7 +535,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 28,
         pricing: { hourly: 28 },
-        images: ["/coworking/padova/sala-1.jpg", "/coworking/padova/sala-2.jpg"],
+        images: [
+          "/coworking/padova/sala-galileo/1.jpg",
+          "/coworking/padova/sala-galileo/2.jpg",
+        ],
       },
     ],
 
@@ -574,8 +577,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
         images: [
-          "/coworking/verona/coworking-1.jpg",
-          "/coworking/verona/coworking-2.jpg",
+          "/coworking/verona/coworking-centro/1.jpg",
+          "/coworking/verona/coworking-centro/2.jpg",
         ],
       },
       {
@@ -586,7 +589,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 30,
         pricing: { hourly: 30 },
-        images: ["/coworking/verona/sala-1.jpg", "/coworking/verona/sala-2.jpg"],
+        images: [
+          "/coworking/verona/sala-scaligera/1.jpg",
+          "/coworking/verona/sala-scaligera/2.jpg",
+        ],
       },
     ],
 
@@ -625,8 +631,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
         images: [
-          "/coworking/firenze/open-1.jpg",
-          "/coworking/firenze/open-2.jpg",
+          "/coworking/firenze/open-space/1.jpg",
+          "/coworking/firenze/open-space/2.jpg",
         ],
       },
       {
@@ -638,8 +644,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 24,
         pricing: { hourly: 24, monthlyFrom: 920 },
         images: [
-          "/coworking/firenze/ufficio-1.jpg",
-          "/coworking/firenze/ufficio-2.jpg",
+          "/coworking/firenze/ufficio-privato/1.jpg",
+          "/coworking/firenze/ufficio-privato/2.jpg",
         ],
       },
     ],
@@ -678,8 +684,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
         images: [
-          "/coworking/bari/coworking-1.jpg",
-          "/coworking/bari/coworking-2.jpg",
+          "/coworking/bari/coworking-sud/1.jpg",
+          "/coworking/bari/coworking-sud/2.jpg",
         ],
       },
       {
@@ -690,7 +696,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 29,
         pricing: { hourly: 29 },
-        images: ["/coworking/bari/sala-1.jpg", "/coworking/bari/sala-2.jpg"],
+        images: [
+          "/coworking/bari/sala-adriatico/1.jpg",
+          "/coworking/bari/sala-adriatico/2.jpg",
+        ],
       },
     ],
 
@@ -726,8 +735,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 13,
         pricing: { hourly: 13 },
         images: [
-          "/coworking/genova/coworking-1.jpg",
-          "/coworking/genova/coworking-2.jpg",
+          "/coworking/genova/coworking-porta/1.jpg",
+          "/coworking/genova/coworking-porta/2.jpg",
         ],
       },
       {
@@ -739,8 +748,8 @@ export const LOCATIONS: Location[] = [
         price: "Locazione su richiesta",
         pricing: { monthlyFrom: 1100 },
         images: [
-          "/coworking/genova/ufficio-1.jpg",
-          "/coworking/genova/ufficio-2.jpg",
+          "/coworking/genova/ufficio-privato/1.jpg",
+          "/coworking/genova/ufficio-privato/2.jpg",
         ],
       },
     ],
@@ -779,8 +788,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 14,
         pricing: { hourly: 14 },
         images: [
-          "/coworking/bologna/coworking-1.jpg",
-          "/coworking/bologna/coworking-2.jpg",
+          "/coworking/bologna/coworking-portici/1.jpg",
+          "/coworking/bologna/coworking-portici/2.jpg",
         ],
       },
       {
@@ -791,7 +800,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 34,
         pricing: { hourly: 34 },
-        images: ["/coworking/bologna/sala-1.jpg", "/coworking/bologna/sala-2.jpg"],
+        images: [
+          "/coworking/bologna/sala-due-torri/1.jpg",
+          "/coworking/bologna/sala-due-torri/2.jpg",
+        ],
       },
     ],
 
@@ -829,8 +841,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 11,
         pricing: { hourly: 11 },
         images: [
-          "/coworking/ferrara/coworking-1.jpg",
-          "/coworking/ferrara/coworking-2.jpg",
+          "/coworking/ferrara/coworking-castello/1.jpg",
+          "/coworking/ferrara/coworking-castello/2.jpg",
         ],
       },
       {
@@ -841,7 +853,10 @@ export const LOCATIONS: Location[] = [
         bookingMode: "hourly",
         minHourlyPrice: 26,
         pricing: { hourly: 26 },
-        images: ["/coworking/ferrara/sala-1.jpg", "/coworking/ferrara/sala-2.jpg"],
+        images: [
+          "/coworking/ferrara/sala-este/1.jpg",
+          "/coworking/ferrara/sala-este/2.jpg",
+        ],
       },
     ],
 
@@ -880,8 +895,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 12,
         pricing: { hourly: 12 },
         images: [
-          "/coworking/vicenza/coworking-1.jpg",
-          "/coworking/vicenza/coworking-2.jpg",
+          "/coworking/vicenza/coworking-palladio/1.jpg",
+          "/coworking/vicenza/coworking-palladio/2.jpg",
         ],
       },
       {
@@ -893,8 +908,8 @@ export const LOCATIONS: Location[] = [
         minHourlyPrice: 21,
         pricing: { hourly: 21, monthlyFrom: 780 },
         images: [
-          "/coworking/vicenza/ufficio-1.jpg",
-          "/coworking/vicenza/ufficio-2.jpg",
+          "/coworking/vicenza/ufficio-privato/1.jpg",
+          "/coworking/vicenza/ufficio-privato/2.jpg",
         ],
       },
     ],

@@ -14,6 +14,7 @@ import {
   Laptop,
   ChevronRight,
   Filter as FilterIcon,
+  Search,
 } from "lucide-react";
 
 import Nav from "../../components/Nav";
@@ -35,6 +36,7 @@ export default function CoworkingPage() {
   const [spaceType, setSpaceType] = useState<SpaceType | "Qualsiasi">(
     "Qualsiasi"
   );
+  const [search, setSearch] = useState("");
 
   // ✅ Città derivate dai dati: se aggiungi una sede/città in _data.ts,
   // automaticamente comparirà nel filtro.
@@ -45,16 +47,33 @@ export default function CoworkingPage() {
   }, []);
 
   const filteredLocations = useMemo(() => {
+    const q = search.trim().toLowerCase();
+
     return LOCATIONS.filter((loc) => {
       const byCity = selectedCity === "Tutte" ? true : loc.city === selectedCity;
+
       const bySpaceType =
         spaceType === "Qualsiasi"
           ? true
           : (loc.spaces ?? []).some((s) => s.type === spaceType);
 
-      return byCity && bySpaceType;
+      const bySearch = !q
+        ? true
+        : [
+            loc.name,
+            loc.city,
+            loc.address,
+            loc.description,
+            ...(loc.tags ?? []),
+            ...(loc.spaces ?? []).map((s) => `${s.type} ${s.label} ${s.capacity ?? ""}`),
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(q);
+
+      return byCity && bySpaceType && bySearch;
     });
-  }, [selectedCity, spaceType]);
+  }, [selectedCity, spaceType, search]);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -83,9 +102,74 @@ export default function CoworkingPage() {
             </strong>
             .
           </p>
+
+          {/* ✅ Filtri + ricerca (stile Finanziamenti/Editoria) */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,260px)_minmax(0,260px)_minmax(0,1fr)] items-end">
+            {/* Città */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Sede
+              </label>
+              <select
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                value={selectedCity}
+                onChange={(e) =>
+                  setSelectedCity(e.target.value as City | "Tutte")
+                }
+              >
+                <option value="Tutte">Tutte le sedi</option>
+                {availableCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tipologia */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Tipologia di spazio
+              </label>
+              <select
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                value={spaceType}
+                onChange={(e) =>
+                  setSpaceType(
+                    (e.target.value as SpaceType | "Qualsiasi") || "Qualsiasi"
+                  )
+                }
+              >
+                <option value="Qualsiasi">Qualsiasi tipologia</option>
+                {SPACE_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Ricerca */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Cerca
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cerca sedi (nome, indirizzo, tag, spazi)…"
+                  className="w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  aria-label="Cerca sedi coworking"
+                />
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* SEDI & FILTRI */}
+        {/* SEDI */}
         <section className="mt-10 sm:mt-12">
           {/* Pill informazioni rapide */}
           <div className="flex flex-wrap gap-2 mb-4 text-xs sm:text-sm">
@@ -103,57 +187,15 @@ export default function CoworkingPage() {
             </span>
           </div>
 
-          {/* Barra filtri */}
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Filtri città */}
-            <div>
-              <p className="text-xs font-medium text-slate-500 mb-2">
-                Filtra per sede
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <FilterPill
-                  active={selectedCity === "Tutte"}
-                  label="Tutte le sedi"
-                  onClick={() => setSelectedCity("Tutte")}
-                />
-
-                {availableCities.map((city) => (
-                  <FilterPill
-                    key={city}
-                    active={selectedCity === city}
-                    label={city}
-                    onClick={() => setSelectedCity(city)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Filtro tipologia spazio */}
-            <div className="max-w-xs w-full lg:text-right">
-              <label className="block text-xs font-medium text-slate-500 mb-2">
-                Filtra per tipologia di spazio
-              </label>
-              <div className="relative">
-                <select
-                  className="input pr-9"
-                  value={spaceType}
-                  onChange={(e) =>
-                    setSpaceType(
-                      (e.target.value as SpaceType | "Qualsiasi") ||
-                        "Qualsiasi"
-                    )
-                  }
-                >
-                  <option value="Qualsiasi">Qualsiasi tipologia</option>
-                  {SPACE_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-                <FilterIcon className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
-              </div>
-            </div>
+          {/* Riga info filtri */}
+          <div className="mb-6 flex items-center gap-2 text-sm text-slate-700">
+            <FilterIcon className="h-4 w-4 text-slate-500" />
+            <span>
+              {selectedCity === "Tutte" ? "Tutte le sedi" : selectedCity} •{" "}
+              {spaceType === "Qualsiasi" ? "Tutte le tipologie" : spaceType} •{" "}
+              <strong>{filteredLocations.length}</strong>{" "}
+              {filteredLocations.length === 1 ? "sede" : "sedi"}
+            </span>
           </div>
 
           {/* Grid sedi */}
@@ -165,7 +207,7 @@ export default function CoworkingPage() {
             {filteredLocations.length === 0 && (
               <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
                 Nessuno spazio trovato per i filtri selezionati. Prova a
-                modificare sede o tipologia.
+                modificare sede, tipologia o testo di ricerca.
               </div>
             )}
           </div>
@@ -222,30 +264,6 @@ export default function CoworkingPage() {
 }
 
 /* ========== Componenti di supporto ========== */
-
-function FilterPill({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs sm:text-sm border transition ${
-        active
-          ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
 
 function LocationCard({ location }: { location: Location }) {
   return (

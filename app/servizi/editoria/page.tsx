@@ -5,7 +5,14 @@ import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { BookOpen, ShoppingCart, Filter, Tag, Check } from "lucide-react";
+import {
+  BookOpen,
+  ShoppingCart,
+  Tag,
+  Check,
+  Search,
+  Filter,
+} from "lucide-react";
 
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
@@ -90,33 +97,43 @@ export default function EditoriaPage() {
             Ogni volume è concepito come uno strumento operativo: schemi,
             check-list, esempi reali e riferimenti normativi essenziali.
           </p>
-        </section>
 
-        {/* Card filtro area in stile "box" sotto l'hero */}
-        <section className="mt-8 sm:mt-10">
-          <div className="mx-auto max-w-5xl">
-            <div className="rounded-2xl border border-emerald-100 bg-white px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
-              <p className="text-sm font-medium text-emerald-900 flex items-center gap-2">
-                Filtra per area di competenza
-              </p>
-              <p className="mt-1 text-xs text-slate-600">
-                Puoi combinare il filtro per area con la ricerca per titolo o
-                parole chiave.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {AREA_FILTERS.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setAreaFilter(f)}
-                    className={`rounded-full border px-3 py-1 text-xs sm:text-[13px] transition ${
-                      areaFilter === f
-                        ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    {f === "Tutte" ? "Tutte le aree" : f}
-                  </button>
+          {/* ✅ Toolbar filtri (stile Finanziamenti): tendina + ricerca */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,260px)_minmax(0,1fr)] items-end">
+            {/* Area */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Area di competenza
+              </label>
+              <select
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                value={areaFilter}
+                onChange={(e) => setAreaFilter(e.target.value as AreaFilter)}
+              >
+                <option value="Tutte">Tutte le aree</option>
+                {AREAS.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
                 ))}
+              </select>
+            </div>
+
+            {/* Ricerca */}
+            <div className="text-left">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Cerca
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cerca libri (titolo, area, parole chiave)…"
+                  className="w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  aria-label="Cerca libri"
+                />
               </div>
             </div>
           </div>
@@ -124,31 +141,14 @@ export default function EditoriaPage() {
 
         {/* FILTRI & GRID LIBRI */}
         <section className="mx-auto max-w-6xl py-10">
-          {/* Barra filtri "tipo e-commerce" */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-2 text-sm text-slate-700">
-              <Filter className="h-4 w-4 text-slate-500" />
-              <span>
-                {areaFilter === "Tutte" ? "Tutte le aree" : areaFilter} •{" "}
-                <strong>{totalBooks}</strong>{" "}
-                {totalBooks === 1 ? "titolo" : "titoli"} disponibili
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <div className="relative w-full sm:w-64">
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cerca per titolo, area, parole chiave..."
-                  className="w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-sm pr-8 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
-                  🔍
-                </span>
-              </div>
-            </div>
+          {/* Riga info (come Finanziamenti) */}
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Filter className="h-4 w-4 text-slate-500" />
+            <span>
+              {areaFilter === "Tutte" ? "Tutte le aree" : areaFilter} •{" "}
+              <strong>{totalBooks}</strong> {totalBooks === 1 ? "titolo" : "titoli"}{" "}
+              disponibili
+            </span>
           </div>
 
           {/* Grid libri */}
@@ -168,31 +168,6 @@ export default function EditoriaPage() {
               </div>
             )}
           </div>
-
-          {/* Nota logistica */}
-          <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex items-start gap-2">
-                <Check className="h-4 w-4 mt-0.5 text-emerald-600" />
-                <p>
-                  Le informazioni su <strong>spedizione, tempi di consegna</strong>{" "}
-                  e <strong>fatturazione</strong> vengono mostrate nel carrello
-                  prima del completamento dell’ordine.
-                </p>
-              </div>
-              <p className="text-xs text-slate-500 sm:text-right">
-                Per volumi in grandi quantità o personalizzazioni aziendali
-                puoi contattarci direttamente dalla pagina{" "}
-                <Link
-                  href="/contatti"
-                  className="underline underline-offset-2 hover:text-slate-800"
-                >
-                  Contatti
-                </Link>
-                .
-              </p>
-            </div>
-          </div>
         </section>
 
         {/* CTA finale in stile Trasparenza / Portfolio */}
@@ -203,8 +178,8 @@ export default function EditoriaPage() {
             </h3>
             <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
               Possiamo valutare insieme <strong>nuove uscite</strong>, tirature
-              dedicate o <strong>materiali formativi su misura</strong> per la tua
-              azienda o il tuo ente.
+              dedicate o <strong>materiali formativi su misura</strong> per la
+              tua azienda o il tuo ente.
             </p>
             <Link
               href="/contatti"

@@ -15,7 +15,7 @@ export type Format = "Cartaceo" | "PDF" | "Cartaceo + PDF";
 export type Author = {
   name: string;
   role: string;
-  photo?: string;
+  photo?: string; // es. "/editoria/authors/nome-cognome.jpg"
   email?: string;
   phone?: string;
   linkedin?: string;
@@ -31,10 +31,10 @@ export type Book = {
   format: Format;
   pages: number;
   year: number;
-  cover: string;
+  cover: string; // es. "/editoria/covers/<slug>.jpg"
   badge?: string;
   authors?: Author[]; // <-- autori opzionali
-  previewUrl?: string; // <-- estratto PDF (es. in /public/pdf-preview/)
+  previewUrl?: string; // <-- estratto PDF (es. "/editoria/preview/<slug>.pdf")
 };
 
 export const AREAS: Area[] = [
@@ -60,14 +60,14 @@ export const BOOKS: Book[] = [
     format: "Cartaceo + PDF",
     pages: 256,
     year: 2024,
-    cover: "/editoria/acqua-gestione-risorsa-idrica.jpg",
+    cover: "/editoria/covers/acqua-gestione-risorsa-idrica.jpg",
     badge: "Novità",
-    previewUrl: "/pdf-preview/acqua-gestione-risorsa-idrica.pdf",
+    previewUrl: "/editoria/preview/acqua-gestione-risorsa-idrica.pdf",
     authors: [
       {
         name: "Ing. Marco Rossi",
         role: "Ingegnere Idraulico",
-        photo: "/authors/marco-rossi.jpg",
+        photo: "/editoria/authors/marco-rossi.jpg",
         email: "marco.rossi@example.com",
         linkedin: "https://linkedin.com/in/marco-rossi",
       },
@@ -84,7 +84,7 @@ export const BOOKS: Book[] = [
     format: "PDF",
     pages: 168,
     year: 2023,
-    cover: "/editoria/acqua-monitoraggi-pozzi.jpg",
+    cover: "/editoria/covers/acqua-monitoraggi-pozzi.jpg",
   },
 
   // Ambiente
@@ -99,20 +99,20 @@ export const BOOKS: Book[] = [
     format: "Cartaceo + PDF",
     pages: 320,
     year: 2024,
-    cover: "/editoria/ambiente-via-vas.jpg",
+    cover: "/editoria/covers/ambiente-via-vas.jpg",
     badge: "Best seller",
-    previewUrl: "/pdf-preview/ambiente-via-vas.pdf",
+    previewUrl: "/editoria/preview/ambiente-via-vas.pdf",
     authors: [
       {
         name: "Dott.ssa Laura Bianchi",
         role: "Esperta VIA/VAS",
-        photo: "/authors/laura-bianchi.jpg",
+        photo: "/editoria/authors/laura-bianchi.jpg",
         linkedin: "https://linkedin.com/in/laura-bianchi",
       },
       {
         name: "Ing. Paolo Verdi",
         role: "Coordinatore tecnico VIA",
-        photo: "/authors/paolo-verdi.jpg",
+        photo: "/editoria/authors/paolo-verdi.jpg",
       },
     ],
   },
@@ -129,13 +129,13 @@ export const BOOKS: Book[] = [
     format: "Cartaceo + PDF",
     pages: 240,
     year: 2023,
-    cover: "/editoria/energia-audit-diagnosi.jpg",
-    previewUrl: "/pdf-preview/energia-audit-diagnosi.pdf",
+    cover: "/editoria/covers/energia-audit-diagnosi.jpg",
+    previewUrl: "/editoria/preview/energia-audit-diagnosi.pdf",
     authors: [
       {
         name: "Ing. Riccardo Conti",
         role: "Esperto in gestione dell’Energia",
-        photo: "/authors/riccardo-conti.jpg",
+        photo: "/editoria/authors/riccardo-conti.jpg",
       },
     ],
   },
@@ -150,7 +150,7 @@ export const BOOKS: Book[] = [
     format: "PDF",
     pages: 180,
     year: 2024,
-    cover: "/editoria/energia-comunita-energetiche.jpg",
+    cover: "/editoria/covers/energia-comunita-energetiche.jpg",
   },
 
   // Finanza e Contabilità
@@ -165,14 +165,14 @@ export const BOOKS: Book[] = [
     format: "Cartaceo + PDF",
     pages: 260,
     year: 2023,
-    cover: "/editoria/finanza-progetti-pubblici.jpg",
+    cover: "/editoria/covers/finanza-progetti-pubblici.jpg",
     badge: "Consigliato",
-    previewUrl: "/pdf-preview/finanza-progetti-pubblici.pdf",
+    previewUrl: "/editoria/preview/finanza-progetti-pubblici.pdf",
     authors: [
       {
         name: "Dott. Andrea De Luca",
         role: "Project Manager PNRR",
-        photo: "/authors/andrea-deluca.jpg",
+        photo: "/editoria/authors/andrea-deluca.jpg",
       },
     ],
   },
@@ -187,6 +187,6 @@ export const BOOKS: Book[] = [
     format: "PDF",
     pages: 160,
     year: 2022,
-    cover: "/editoria/finanza-rendicontazione.jpg",
+    cover: "/editoria/covers/finanza-rendicontazione.jpg",
   },
 ];
