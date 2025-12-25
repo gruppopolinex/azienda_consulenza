@@ -3,10 +3,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Users, Phone, Mail, Linkedin, ChevronRight } from "lucide-react";
+import { Phone, Mail, Linkedin, ChevronRight, FileDown } from "lucide-react";
 
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
+
+// ✅ dati team separati
+import { TEAM } from "./_data";
 
 export default function ChiSiamoPage() {
   return (
@@ -92,39 +95,51 @@ export default function ChiSiamoPage() {
                   <h3 className="font-semibold text-slate-900">
                     {person.name}
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">
-                    {person.role}
-                  </p>
+                  <p className="text-xs text-slate-600 mt-1">{person.role}</p>
 
-                  {/* Icone contatto */}
+                  {/* Icone contatto + CV */}
                   <div className="mt-3 flex items-center gap-3 text-slate-500">
                     {person.phone && (
                       <a
                         href={`tel:${person.phone.replace(/\s+/g, "")}`}
-                        className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
+                        className="icon-btn"
                         aria-label={`Chiama ${person.name}`}
                       >
                         <Phone className="h-4 w-4" />
                       </a>
                     )}
+
                     {person.email && (
                       <a
                         href={`mailto:${person.email}`}
-                        className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
+                        className="icon-btn"
                         aria-label={`Scrivi a ${person.name}`}
                       >
                         <Mail className="h-4 w-4" />
                       </a>
                     )}
+
                     {person.linkedin && (
                       <a
                         href={person.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition"
+                        className="icon-btn"
                         aria-label={`Profilo LinkedIn di ${person.name}`}
                       >
                         <Linkedin className="h-4 w-4" />
+                      </a>
+                    )}
+
+                    {person.cvPdf && (
+                      <a
+                        href={person.cvPdf}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="icon-btn"
+                        aria-label={`Scarica CV di ${person.name}`}
+                      >
+                        <FileDown className="h-4 w-4" />
                       </a>
                     )}
                   </div>
@@ -174,45 +189,21 @@ export default function ChiSiamoPage() {
         .btn-primary:hover {
           background: #047857;
         }
+        .icon-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 2rem;
+          width: 2rem;
+          border-radius: 9999px;
+          border: 1px solid #e2e8f0;
+          transition: all 0.2s;
+        }
+        .icon-btn:hover {
+          border-color: #059669;
+          color: #047857;
+        }
       `}</style>
     </div>
   );
 }
-
-/* ================= DATI TEAM ================= */
-
-type TeamMember = {
-  name: string;
-  role: string;
-  image: string;
-  phone?: string;
-  email?: string;
-  linkedin?: string;
-};
-
-const TEAM: TeamMember[] = [
-  {
-    name: "Luigi Bianchi",
-    role: "CEO / Ingegnere Civile",
-    image: "/team/luigi.jpg",
-    phone: "+39 342 3396219",
-    email: "luigi.bianchi@polinex.it",
-    linkedin: "https://www.linkedin.com/in/luigi-bianchi",
-  },
-  {
-    name: "Giulia Verdi",
-    role: "Ingegnere Energetico",
-    image: "/team/giulia.jpg",
-    phone: "+39 333 1111111",
-    email: "giulia.verdi@polinex.it",
-    linkedin: "https://www.linkedin.com/in/giulia-verdi",
-  },
-  {
-    name: "Luca Bianchi",
-    role: "Ingegnere Informatico",
-    image: "/team/luca.jpg",
-    phone: "+39 333 2222222",
-    email: "luca.bianchi@polinex.it",
-    linkedin: "https://www.linkedin.com/in/luca-bianchi",
-  },
-];
