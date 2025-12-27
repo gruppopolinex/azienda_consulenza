@@ -24,6 +24,7 @@ export type Course = {
   mode: Mode;
   nextEdition?: string;
   badge?: string;
+  /** Path dentro /public */
   cover: string;
 };
 
@@ -31,6 +32,7 @@ export type Teacher = {
   id: string;
   name: string;
   role: string;
+  /** Path dentro /public */
   image: string;
   phone?: string;
   email?: string;
@@ -38,6 +40,18 @@ export type Teacher = {
   /** Slug dei corsi (Course.slug) a cui questo docente è associato */
   courses: string[];
 };
+
+/**
+ * Nuova disposizione assets (solo in /public/formazione/...)
+ *
+ * - Cover corsi:
+ *   public/formazione/courses/<course.slug>/cover.png
+ *   => "/formazione/courses/<slug>/cover.png"
+ *
+ * - Immagini docenti:
+ *   public/formazione/teachers/<teacher-slug>/avatar.jpg
+ *   => "/formazione/teachers/<teacher-slug>/avatar.jpg"
+ */
 
 export const AREAS: Area[] = [
   "Acqua",
@@ -64,7 +78,8 @@ export const COURSES: Course[] = [
     mode: "Online live",
     nextEdition: "Aprile 2025",
     badge: "Live class",
-    cover: "/formazione/acqua-progettazione-reti-idriche.jpg",
+    cover:
+      "/formazione/courses/acqua-progettazione-reti-idriche/cover.png",
   },
   {
     slug: "acqua-monitoraggi-campi-pozzi",
@@ -78,7 +93,7 @@ export const COURSES: Course[] = [
     level: "Base",
     mode: "On demand",
     nextEdition: "Sempre disponibile",
-    cover: "/formazione/acqua-monitoraggi-campi-pozzi.jpg",
+    cover: "/formazione/courses/acqua-monitoraggi-campi-pozzi/cover.png",
   },
 
   // Ambiente
@@ -95,7 +110,7 @@ export const COURSES: Course[] = [
     mode: "Blended",
     nextEdition: "Maggio 2025",
     badge: "Intensivo",
-    cover: "/formazione/ambiente-via-vas-laboratorio.jpg",
+    cover: "/formazione/courses/ambiente-via-vas-laboratorio/cover.png",
   },
   {
     slug: "ambiente-bonifiche-rifiuti",
@@ -108,7 +123,7 @@ export const COURSES: Course[] = [
     hours: 18,
     level: "Intermedio",
     mode: "Online live",
-    cover: "/formazione/ambiente-bonifiche-rifiuti.jpg",
+    cover: "/formazione/courses/ambiente-bonifiche-rifiuti/cover.png",
   },
 
   // Energia
@@ -125,7 +140,7 @@ export const COURSES: Course[] = [
     mode: "Online live",
     nextEdition: "Giugno 2025",
     badge: "Per tecnici energy",
-    cover: "/formazione/energia-audit-iso50001.jpg",
+    cover: "/formazione/courses/energia-audit-iso50001/cover.png",
   },
   {
     slug: "energia-comunita-energetiche",
@@ -138,7 +153,7 @@ export const COURSES: Course[] = [
     hours: 12,
     level: "Base",
     mode: "On demand",
-    cover: "/formazione/energia-comunita-energetiche.jpg",
+    cover: "/formazione/courses/energia-comunita-energetiche/cover.png",
   },
 
   // Agricoltura
@@ -153,7 +168,7 @@ export const COURSES: Course[] = [
     hours: 8,
     level: "Base",
     mode: "Online live",
-    cover: "/formazione/agricoltura-piani-nitrati-pratico.jpg",
+    cover: "/formazione/courses/agricoltura-piani-nitrati-pratico/cover.png",
   },
   {
     slug: "agricoltura-gestione-idrica-aziende",
@@ -166,7 +181,8 @@ export const COURSES: Course[] = [
     hours: 12,
     level: "Intermedio",
     mode: "Blended",
-    cover: "/formazione/agricoltura-gestione-idrica-aziende.jpg",
+    cover:
+      "/formazione/courses/agricoltura-gestione-idrica-aziende/cover.png",
   },
 
   // Sicurezza
@@ -183,7 +199,7 @@ export const COURSES: Course[] = [
     mode: "In presenza",
     nextEdition: "Padova · Luglio 2025",
     badge: "In aula",
-    cover: "/formazione/sicurezza-cantieri-csp-cse.jpg",
+    cover: "/formazione/courses/sicurezza-cantieri-csp-cse/cover.png",
   },
   {
     slug: "sicurezza-dvr-e-valutazioni",
@@ -196,7 +212,7 @@ export const COURSES: Course[] = [
     hours: 14,
     level: "Intermedio",
     mode: "On demand",
-    cover: "/formazione/sicurezza-dvr-e-valutazioni.jpg",
+    cover: "/formazione/courses/sicurezza-dvr-e-valutazioni/cover.png",
   },
 
   // Edilizia e Infrastrutture
@@ -212,7 +228,8 @@ export const COURSES: Course[] = [
     level: "Avanzato",
     mode: "Blended",
     badge: "Per progettisti",
-    cover: "/formazione/edilizia-riqualificazione-sismica-corso.jpg",
+    cover:
+      "/formazione/courses/edilizia-riqualificazione-sismica-corso/cover.png",
   },
   {
     slug: "edilizia-permessi-iter-pratico",
@@ -225,7 +242,7 @@ export const COURSES: Course[] = [
     hours: 10,
     level: "Base",
     mode: "Online live",
-    cover: "/formazione/edilizia-permessi-iter-pratico.jpg",
+    cover: "/formazione/courses/edilizia-permessi-iter-pratico/cover.png",
   },
 
   // Finanza e Contabilità
@@ -241,7 +258,7 @@ export const COURSES: Course[] = [
     level: "Intermedio",
     mode: "Online live",
     badge: "Per tecnici & PM",
-    cover: "/formazione/finanza-agevolata-progetti-tecnici.jpg",
+    cover: "/formazione/courses/finanza-agevolata-progetti-tecnici/cover.png",
   },
   {
     slug: "finanza-rendicontazione-bandi",
@@ -254,7 +271,7 @@ export const COURSES: Course[] = [
     hours: 9,
     level: "Base",
     mode: "On demand",
-    cover: "/formazione/finanza-rendicontazione-bandi.jpg",
+    cover: "/formazione/courses/finanza-rendicontazione-bandi/cover.png",
   },
 ];
 
@@ -264,7 +281,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-laura-verdi",
     name: "Ing. Laura Verdi",
     role: "Ingegnera idraulica",
-    image: "/docenti/laura-verdi.jpg",
+    image: "/formazione/teachers/laura-verdi/avatar.jpg",
     phone: "+39 333 0000001",
     email: "laura.verdi@polinex.it",
     linkedin: "https://www.linkedin.com/in/laura-verdi",
@@ -274,7 +291,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-federico-moro",
     name: "Dott. Federico Moro",
     role: "Idrogeologo",
-    image: "/docenti/federico-moro.jpg",
+    image: "/formazione/teachers/federico-moro/avatar.jpg",
     email: "federico.moro@polinex.it",
     linkedin: "https://www.linkedin.com/in/federico-moro",
     courses: ["acqua-monitoraggi-campi-pozzi"],
@@ -285,7 +302,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-marco-bianchi",
     name: "Ing. Marco Bianchi",
     role: "Ingegnere ambientale",
-    image: "/docenti/marco-bianchi.jpg",
+    image: "/formazione/teachers/marco-bianchi/avatar.jpg",
     phone: "+39 333 0000002",
     email: "marco.bianchi@polinex.it",
     linkedin: "https://www.linkedin.com/in/marco-bianchi",
@@ -295,7 +312,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-chiara-rossi",
     name: "Avv. Chiara Rossi",
     role: "Avvocata amministrativista",
-    image: "/docenti/chiara-rossi.jpg",
+    image: "/formazione/teachers/chiara-rossi/avatar.jpg",
     email: "chiara.rossi@polinex.it",
     courses: ["ambiente-via-vas-laboratorio"],
   },
@@ -305,7 +322,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-giulio-neri",
     name: "Ing. Giulio Neri",
     role: "Energy manager",
-    image: "/docenti/giulio-neri.jpg",
+    image: "/formazione/teachers/giulio-neri/avatar.jpg",
     phone: "+39 333 0000003",
     email: "giulio.neri@polinex.it",
     linkedin: "https://www.linkedin.com/in/giulio-neri",
@@ -315,7 +332,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-elena-ferrari",
     name: "Dott.ssa Elena Ferrari",
     role: "Consulente CER",
-    image: "/docenti/elena-ferrari.jpg",
+    image: "/formazione/teachers/elena-ferrari/avatar.jpg",
     email: "elena.ferrari@polinex.it",
     courses: ["energia-comunita-energetiche"],
   },
@@ -325,7 +342,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-paolo-deangelis",
     name: "Dott. Agr. Paolo De Angelis",
     role: "Agronomo",
-    image: "/docenti/paolo-deangelis.jpg",
+    image: "/formazione/teachers/paolo-deangelis/avatar.jpg",
     phone: "+39 333 0000004",
     email: "paolo.deangelis@polinex.it",
     courses: [
@@ -339,7 +356,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-sara-martini",
     name: "Ing. Sara Martini",
     role: "HSE manager",
-    image: "/docenti/sara-martini.jpg",
+    image: "/formazione/teachers/sara-martini/avatar.jpg",
     email: "sara.martini@polinex.it",
     linkedin: "https://www.linkedin.com/in/sara-martini",
     courses: ["sicurezza-cantieri-csp-cse"],
@@ -348,7 +365,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-andrea-ferri",
     name: "Ing. Andrea Ferri",
     role: "Esperto sicurezza lavoro",
-    image: "/docenti/andrea-ferri.jpg",
+    image: "/formazione/teachers/andrea-ferri/avatar.jpg",
     courses: ["sicurezza-dvr-e-valutazioni"],
   },
 
@@ -357,7 +374,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-francesca-moretti",
     name: "Ing. Francesca Moretti",
     role: "Strutturista",
-    image: "/docenti/francesca-moretti.jpg",
+    image: "/formazione/teachers/francesca-moretti/avatar.jpg",
     phone: "+39 333 0000005",
     email: "francesca.moretti@polinex.it",
     linkedin: "https://www.linkedin.com/in/francesca-moretti",
@@ -367,7 +384,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-luca-fontana",
     name: "Geom. Luca Fontana",
     role: "Tecnico edilizio",
-    image: "/docenti/luca-fontana.jpg",
+    image: "/formazione/teachers/luca-fontana/avatar.jpg",
     email: "luca.fontana@polinex.it",
     courses: ["edilizia-permessi-iter-pratico"],
   },
@@ -377,7 +394,7 @@ export const TEACHERS: Teacher[] = [
     id: "teacher-elisa-neri",
     name: "Dott.ssa Elisa Neri",
     role: "Consulente finanza agevolata",
-    image: "/docenti/elisa-neri.jpg",
+    image: "/formazione/teachers/elisa-neri/avatar.jpg",
     phone: "+39 333 0000006",
     email: "elisa.neri@polinex.it",
     linkedin: "https://www.linkedin.com/in/elisa-neri",

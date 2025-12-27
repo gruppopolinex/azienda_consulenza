@@ -18,6 +18,12 @@ const formatPrice = (price: number) =>
     minimumFractionDigits: 0,
   }).format(price);
 
+const formatPriceParts = (formatted: string) => {
+  // Esempio it-IT: "2.200 €"
+  const number = formatted.replace(/\s?€\s?/g, "").trim();
+  return { number, currency: "€" as const };
+};
+
 /* ==================== PAGINA GESTIONALI ==================== */
 
 export default function GestionaliPage() {
@@ -122,7 +128,8 @@ export default function GestionaliPage() {
 /* ==================== COMPONENTI UI ==================== */
 
 function SectorIcon({ sector }: { sector: Sector }) {
-  if (sector === "Azienda di consulenza") return <Building2 className="h-4 w-4" />;
+  if (sector === "Azienda di consulenza")
+    return <Building2 className="h-4 w-4" />;
   if (sector === "Azienda produttiva") return <Factory className="h-4 w-4" />;
   return <Sprout className="h-4 w-4" />;
 }
@@ -130,6 +137,9 @@ function SectorIcon({ sector }: { sector: Sector }) {
 function GestionaleCard({ gestionale }: { gestionale: Gestionale }) {
   const monthly = formatPrice(gestionale.monthlyPrice);
   const oneOff = formatPrice(gestionale.oneOffPrice);
+
+  const monthlyParts = formatPriceParts(monthly);
+  const oneOffParts = formatPriceParts(oneOff);
 
   return (
     <Link
@@ -164,25 +174,42 @@ function GestionaleCard({ gestionale }: { gestionale: Gestionale }) {
           ))}
         </ul>
 
-        {/* Prezzi (mensile a sinistra, licenza a destra) */}
-        <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
-          <div>
-            <p className="text-[11px] text-slate-500">Prezzo mensile</p>
-            <p className="text-base font-semibold text-slate-900">
-              {monthly}
-              <span className="ml-1 text-xs font-normal text-slate-500">
-                /mese
-              </span>
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[11px] text-slate-500">Licenza</p>
-            <p className="text-sm font-semibold text-slate-900">
-              {oneOff}
-              <span className="ml-1 text-[11px] font-normal text-slate-500">
-                una tantum
-              </span>
-            </p>
+        {/* Prezzi (più estetici e simmetrici) */}
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-slate-200/70 bg-slate-50">
+            {/* Mensile */}
+            <div className="px-4 py-4 text-center bg-white">
+              <p className="text-[11px] font-semibold text-slate-600 tracking-wide">
+                Mensile
+              </p>
+
+              <p className="mt-1 flex items-baseline justify-center gap-1">
+                <span className="text-2xl font-semibold text-slate-900">
+                  {monthlyParts.number}
+                </span>
+                <span className="text-sm font-semibold text-slate-900">
+                  {monthlyParts.currency}
+                </span>
+                <span className="text-[11px] text-slate-500">/mese</span>
+              </p>
+            </div>
+
+            {/* Licenza */}
+            <div className="px-4 py-4 text-center border-l border-slate-200/70">
+              <p className="text-[11px] font-semibold text-slate-600 tracking-wide">
+                Licenza
+              </p>
+
+              <p className="mt-1 flex items-baseline justify-center gap-1">
+                <span className="text-2xl font-semibold text-slate-900">
+                  {oneOffParts.number}
+                </span>
+                <span className="text-sm font-semibold text-slate-900">
+                  {oneOffParts.currency}
+                </span>
+                <span className="text-[11px] text-slate-500">una tantum</span>
+              </p>
+            </div>
           </div>
         </div>
 
