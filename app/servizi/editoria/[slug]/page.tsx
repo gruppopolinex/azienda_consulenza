@@ -5,6 +5,7 @@ import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   BookOpen,
   ShoppingCart,
@@ -24,6 +25,9 @@ import Footer from "../../../components/Footer";
 // Import dati centralizzati
 import { BOOKS, type Book, type Author } from "../_data";
 
+// ✅ carrello globale in lib
+import { addItem } from "@/app/lib/cart";
+
 /* ===== Helper prezzo (stile altre pagine) ===== */
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("it-IT", {
@@ -37,6 +41,7 @@ const formatPrice = (price: number) =>
 export default function BookDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
+  const [buying, setBuying] = useState(false);
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const book: Book | undefined = BOOKS.find((b) => b.slug === slugParam);
@@ -74,17 +79,57 @@ export default function BookDetailPage() {
     );
   }
 
-  const related = BOOKS.filter((b) => b.area === book.area && b.slug !== book.slug).slice(
-    0,
-    3
-  );
+  const related = BOOKS.filter(
+    (b) => b.area === book.area && b.slug !== book.slug
+  ).slice(0, 3);
 
-  const hasAuthors = book.authors && book.authors.length > 0;
+  const hasAuthors = Boolean(book.authors && book.authors.length > 0);
 
   const handleAddToCart = () => {
-    // Qui poi collegherai il vero carrello (context, ecc.)
-    console.log("Aggiungi al carrello:", book.slug);
+    addItem({
+      id: `book:${book.slug}`,
+      type: "book_pdf",
+      title: book.title,
+      price: book.price,
+      quantity: 1,
+      image: book.cover,
+      href: `/servizi/editoria/${book.slug}`,
+      stripePriceId: book.stripePriceId,
+      metadata: {
+        slug: book.slug,
+        area: book.area,
+      },
+    });
   };
+
+  const handleBuyNow = async () => {
+    if (!book.stripePriceId) return;
+
+    try {
+      setBuying(true);
+
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: book.slug }),
+      });
+
+      const data: { url?: string; error?: string } = await res.json();
+
+      if (!res.ok || !data.url) {
+        console.error(data.error ?? "Errore checkout");
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (e) {
+      console.error("Errore checkout:", e);
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  const canBuyNow = Boolean(book.stripePriceId);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -193,7 +238,7 @@ export default function BookDetailPage() {
               )}
             </div>
 
-            {/* Colonna 3: ACQUISTO */}
+            {/* Colonna 3: ACQUISTO (stile Amazon) */}
             <aside className="h-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm flex flex-col">
               <div>
                 <p className="text-xs text-slate-500">Prezzo</p>
@@ -203,18 +248,29 @@ export default function BookDetailPage() {
 
                 <p className="mt-2 text-xs text-slate-600">
                   Il prezzo si intende <strong>IVA esclusa</strong>. Dettagli su
-                  spese di spedizione e fatturazione sono mostrati nel carrello, prima
-                  del pagamento.
+                  spese di spedizione e fatturazione sono mostrati nel carrello,
+                  prima del pagamento.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Aggiungi al carrello
-                </button>
+                <div className="mt-4 grid gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:border-emerald-500 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Aggiungi al carrello
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    disabled={!canBuyNow || buying}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {buying ? "Apertura..." : "Acquista ora"}
+                  </button>
+                </div>
 
                 <p className="mt-3 text-[11px] text-slate-500">
                   Per ordini multipli o personalizzazioni aziendali, puoi contattarci
@@ -246,7 +302,6 @@ export default function BookDetailPage() {
 
           {/* SECONDO BLOCCO: DETTAGLI TECNICI + AUTORI */}
           <div className="mt-8 grid gap-6 lg:grid-cols-3 items-start">
-            {/* Dettagli tecnici: larga quanto le prime due colonne */}
             <div
               className={
                 hasAuthors
@@ -272,15 +327,21 @@ export default function BookDetailPage() {
                   <dd>{book.pages}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">Anno di pubblicazione</dt>
+                  <dt className="font-medium text-slate-600">
+                    Anno di pubblicazione
+                  </dt>
                   <dd>{book.year}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">Aggiornamento normativo</dt>
+                  <dt className="font-medium text-slate-600">
+                    Aggiornamento normativo
+                  </dt>
                   <dd>Allineato alle principali norme in vigore alla data.</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">Utilizzo consigliato</dt>
+                  <dt className="font-medium text-slate-600">
+                    Utilizzo consigliato
+                  </dt>
                   <dd>
                     Come manuale operativo di riferimento per casi concreti e iter
                     autorizzativi.
@@ -289,7 +350,6 @@ export default function BookDetailPage() {
               </dl>
             </div>
 
-            {/* Colonna destra: Autori (solo se esistono in _data) */}
             {hasAuthors && (
               <div className="lg:col-span-1 space-y-4">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -350,7 +410,6 @@ export default function BookDetailPage() {
 
       <Footer />
 
-      {/* Stili globali per titoli, uniformi al resto del sito */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);

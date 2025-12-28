@@ -20,6 +20,9 @@ import Footer from "../../components/Footer";
 // dati centralizzati in _data.ts
 import { BOOKS, AREAS, type Book } from "./_data";
 
+// ✅ carrello globale in lib (deve accettare un CartItem generico)
+import { addItem } from "@/app/lib/cart";
+
 /* ==================== UTILS ==================== */
 
 const AREA_FILTERS = ["Tutte", ...AREAS] as const;
@@ -37,6 +40,7 @@ export const formatPrice = (price: number) =>
 export default function EditoriaPage() {
   const [areaFilter, setAreaFilter] = useState<AreaFilter>("Tutte");
   const [search, setSearch] = useState("");
+  const [buyingSlug, setBuyingSlug] = useState<string | null>(null);
 
   const filteredBooks = useMemo(() => {
     return BOOKS.filter((book) => {
@@ -57,7 +61,47 @@ export default function EditoriaPage() {
   const totalBooks = filteredBooks.length;
 
   const handleAddToCart = (book: Book) => {
-    console.log("Aggiungi al carrello:", book.slug);
+    addItem({
+      id: `book:${book.slug}`,
+      type: "book_pdf",
+      title: book.title,
+      price: book.price,
+      quantity: 1,
+      image: book.cover,
+      href: `/servizi/editoria/${book.slug}`,
+      stripePriceId: book.stripePriceId,
+      metadata: {
+        slug: book.slug,
+        area: book.area,
+      },
+    });
+  };
+
+  const handleBuyNow = async (book: Book) => {
+    if (!book.stripePriceId) return;
+
+    try {
+      setBuyingSlug(book.slug);
+
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: book.slug }),
+      });
+
+      const data: { url?: string; error?: string } = await res.json();
+
+      if (!res.ok || !data.url) {
+        console.error(data.error ?? "Errore checkout");
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (e) {
+      console.error("Errore checkout:", e);
+    } finally {
+      setBuyingSlug(null);
+    }
   };
 
   return (
@@ -84,8 +128,8 @@ export default function EditoriaPage() {
           </h1>
 
           <p className="mt-4 text-slate-600 leading-relaxed">
-            Manuali, linee guida e casi studio pensati per chi lavora ogni
-            giorno su{" "}
+            Manuali, linee guida e casi studio pensati per chi lavora ogni giorno
+            su{" "}
             <strong>
               acqua, ambiente, energia, agricoltura, sicurezza, edilizia e
               infrastrutture
@@ -98,7 +142,7 @@ export default function EditoriaPage() {
             check-list, esempi reali e riferimenti normativi essenziali.
           </p>
 
-          {/* ✅ Toolbar filtri (stile Finanziamenti): tendina + ricerca */}
+          {/* Toolbar filtri */}
           <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,260px)_minmax(0,1fr)] items-end">
             {/* Area */}
             <div className="text-left">
@@ -141,23 +185,23 @@ export default function EditoriaPage() {
 
         {/* FILTRI & GRID LIBRI */}
         <section className="mx-auto max-w-6xl py-10">
-          {/* Riga info (come Finanziamenti) */}
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <Filter className="h-4 w-4 text-slate-500" />
             <span>
               {areaFilter === "Tutte" ? "Tutte le aree" : areaFilter} •{" "}
-              <strong>{totalBooks}</strong> {totalBooks === 1 ? "titolo" : "titoli"}{" "}
-              disponibili
+              <strong>{totalBooks}</strong>{" "}
+              {totalBooks === 1 ? "titolo" : "titoli"} disponibili
             </span>
           </div>
 
-          {/* Grid libri */}
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredBooks.map((book) => (
               <BookCard
                 key={book.slug}
                 book={book}
                 onAddToCart={() => handleAddToCart(book)}
+                onBuyNow={() => handleBuyNow(book)}
+                buying={buyingSlug === book.slug}
               />
             ))}
 
@@ -170,7 +214,7 @@ export default function EditoriaPage() {
           </div>
         </section>
 
-        {/* CTA finale in stile Trasparenza / Portfolio */}
+        {/* CTA finale */}
         <section className="mx-auto max-w-6xl pb-20">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
             <h3 className="section-title text-xl sm:text-2xl">
@@ -193,7 +237,6 @@ export default function EditoriaPage() {
 
       <Footer />
 
-      {/* Stili globali per i titoli, coerenti con Home / Lavora con noi */}
       <style jsx global>{`
         .section-title {
           font-size: clamp(1.5rem, 2.4vw, 2.5rem);
@@ -214,13 +257,16 @@ export default function EditoriaPage() {
 function BookCard({
   book,
   onAddToCart,
+  onBuyNow,
+  buying,
 }: {
   book: Book;
   onAddToCart: () => void;
+  onBuyNow: () => void;
+  buying: boolean;
 }) {
   return (
     <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm transition hover:shadow-md">
-      {/* Parte cliccabile: apre /servizi/editoria/[slug] */}
       <Link
         href={`/servizi/editoria/${book.slug}`}
         className="group flex-1 flex flex-col focus:outline-none"
@@ -291,7 +337,6 @@ function BookCard({
         </div>
       </Link>
 
-      {/* Riga inferiore: prezzo + bottone carrello (non dentro il Link) */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4 pt-0">
         <div>
           <p className="text-xs text-slate-500">Prezzo</p>
@@ -300,15 +345,27 @@ function BookCard({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onAddToCart}
-          className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-          aria-label={`Aggiungi al carrello: ${book.title}`}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          <span>Aggiungi al carrello</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onAddToCart}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:border-emerald-500 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            aria-label={`Aggiungi al carrello: ${book.title}`}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>Aggiungi</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onBuyNow}
+            disabled={!book.stripePriceId || buying}
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={`Acquista ora: ${book.title}`}
+          >
+            <span>{buying ? "Apertura..." : "Acquista ora"}</span>
+          </button>
+        </div>
       </div>
     </article>
   );

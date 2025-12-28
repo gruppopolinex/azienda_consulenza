@@ -35,6 +35,20 @@ export type Book = {
   badge?: string;
   authors?: Author[]; // <-- autori opzionali
   previewUrl?: string; // <-- estratto PDF (es. "/editoria/preview/<slug>.pdf")
+
+  /**
+   * PDF COMPLETO (quello acquistato tramite Stripe)
+   * Nota: questo NON deve stare in /public. Esempio di gestione:
+   * - file in /private_pdfs/<slug>.pdf (filesystem server)
+   * - oppure key su storage privato (S3/R2/Supabase) es. "books/<slug>.pdf"
+   */
+  pdfFile: string;
+
+  /**
+   * Price ID Stripe per acquistare questo volume (PDF).
+   * Inserisci qui i tuoi price_xxx reali.
+   */
+  stripePriceId: string;
 };
 
 export const AREAS: Area[] = [
@@ -56,13 +70,15 @@ export const BOOKS: Book[] = [
     area: "Acqua",
     description:
       "Linee guida operative per gestori idrici, enti e studi tecnici: dalla progettazione di reti e impianti alle pratiche di concessione e monitoraggio.",
-    price: 69,
+    price: 20,
     format: "Cartaceo + PDF",
     pages: 256,
     year: 2024,
     cover: "/editoria/covers/acqua-gestione-risorsa-idrica.jpg",
     badge: "Novità",
     previewUrl: "/editoria/preview/acqua-gestione-risorsa-idrica.pdf",
+    pdfFile: "books/acqua-gestione-risorsa-idrica.pdf",
+    stripePriceId: "price_1SjHxh0J6S97fNguHnYSA6zl",
     authors: [
       {
         name: "Ing. Marco Rossi",
@@ -85,6 +101,8 @@ export const BOOKS: Book[] = [
     pages: 168,
     year: 2023,
     cover: "/editoria/covers/acqua-monitoraggi-pozzi.jpg",
+    pdfFile: "books/acqua-monitoraggi-pozzi.pdf",
+    stripePriceId: "price_REPLACE_acqua_monitoraggi_pozzi",
   },
 
   // Ambiente
@@ -102,6 +120,8 @@ export const BOOKS: Book[] = [
     cover: "/editoria/covers/ambiente-via-vas.jpg",
     badge: "Best seller",
     previewUrl: "/editoria/preview/ambiente-via-vas.pdf",
+    pdfFile: "books/ambiente-via-vas.pdf",
+    stripePriceId: "price_REPLACE_ambiente_via_vas",
     authors: [
       {
         name: "Dott.ssa Laura Bianchi",
@@ -131,6 +151,8 @@ export const BOOKS: Book[] = [
     year: 2023,
     cover: "/editoria/covers/energia-audit-diagnosi.jpg",
     previewUrl: "/editoria/preview/energia-audit-diagnosi.pdf",
+    pdfFile: "books/energia-audit-diagnosi.pdf",
+    stripePriceId: "price_REPLACE_energia_audit_diagnosi",
     authors: [
       {
         name: "Ing. Riccardo Conti",
@@ -151,6 +173,8 @@ export const BOOKS: Book[] = [
     pages: 180,
     year: 2024,
     cover: "/editoria/covers/energia-comunita-energetiche.jpg",
+    pdfFile: "books/energia-comunita-energetiche.pdf",
+    stripePriceId: "price_REPLACE_energia_comunita_energetiche",
   },
 
   // Finanza e Contabilità
@@ -168,6 +192,8 @@ export const BOOKS: Book[] = [
     cover: "/editoria/covers/finanza-progetti-pubblici.jpg",
     badge: "Consigliato",
     previewUrl: "/editoria/preview/finanza-progetti-pubblici.pdf",
+    pdfFile: "books/finanza-progetti-pubblici.pdf",
+    stripePriceId: "price_REPLACE_finanza_progetti_pubblici",
     authors: [
       {
         name: "Dott. Andrea De Luca",
@@ -188,5 +214,7 @@ export const BOOKS: Book[] = [
     pages: 160,
     year: 2022,
     cover: "/editoria/covers/finanza-rendicontazione.jpg",
+    pdfFile: "books/finanza-rendicontazione.pdf",
+    stripePriceId: "price_REPLACE_finanza_rendicontazione",
   },
 ];

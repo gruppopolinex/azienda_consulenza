@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
+// ✅ carrello globale (polinex_cart_v1) + evento (polinex_cart_updated)
+import { getCount, CART_EVENT } from "@/app/lib/cart";
+
 export default function Nav() {
   const pathname = usePathname();
 
@@ -27,6 +30,32 @@ export default function Nav() {
 
   // Dropdown "Servizi" (mobile, collassabile)
   const [serviziMobileOpen, setServiziMobileOpen] = useState(false);
+
+  // ✅ Badge carrello (count totale)
+  const [cartCount, setCartCount] = useState(0);
+
+  // Init + listeners carrello
+  useEffect(() => {
+    const sync = () => setCartCount(getCount());
+    sync();
+
+    // 1) cambia tab / finestra
+    const onStorage = (e: StorageEvent) => {
+      // se cambia localStorage del carrello in un'altra tab, aggiorna
+      if (e.key === "polinex_cart_v1") sync();
+    };
+
+    // 2) stessa tab: evento custom emesso da app/lib/cart
+    const onCartEvent = () => sync();
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(CART_EVENT, onCartEvent as EventListener);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(CART_EVENT, onCartEvent as EventListener);
+    };
+  }, []);
 
   // Chiudi tutto su cambio rotta
   useEffect(() => {
@@ -140,6 +169,11 @@ export default function Nav() {
     if (hoverTimerServizi.current) clearTimeout(hoverTimerServizi.current);
     hoverTimerServizi.current = setTimeout(() => setServiziOpen(false), 120);
   };
+
+  const cartLabel =
+    cartCount > 0
+      ? `Vai al carrello (${cartCount > 99 ? "99+" : cartCount} articoli)`
+      : "Vai al carrello";
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
@@ -327,28 +361,38 @@ export default function Nav() {
             </ul>
           </nav>
 
-          {/* Carrello a destra */}
+          {/* Carrello a destra + badge */}
           <div className="flex-1 flex justify-end">
             <Link
               href="/carrello"
-              aria-label="Vai al carrello"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-50"
+              aria-label={cartLabel}
+              className="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-50"
             >
               <ShoppingCart className="h-4 w-4" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[11px] font-semibold flex items-center justify-center">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
 
-        {/* MOBILE: carrello + hamburger (come prima) */}
+        {/* MOBILE: carrello + hamburger */}
         <div className="md:hidden flex items-center justify-between w-full">
           <div />
           <div className="flex items-center gap-2">
             <Link
               href="/carrello"
-              aria-label="Vai al carrello"
-              className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-300 text-slate-700 active:scale-[0.98] bg-white"
+              aria-label={cartLabel}
+              className="relative inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-300 text-slate-700 active:scale-[0.98] bg-white"
             >
               <ShoppingCart className="h-4 w-4" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[11px] font-semibold flex items-center justify-center">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
             </Link>
 
             <button
@@ -588,7 +632,7 @@ export default function Nav() {
                   </li>
                 ))}
 
-              {/* Carrello */}
+              {/* Carrello (con badge) */}
               <li className="mt-1">
                 <Link
                   className={`flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${isActive(
@@ -597,7 +641,12 @@ export default function Nav() {
                   href="/carrello"
                   aria-current={pathname === "/carrello" ? "page" : undefined}
                 >
-                  Carrello
+                  <span>Carrello</span>
+                  {cartCount > 0 && (
+                    <span className="min-w-[22px] h-[22px] px-1 rounded-full bg-emerald-600 text-white text-[11px] font-semibold flex items-center justify-center">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             </ul>

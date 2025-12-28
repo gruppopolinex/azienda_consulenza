@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import type React from "react";
@@ -17,6 +18,9 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 // Import Nav & Footer (cartella /app/components)
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+
+/** ✅ ANCHOR CORRETTO per le 4 card Coworking / Formazione / Editoria / Gestionali */
+const PRODUCTS_ANCHOR = "prodotti"; // -> usa /#prodotti ovunque
 
 /* ==================== HOME (Polinex srl) ==================== */
 export default function Home() {
@@ -66,13 +70,21 @@ export default function Home() {
                   Dalla diagnosi alla realizzazione: progetti, autorizzazioni e
                   gestione operativa con un unico referente.
                 </p>
+
                 <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                   <Link href="/contatti" className="btn-hero">
                     Richiedi una consulenza{" "}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Link>
+
+                  {/* 6 aree + finanza agevolata */}
                   <Link href="#servizi" className="btn-hero-secondary">
-                    Esplora i servizi
+                    Esplora le aree
+                  </Link>
+
+                  {/* ✅ 4 card Coworking / Formazione / Editoria / Gestionali */}
+                  <Link href={`#${PRODUCTS_ANCHOR}`} className="btn-hero-secondary">
+                    Scopri i servizi
                   </Link>
                 </div>
 
@@ -115,7 +127,8 @@ export default function Home() {
       </section>
 
       {/* ============ COWORKING / FORMAZIONE / EDITORIA / GESTIONALI ============ */}
-      <section className="border-t border-slate-200 bg-slate-50">
+      {/* ✅ ANCHOR per CTA e carrello: /#prodotti */}
+      <section id={PRODUCTS_ANCHOR} className="border-t border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
           <SectionHeader
             title="Coworking, Formazione, Editoria e Gestionali dedicati"
@@ -196,6 +209,9 @@ export default function Home() {
 
       {/* ============ STILI GLOBALI ============ */}
       <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
         .hero-title {
           font-size: clamp(2.5rem, 5.5vw, 4.25rem);
           font-weight: 700;
@@ -542,7 +558,6 @@ function ServicesMosaicCompact() {
 
   return (
     <div className="mt-6 space-y-6">
-      {/* Griglia 3x2 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
         {services.map((s) => (
           <ServiceTileCompact
@@ -555,7 +570,6 @@ function ServicesMosaicCompact() {
         ))}
       </div>
 
-      {/* Titolo sezione (COME PRIMA) */}
       <div className="pt-4">
         <SectionHeader
           title="Finanza agevolata integrata al progetto"
@@ -563,10 +577,8 @@ function ServicesMosaicCompact() {
         />
       </div>
 
-      {/* NUOVO LAYOUT: pulito, bilanciato, niente “vuoto” */}
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-          {/* SINISTRA: video “incorniciato” con cover */}
           <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="p-6 sm:p-7">
               <h3 className="text-lg font-semibold tracking-tight text-slate-900">
@@ -579,7 +591,6 @@ function ServicesMosaicCompact() {
 
             <div className="px-6 sm:px-7 pb-7">
               <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200">
-                {/* Sostituisci VIDEO_ID con l’ID reale */}
                 <iframe
                   className="absolute inset-0 h-full w-full"
                   src="https://www.youtube.com/embed/VIDEO_ID?rel=0"
@@ -593,7 +604,6 @@ function ServicesMosaicCompact() {
             </div>
           </div>
 
-          {/* DESTRA: CTA super semplice */}
           <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-7 flex flex-col justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
@@ -865,10 +875,7 @@ function StudiesCarousel({ items }: { items: Study[] }) {
         <span className="text-[11px] text-slate-500 font-medium">Avanti</span>
       </div>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">
           {items.map((s) => (
             <StudyCard key={s.slug} study={s} />
