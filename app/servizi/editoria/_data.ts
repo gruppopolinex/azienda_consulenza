@@ -74,7 +74,7 @@ export const BOOKS: Book[] = [
     format: "Cartaceo + PDF",
     pages: 256,
     year: 2026,
-    cover: "/editoria/covers/ingegneria-sistemi-fognari.pdf",
+    cover: "/editoria/covers/ingegneria-sistemi-fognari.jpg",
     badge: "Novità",
     previewUrl: "/editoria/preview/ingegneria-sistemi-fognari.pdf",
     pdfFile: "books/ingegneria-sistemi-fognari.pdf",
