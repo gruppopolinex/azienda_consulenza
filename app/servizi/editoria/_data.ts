@@ -90,19 +90,28 @@ export const BOOKS: Book[] = [
     ],
   },
   {
-    slug: "acqua-monitoraggi-pozzi",
-    title: "Monitoraggi di pozzi e falde",
-    subtitle: "Metodologie, campionamenti e reporting",
+    slug: "ingegneria-sistemi-acquedottistici",
+    title: "Ingegneria dei Sistemi Acquedottistici",
+    subtitle: "Principi teorici e criteri di dimensionamento con esercizi svolti",
     area: "Acqua",
     description:
-      "Manuale tecnico per impostare piani di monitoraggio di falda, campionamenti, catene di custodia e reportistica a norma.",
-    price: 49,
+      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile-idraulica.",
+    price: 25,
     format: "PDF",
     pages: 168,
-    year: 2023,
-    cover: "/editoria/covers/acqua-monitoraggi-pozzi.jpg",
-    pdfFile: "books/acqua-monitoraggi-pozzi.pdf",
-    stripePriceId: "price_REPLACE_acqua_monitoraggi_pozzi",
+    year: 2026,
+    cover: "/editoria/covers/ingegneria-sistemi-acquedottistici.jpg",
+    pdfFile: "books/ingegneria-sistemi-acquedottistici.pdf",
+    stripePriceId: "price_1Sk3Ts0J6S97fNgutW8xdnj0",
+    authors: [
+      {
+        name: "Ing. Andrea Granara",
+        role: "Ingegnere Idraulico",
+        photo: "/editoria/authors/andrea-granara.jpg",
+        email: "andrea.granara@polinex.com",
+        linkedin: "https://linkedin.com/in/andrea-granara",
+      },
+    ],
   },
 
   // Ambiente
