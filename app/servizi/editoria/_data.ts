@@ -101,8 +101,59 @@ export const BOOKS: Book[] = [
     pages: 168,
     year: 2026,
     cover: "/editoria/covers/ingegneria-sistemi-acquedottistici.jpg",
+    previewUrl: "/editoria/preview/ingegneria-sistemi-acquedottistici.pdf",
     pdfFile: "books/ingegneria-sistemi-acquedottistici.pdf",
     stripePriceId: "price_1Sk3Ts0J6S97fNgutW8xdnj0",
+    authors: [
+      {
+        name: "Ing. Andrea Granara",
+        role: "Ingegnere Idraulico",
+        photo: "/editoria/authors/andrea-granara.jpg",
+        email: "andrea.granara@polinex.com",
+        linkedin: "https://linkedin.com/in/andrea-granara",
+      },
+    ],
+  },
+  {
+    slug: "ingegneria-serbatoi",
+    title: "Ingegneria dei Serbatoi",
+    subtitle: "Principi teorici e criteri di dimensionamento con esercizi svolti",
+    area: "Acqua",
+    description:
+      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile-idraulica.",
+    price: 25,
+    format: "PDF",
+    pages: 168,
+    year: 2026,
+    cover: "/editoria/covers/ingegneria-serbatoi.jpg",
+    previewUrl: "/editoria/preview/ingegneria-serbatoi.pdf",
+    pdfFile: "books/ingegneria-serbatoi.pdf",
+    stripePriceId: "price_1Sk3Z60J6S97fNguYZbO0v9A",
+    authors: [
+      {
+        name: "Ing. Andrea Granara",
+        role: "Ingegnere Idraulico",
+        photo: "/editoria/authors/andrea-granara.jpg",
+        email: "andrea.granara@polinex.com",
+        linkedin: "https://linkedin.com/in/andrea-granara",
+      },
+    ],
+  },
+   {
+    slug: "ingegneria-fluviale",
+    title: "Ingegneria Fluviale",
+    subtitle: "Principi teorici e criteri di dimensionamento con esercizi svolti",
+    area: "Acqua",
+    description:
+      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile-idraulica.",
+    price: 25,
+    format: "PDF",
+    pages: 168,
+    year: 2026,
+    cover: "/editoria/covers/ingegneria-fluviale.jpg",
+    previewUrl: "/editoria/preview/ingegneria-fluviale.pdf",
+    pdfFile: "books/ingegneria-fluviale.pdf",
+    stripePriceId: "price_1Sk3ca0J6S97fNguBYBYcDwA",
     authors: [
       {
         name: "Ing. Andrea Granara",
@@ -188,21 +239,21 @@ export const BOOKS: Book[] = [
 
   // Finanza e Contabilità
   {
-    slug: "finanza-progetti-pubblici",
-    title: "Finanza agevolata per progetti tecnici",
-    subtitle: "PSR, PNRR, fondi regionali",
+    slug: "contabilita-aziende-agricole",
+    title: "Contabilità delle Aziende Agricole",
+    subtitle: "Principi teorici con esercizi svolti",
     area: "Finanza e Contabilità",
     description:
-      "Un metodo per integrare bandi e contributi pubblici in progetti di acqua, ambiente, energia e agricoltura.",
+      "Manuale tecnico per imprenditori agricoli, consulenti e studenti di agraria.",
     price: 68,
     format: "Cartaceo + PDF",
     pages: 260,
-    year: 2023,
-    cover: "/editoria/covers/finanza-progetti-pubblici.jpg",
+    year: 2026,
+    cover: "/editoria/covers/contabilita-aziende-agricole.jpg",
     badge: "Consigliato",
-    previewUrl: "/editoria/preview/finanza-progetti-pubblici.pdf",
-    pdfFile: "books/finanza-progetti-pubblici.pdf",
-    stripePriceId: "price_REPLACE_finanza_progetti_pubblici",
+    previewUrl: "/editoria/preview/contabilita-aziende-agricole.pdf",
+    pdfFile: "books/contabilita-aziende-agricole.pdf",
+    stripePriceId: "price_1Sk3ie0J6S97fNgulxGmeyPq",
     authors: [
       {
         name: "Dott. Andrea De Luca",
