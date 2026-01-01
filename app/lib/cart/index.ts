@@ -1,10 +1,15 @@
 // app/lib/cart/index.ts
 "use client";
 
-export type CartItemType = "book_pdf" | "course" | "service" | "other";
+export type CartItemType =
+  | "book_pdf"
+  | "book_print"
+  | "course"
+  | "service"
+  | "other";
 
 export type CartItem = {
-  id: string; // es: "book:acqua-gestione-risorsa-idrica" | "course:abc"
+  id: string; // es: "book:slug:pdf" | "book:slug:print" | "course:abc"
   type: CartItemType;
 
   title: string;
@@ -14,10 +19,16 @@ export type CartItem = {
   image?: string;
   href?: string;
 
-  // per Stripe checkout (quando farai checkout multi-prodotto)
+  // ✅ per Stripe checkout (multi-prodotto): ora è OBBLIGATORIO per items acquistabili
   stripePriceId?: string;
 
-  metadata?: Record<string, string | number | boolean | null>;
+  // ✅ metadata tipizzata (compatibile con quello che già usi)
+  metadata?: {
+    slug?: string;
+    area?: string;
+    variant?: "pdf" | "print";
+    [k: string]: string | number | boolean | null | undefined;
+  };
 };
 
 export const CART_KEY = "polinex_cart_v1";
@@ -56,9 +67,50 @@ function normalizePrice(price: unknown): number {
 
 function normalizeType(t: unknown): CartItemType {
   const v = String(t ?? "").toLowerCase();
-  if (v === "book_pdf" || v === "course" || v === "service" || v === "other")
+
+  if (
+    v === "book_pdf" ||
+    v === "book_print" ||
+    v === "course" ||
+    v === "service" ||
+    v === "other"
+  ) {
     return v;
+  }
+
   return "other";
+}
+
+function normalizeStripePriceId(x: unknown) {
+  return typeof x === "string" && x.trim().length > 0 ? x.trim() : undefined;
+}
+
+function normalizeMetadata(x: unknown): CartItem["metadata"] | undefined {
+  if (!x || typeof x !== "object") return undefined;
+  const m = x as Record<string, unknown>;
+
+  const out: CartItem["metadata"] = {};
+
+  for (const [k, v] of Object.entries(m)) {
+    if (v === undefined) continue;
+    if (
+      typeof v === "string" ||
+      typeof v === "number" ||
+      typeof v === "boolean" ||
+      v === null
+    ) {
+      out[k] = v as any;
+    }
+  }
+
+  // campi “noti”
+  if (typeof m.slug === "string") out.slug = m.slug;
+  if (typeof m.area === "string") out.area = m.area;
+
+  const variant = m.variant;
+  if (variant === "pdf" || variant === "print") out.variant = variant;
+
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 function normalizeCart(items: unknown): CartItem[] {
@@ -68,7 +120,6 @@ function normalizeCart(items: unknown): CartItem[] {
 
   for (const raw of items) {
     if (!raw || typeof raw !== "object") continue;
-
     const x = raw as any;
 
     const id = String(x.id ?? "").trim();
@@ -81,14 +132,13 @@ function normalizeCart(items: unknown): CartItem[] {
       title,
       price: normalizePrice(x.price),
       quantity: normalizeQty(x.quantity),
+
       image: typeof x.image === "string" ? x.image : undefined,
       href: typeof x.href === "string" ? x.href : undefined,
-      stripePriceId:
-        typeof x.stripePriceId === "string" ? x.stripePriceId : undefined,
-      metadata:
-        x.metadata && typeof x.metadata === "object"
-          ? (x.metadata as Record<string, string | number | boolean | null>)
-          : undefined,
+
+      stripePriceId: normalizeStripePriceId(x.stripePriceId),
+
+      metadata: normalizeMetadata(x.metadata),
     };
 
     out.push(item);
@@ -140,11 +190,8 @@ export function addItem(
     quantity: normalizeQty(item.quantity),
     image: item.image ? String(item.image) : undefined,
     href: item.href ? String(item.href) : undefined,
-    stripePriceId: item.stripePriceId ? String(item.stripePriceId) : undefined,
-    metadata:
-      item.metadata && typeof item.metadata === "object"
-        ? item.metadata
-        : undefined,
+    stripePriceId: normalizeStripePriceId(item.stripePriceId),
+    metadata: normalizeMetadata(item.metadata),
   };
 
   if (!incoming.id || !incoming.title) return;
@@ -226,4 +273,12 @@ export function getTotal(): number {
     (sum, x) => sum + normalizePrice(x.price) * (Number(x.quantity) || 0),
     0
   );
+}
+
+/**
+ * ✅ Serve al checkout-cart per decidere se chiedere indirizzo
+ */
+export function hasShippableItems(items?: CartItem[]) {
+  const cart = items ?? getCart();
+  return cart.some((x) => x.type === "book_print");
 }

@@ -23,6 +23,9 @@ import Footer from "../../components/Footer";
 import { COURSES, AREAS } from "./_data";
 import type { Course } from "./_data";
 
+// ✅ carrello globale in lib (stesso di editoria)
+import { addItem } from "@/app/lib/cart";
+
 /* ==================== UTILS ==================== */
 
 const AREA_FILTERS = ["Tutte", ...AREAS] as const;
@@ -40,6 +43,7 @@ export const formatPrice = (price: number) =>
 export default function FormazionePage() {
   const [areaFilter, setAreaFilter] = useState<AreaFilter>("Tutte");
   const [search, setSearch] = useState("");
+  const [buyingKey, setBuyingKey] = useState<string | null>(null); // slug
 
   const filteredCourses = useMemo(() => {
     return COURSES.filter((course) => {
@@ -67,8 +71,60 @@ export default function FormazionePage() {
   const totalCourses = filteredCourses.length;
 
   const handleAddToCart = (course: Course) => {
-    // qui in futuro collegherai il carrello globale
-    console.log("Aggiungi corso al carrello:", course.slug);
+    addItem({
+      id: `course:${course.slug}`,
+      type: "course",
+      title: course.title,
+      price: course.price,
+      quantity: 1,
+      image: course.cover,
+      href: `/servizi/formazione/${course.slug}`,
+      // ✅ se in _data.ts non hai ancora priceId, lo lasci undefined
+      stripePriceId: (course as any).stripePriceId,
+      metadata: {
+        slug: course.slug,
+        area: course.area,
+        mode: course.mode,
+        level: course.level,
+      },
+    });
+  };
+
+  const handleBuyNow = async (course: Course) => {
+    const stripePriceId = (course as any).stripePriceId as string | undefined;
+    if (!stripePriceId) {
+      console.warn("stripePriceId mancante per il corso:", course.slug);
+      return;
+    }
+
+    const key = `${course.slug}`;
+
+    try {
+      setBuyingKey(key);
+
+      // ✅ usa la route carrello anche per "acquista ora" (1 item)
+      const res = await fetch("/api/stripe/checkout-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [{ stripePriceId, quantity: 1 }],
+          hasShippable: false,
+        }),
+      });
+
+      const data: { url?: string; error?: string } = await res.json();
+
+      if (!res.ok || !data.url) {
+        console.error(data.error ?? "Errore checkout");
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (e) {
+      console.error("Errore checkout:", e);
+    } finally {
+      setBuyingKey(null);
+    }
   };
 
   return (
@@ -80,12 +136,7 @@ export default function FormazionePage() {
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex srl"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex srl" fill className="object-contain" />
             </div>
           </div>
 
@@ -97,15 +148,14 @@ export default function FormazionePage() {
           <p className="mt-4 text-slate-600 leading-relaxed">
             Percorsi formativi per{" "}
             <strong>studenti di ingegneria e materie STEM</strong>,{" "}
-            <strong>consulenti, ingegneri, architetti e tecnici</strong> che
-            lavorano su acqua, ambiente, energia, agricoltura, sicurezza ed
-            edilizia, con un focus sulla <strong>finanza dei progetti</strong>.
+            <strong>consulenti, ingegneri, architetti e tecnici</strong> che lavorano su acqua,
+            ambiente, energia, agricoltura, sicurezza ed edilizia, con un focus sulla{" "}
+            <strong>finanza dei progetti</strong>.
           </p>
           <p className="mt-2 text-sm text-slate-600">
-            Corsi pratici, casi studio reali e docenti che lavorano
-            quotidianamente su progetti, autorizzazioni e cantieri. Uno stile
-            didattico operativo, pensato per portare rapidamente le competenze
-            sul campo.
+            Corsi pratici, casi studio reali e docenti che lavorano quotidianamente su progetti,
+            autorizzazioni e cantieri. Uno stile didattico operativo, pensato per portare rapidamente
+            le competenze sul campo.
           </p>
 
           {/* ✅ Toolbar filtri (stile identico a Editoria): tendina + ricerca */}
@@ -131,9 +181,7 @@ export default function FormazionePage() {
 
             {/* Ricerca */}
             <div className="text-left">
-              <label className="block text-xs font-medium text-slate-600 mb-1">
-                Cerca
-              </label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Cerca</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
@@ -168,13 +216,15 @@ export default function FormazionePage() {
                 key={course.slug}
                 course={course}
                 onAddToCart={() => handleAddToCart(course)}
+                onBuyNow={() => handleBuyNow(course)}
+                buyingKey={buyingKey}
               />
             ))}
 
             {filteredCourses.length === 0 && (
               <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-                Nessun corso trovato per i filtri selezionati. Prova a
-                modificare area o testo di ricerca.
+                Nessun corso trovato per i filtri selezionati. Prova a modificare area o testo di
+                ricerca.
               </div>
             )}
           </div>
@@ -185,18 +235,15 @@ export default function FormazionePage() {
               <div className="flex items-start gap-2">
                 <Check className="h-4 w-4 mt-0.5 text-emerald-600" />
                 <p>
-                  Dopo l&apos;aggiunta al carrello potrai completare
-                  l&apos;iscrizione e ricevere tutte le informazioni su accessi
-                  alla piattaforma, calendario e materiali didattici.
+                  Dopo l&apos;aggiunta al carrello potrai completare l&apos;iscrizione e ricevere
+                  tutte le informazioni su accessi alla piattaforma, calendario e materiali
+                  didattici.
                 </p>
               </div>
               <p className="text-xs text-slate-500 sm:text-right">
-                Per percorsi aziendali su misura o per attivare una classe
-                dedicata puoi contattarci direttamente dalla pagina{" "}
-                <Link
-                  href="/contatti"
-                  className="underline underline-offset-2 hover:text-slate-800"
-                >
+                Per percorsi aziendali su misura o per attivare una classe dedicata puoi contattarci
+                direttamente dalla pagina{" "}
+                <Link href="/contatti" className="underline underline-offset-2 hover:text-slate-800">
                   Contatti
                 </Link>
                 .
@@ -208,15 +255,11 @@ export default function FormazionePage() {
         {/* CTA finale in stile Trasparenza / Editoria */}
         <section className="mx-auto max-w-6xl pb-20">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
-            <h3 className="section-title text-xl sm:text-2xl">
-              Vuoi un percorso formativo dedicato?
-            </h3>
+            <h3 className="section-title text-xl sm:text-2xl">Vuoi un percorso formativo dedicato?</h3>
             <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
               Possiamo costruire{" "}
-              <strong>
-                academy aziendali, laboratori pratici e percorsi blended
-              </strong>{" "}
-              su misura per il tuo team, a partire dai vostri progetti reali.
+              <strong>academy aziendali, laboratori pratici e percorsi blended</strong> su misura per
+              il tuo team, a partire dai vostri progetti reali.
             </p>
             <Link
               href="/contatti"
@@ -251,10 +294,16 @@ export default function FormazionePage() {
 function CourseCard({
   course,
   onAddToCart,
+  onBuyNow,
+  buyingKey,
 }: {
   course: Course;
   onAddToCart: () => void;
+  onBuyNow: () => void;
+  buyingKey: string | null;
 }) {
+  const isBuying = buyingKey === `${course.slug}`;
+
   return (
     <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm transition hover:shadow-md">
       {/* Parte cliccabile: apre /servizi/formazione/[slug] */}
@@ -294,15 +343,11 @@ function CourseCard({
               {course.title}
             </h3>
             {course.subtitle && (
-              <p className="mt-1 text-xs font-medium text-emerald-700">
-                {course.subtitle}
-              </p>
+              <p className="mt-1 text-xs font-medium text-emerald-700">{course.subtitle}</p>
             )}
           </header>
 
-          <p className="mt-2 line-clamp-3 text-xs text-slate-600">
-            {course.description}
-          </p>
+          <p className="mt-2 line-clamp-3 text-xs text-slate-600">{course.description}</p>
 
           <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-slate-500">
             <div className="flex items-center gap-1.5">
@@ -335,32 +380,50 @@ function CourseCard({
             <span className="inline-flex items-center gap-1">
               <Check className="h-3 w-3 text-emerald-600" />
               <span>
-                Pensato per studenti, professionisti e tecnici che vogliono casi
-                reali, non solo teoria.
+                Pensato per studenti, professionisti e tecnici che vogliono casi reali, non solo
+                teoria.
               </span>
             </span>
           </div>
         </div>
       </Link>
 
-      {/* Riga inferiore: prezzo + bottone carrello (fuori dal Link) */}
+      {/* ✅ Azioni fuori dal Link */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4 pt-0">
         <div>
           <p className="text-xs text-slate-500">Quota di iscrizione</p>
-          <p className="text-lg font-semibold text-slate-900">
-            {formatPrice(course.price)}
-          </p>
+          <p className="text-lg font-semibold text-slate-900">{formatPrice(course.price)}</p>
         </div>
 
-        <button
-          type="button"
-          onClick={onAddToCart}
-          className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-          aria-label={`Aggiungi al carrello: ${course.title}`}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          <span>Iscriviti</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart();
+            }}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:border-emerald-500 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            aria-label={`Aggiungi al carrello: ${course.title}`}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>Aggiungi</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBuyNow();
+            }}
+            disabled={isBuying}
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={`Acquista ora: ${course.title}`}
+          >
+            <span>{isBuying ? "Apertura..." : "Acquista ora"}</span>
+          </button>
+        </div>
       </div>
     </article>
   );

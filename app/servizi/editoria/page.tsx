@@ -1,26 +1,26 @@
 // app/servizi/editoria/page.tsx
 "use client";
 
-import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import {
-  BookOpen,
-  ShoppingCart,
-  Tag,
-  Check,
-  Search,
-  Filter,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BookOpen, ShoppingCart, Tag, Check, Search, Filter } from "lucide-react";
 
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 
-// dati centralizzati in _data.ts
-import { BOOKS, AREAS, type Book } from "./_data";
+// ✅ dati centralizzati in _data.ts (aggiornati con varianti)
+import {
+  BOOKS,
+  AREAS,
+  type Book,
+  type BookVariant,
+  isPrintAvailable,
+  getBookPrice,
+  getStripePriceId,
+} from "./_data";
 
-// ✅ carrello globale in lib (deve accettare un CartItem generico)
+// ✅ carrello globale in lib
 import { addItem } from "@/app/lib/cart";
 
 /* ==================== UTILS ==================== */
@@ -40,7 +40,7 @@ export const formatPrice = (price: number) =>
 export default function EditoriaPage() {
   const [areaFilter, setAreaFilter] = useState<AreaFilter>("Tutte");
   const [search, setSearch] = useState("");
-  const [buyingSlug, setBuyingSlug] = useState<string | null>(null);
+  const [buyingKey, setBuyingKey] = useState<string | null>(null); // slug:variant
 
   const filteredBooks = useMemo(() => {
     return BOOKS.filter((book) => {
@@ -60,33 +60,44 @@ export default function EditoriaPage() {
 
   const totalBooks = filteredBooks.length;
 
-  const handleAddToCart = (book: Book) => {
+  const handleAddToCart = (book: Book, variant: BookVariant) => {
+    const price = getBookPrice(book, variant);
+    const stripePriceId = getStripePriceId(book, variant);
+
     addItem({
-      id: `book:${book.slug}`,
-      type: "book_pdf",
+      id: `book:${book.slug}:${variant}`, // ✅ righe distinte per variante
+      type: variant === "print" ? "book_print" : "book_pdf",
       title: book.title,
-      price: book.price,
+      price,
       quantity: 1,
       image: book.cover,
       href: `/servizi/editoria/${book.slug}`,
-      stripePriceId: book.stripePriceId,
+      stripePriceId,
       metadata: {
         slug: book.slug,
         area: book.area,
+        variant,
       },
     });
   };
 
-  const handleBuyNow = async (book: Book) => {
-    if (!book.stripePriceId) return;
+  const handleBuyNow = async (book: Book, variant: BookVariant) => {
+    const stripePriceId = getStripePriceId(book, variant);
+    if (!stripePriceId) return;
+
+    const key = `${book.slug}:${variant}`;
 
     try {
-      setBuyingSlug(book.slug);
+      setBuyingKey(key);
 
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: book.slug }),
+        body: JSON.stringify({
+          slug: book.slug,
+          variant,
+          stripePriceId, // ✅ scelto lato FE (pdf/print)
+        }),
       });
 
       const data: { url?: string; error?: string } = await res.json();
@@ -100,7 +111,7 @@ export default function EditoriaPage() {
     } catch (e) {
       console.error("Errore checkout:", e);
     } finally {
-      setBuyingSlug(null);
+      setBuyingKey(null);
     }
   };
 
@@ -109,16 +120,11 @@ export default function EditoriaPage() {
       <Nav />
 
       <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
-        {/* HERO con logo + titolo, come le altre pagine */}
+        {/* HERO */}
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex srl"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex srl" fill className="object-contain" />
             </div>
           </div>
 
@@ -128,18 +134,15 @@ export default function EditoriaPage() {
           </h1>
 
           <p className="mt-4 text-slate-600 leading-relaxed">
-            Manuali, linee guida e casi studio pensati per chi lavora ogni giorno
-            su{" "}
+            Manuali, linee guida e casi studio pensati per chi lavora ogni giorno su{" "}
             <strong>
-              acqua, ambiente, energia, agricoltura, sicurezza, edilizia e
-              infrastrutture
+              acqua, ambiente, energia, agricoltura, sicurezza, edilizia e infrastrutture
             </strong>{" "}
-            e sugli aspetti di{" "}
-            <strong>finanza e contabilità dei progetti</strong>.
+            e sugli aspetti di <strong>finanza e contabilità dei progetti</strong>.
           </p>
           <p className="mt-2 text-sm text-slate-600">
-            Ogni volume è concepito come uno strumento operativo: schemi,
-            check-list, esempi reali e riferimenti normativi essenziali.
+            Ogni volume è concepito come uno strumento operativo: schemi, check-list, esempi reali
+            e riferimenti normativi essenziali.
           </p>
 
           {/* Toolbar filtri */}
@@ -165,9 +168,7 @@ export default function EditoriaPage() {
 
             {/* Ricerca */}
             <div className="text-left">
-              <label className="block text-xs font-medium text-slate-600 mb-1">
-                Cerca
-              </label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Cerca</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
@@ -183,14 +184,13 @@ export default function EditoriaPage() {
           </div>
         </section>
 
-        {/* FILTRI & GRID LIBRI */}
+        {/* GRID LIBRI */}
         <section className="mx-auto max-w-6xl py-10">
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <Filter className="h-4 w-4 text-slate-500" />
             <span>
               {areaFilter === "Tutte" ? "Tutte le aree" : areaFilter} •{" "}
-              <strong>{totalBooks}</strong>{" "}
-              {totalBooks === 1 ? "titolo" : "titoli"} disponibili
+              <strong>{totalBooks}</strong> {totalBooks === 1 ? "titolo" : "titoli"} disponibili
             </span>
           </div>
 
@@ -199,16 +199,16 @@ export default function EditoriaPage() {
               <BookCard
                 key={book.slug}
                 book={book}
-                onAddToCart={() => handleAddToCart(book)}
-                onBuyNow={() => handleBuyNow(book)}
-                buying={buyingSlug === book.slug}
+                onAddToCart={(variant) => handleAddToCart(book, variant)}
+                onBuyNow={(variant) => handleBuyNow(book, variant)}
+                buyingKey={buyingKey}
               />
             ))}
 
             {filteredBooks.length === 0 && (
               <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-                Nessun titolo trovato per i filtri selezionati. Prova a
-                modificare area o testo di ricerca.
+                Nessun titolo trovato per i filtri selezionati. Prova a modificare area o testo di
+                ricerca.
               </div>
             )}
           </div>
@@ -217,13 +217,10 @@ export default function EditoriaPage() {
         {/* CTA finale */}
         <section className="mx-auto max-w-6xl pb-20">
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10 text-center">
-            <h3 className="section-title text-xl sm:text-2xl">
-              Non trovi il volume che cerchi?
-            </h3>
+            <h3 className="section-title text-xl sm:text-2xl">Non trovi il volume che cerchi?</h3>
             <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
-              Possiamo valutare insieme <strong>nuove uscite</strong>, tirature
-              dedicate o <strong>materiali formativi su misura</strong> per la
-              tua azienda o il tuo ente.
+              Possiamo valutare insieme <strong>nuove uscite</strong>, tirature dedicate o{" "}
+              <strong>materiali formativi su misura</strong> per la tua azienda o il tuo ente.
             </p>
             <Link
               href="/contatti"
@@ -258,15 +255,35 @@ function BookCard({
   book,
   onAddToCart,
   onBuyNow,
-  buying,
+  buyingKey,
 }: {
   book: Book;
-  onAddToCart: () => void;
-  onBuyNow: () => void;
-  buying: boolean;
+  onAddToCart: (variant: BookVariant) => void;
+  onBuyNow: (variant: BookVariant) => void;
+  buyingKey: string | null;
 }) {
+  const printAvailable = isPrintAvailable(book);
+
+  const [variant, setVariant] = useState<BookVariant>("pdf");
+
+  // ✅ se il libro cambia e il cartaceo non è disponibile, forza pdf
+  useEffect(() => {
+    if (!printAvailable) setVariant("pdf");
+  }, [printAvailable, book.slug]);
+
+  const displayedPrice = getBookPrice(book, variant);
+  const isBuying = buyingKey === `${book.slug}:${variant}`;
+
+  // ✅ STOP PROPAGATION: evita che click su bottoni/switch apra lo slug
+  const stop = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm transition hover:shadow-md">
+      {/* ✅ Link SOLO su cover + contenuto cliccabile.
+          Tutto ciò che è "azioni" sta FUORI dal Link oppure stoppa l'evento */}
       <Link
         href={`/servizi/editoria/${book.slug}`}
         className="group flex-1 flex flex-col focus:outline-none"
@@ -299,15 +316,11 @@ function BookCard({
               {book.title}
             </h3>
             {book.subtitle && (
-              <p className="mt-1 text-xs font-medium text-emerald-700">
-                {book.subtitle}
-              </p>
+              <p className="mt-1 text-xs font-medium text-emerald-700">{book.subtitle}</p>
             )}
           </header>
 
-          <p className="mt-2 line-clamp-3 text-xs text-slate-600">
-            {book.description}
-          </p>
+          <p className="mt-2 line-clamp-3 text-xs text-slate-600">{book.description}</p>
 
           <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-slate-500">
             <div>
@@ -328,6 +341,59 @@ function BookCard({
             </div>
           </dl>
 
+          {/* ✅ Selettore variante: NON deve navigare */}
+          <div className="mt-4" onClick={stop} onMouseDown={stop}>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              Formato acquisto
+            </p>
+
+            <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  stop(e);
+                  setVariant("pdf");
+                }}
+                className={[
+                  "rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
+                  variant === "pdf"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900",
+                ].join(" ")}
+                aria-pressed={variant === "pdf"}
+              >
+                PDF
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  stop(e);
+                  setVariant("print");
+                }}
+                disabled={!printAvailable}
+                className={[
+                  "rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
+                  variant === "print"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900",
+                  !printAvailable ? "opacity-50 cursor-not-allowed" : "",
+                ].join(" ")}
+                aria-pressed={variant === "print"}
+                aria-disabled={!printAvailable}
+                title={!printAvailable ? "Cartaceo: prossimamente" : "Cartaceo"}
+              >
+                Cartaceo
+              </button>
+            </div>
+
+            <p className="mt-2 text-[11px] text-slate-500">
+              {variant === "pdf"
+                ? "Download immediato dopo il pagamento."
+                : "Spedizione a domicilio (indirizzo richiesto al checkout)."}
+            </p>
+          </div>
+
           <div className="mt-3 text-[11px] text-slate-500">
             <span className="inline-flex items-center gap-1">
               <Check className="h-3 w-3 text-emerald-600" />
@@ -337,20 +403,23 @@ function BookCard({
         </div>
       </Link>
 
+      {/* ✅ AZIONI FUORI DAL LINK -> non navigano mai */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4 pt-0">
         <div>
           <p className="text-xs text-slate-500">Prezzo</p>
-          <p className="text-lg font-semibold text-slate-900">
-            {formatPrice(book.price)}
-          </p>
+          <p className="text-lg font-semibold text-slate-900">{formatPrice(displayedPrice)}</p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={onAddToCart}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart(variant);
+            }}
             className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:border-emerald-500 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            aria-label={`Aggiungi al carrello: ${book.title}`}
+            aria-label={`Aggiungi al carrello (${variant === "pdf" ? "PDF" : "Cartaceo"}): ${book.title}`}
           >
             <ShoppingCart className="h-4 w-4" />
             <span>Aggiungi</span>
@@ -358,12 +427,16 @@ function BookCard({
 
           <button
             type="button"
-            onClick={onBuyNow}
-            disabled={!book.stripePriceId || buying}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBuyNow(variant);
+            }}
+            disabled={isBuying}
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label={`Acquista ora: ${book.title}`}
+            aria-label={`Acquista ora (${variant === "pdf" ? "PDF" : "Cartaceo"}): ${book.title}`}
           >
-            <span>{buying ? "Apertura..." : "Acquista ora"}</span>
+            <span>{isBuying ? "Apertura..." : "Acquista ora"}</span>
           </button>
         </div>
       </div>

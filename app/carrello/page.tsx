@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, CreditCard } from "lucide-react";
+import { Trash2, CreditCard, Truck } from "lucide-react";
 
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
@@ -33,7 +33,32 @@ function formatEUR(value: number) {
 const PRODUCTS_ANCHOR = "/#prodotti";
 
 function isPurchasable(item: CartItem) {
-  return typeof item.stripePriceId === "string" && item.stripePriceId.length > 0;
+  return typeof item.stripePriceId === "string" && item.stripePriceId.trim().length > 0;
+}
+
+// ✅ label user-friendly per i tipi che ci interessano (book_pdf / book_print)
+function getTypeLabel(type: CartItem["type"]) {
+  switch (type) {
+    case "book_pdf":
+      return "PDF (download)";
+    case "book_print":
+      return "Cartaceo (spedizione)";
+    default:
+      // fallback: lascia il tipo raw per gli altri prodotti
+      return String(type);
+  }
+}
+
+function isShippable(item: CartItem) {
+  // In futuro potresti usare item.metadata.requiresShipping === true
+  // ma per ora ci basta la convenzione type === "book_print"
+  return item.type === "book_print";
+}
+
+function normQty(q: unknown) {
+  const n = Number(q);
+  if (!Number.isFinite(n)) return 1;
+  return Math.max(1, Math.floor(n));
 }
 
 export default function CarrelloPage() {
@@ -71,11 +96,17 @@ export default function CarrelloPage() {
     if (!hydrated) return 0;
     return items
       .filter(isPurchasable)
-      .reduce((sum, x) => sum + (Number(x.quantity) || 0), 0);
+      .reduce((sum, x) => sum + normQty(x.quantity), 0);
+  }, [items, hydrated]);
+
+  // ✅ almeno un prodotto richiede spedizione?
+  const hasShippable = useMemo(() => {
+    if (!hydrated) return false;
+    return items.some((it) => isShippable(it));
   }, [items, hydrated]);
 
   const onChangeQty = (id: string, nextQty: number) => {
-    setQty(id, nextQty);
+    setQty(id, normQty(nextQty));
     sync();
   };
 
@@ -96,11 +127,24 @@ export default function CarrelloPage() {
 
     setCheckoutError(null);
 
+    // ✅ Prepariamo un payload più ricco per il backend:
+    // - stripePriceId: per creare line_items
+    // - quantity
+    // - type/metadata: per sapere cosa consegnare dopo (pdf vs print)
+    //
+    // Nota: il tuo /api/stripe/checkout-cart attuale accetta solo stripePriceId+quantity.
+    // Dovrai aggiornare anche quell’endpoint per leggere questi campi extra (non danno fastidio se li ignori,
+    // ma servono per gestire “print” correttamente lato success/webhook).
     const purchasable = items
       .filter(isPurchasable)
       .map((x) => ({
-        stripePriceId: x.stripePriceId!,
-        quantity: Math.max(1, Math.floor(Number(x.quantity) || 1)),
+        stripePriceId: x.stripePriceId!.trim(),
+        quantity: normQty(x.quantity),
+        type: x.type,
+        id: x.id,
+        title: x.title,
+        href: x.href,
+        metadata: x.metadata ?? {},
       }));
 
     if (purchasable.length === 0) {
@@ -116,7 +160,10 @@ export default function CarrelloPage() {
       const res = await fetch("/api/stripe/checkout-cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: purchasable }),
+        body: JSON.stringify({
+          items: purchasable,
+          hasShippable,
+        }),
       });
 
       const data: { url?: string; error?: string } = await res.json();
@@ -127,7 +174,6 @@ export default function CarrelloPage() {
         return;
       }
 
-      // se la navigazione non parte per qualche motivo, sblocchiamo dopo un attimo
       window.location.href = data.url;
       setTimeout(() => setCheckingOut(false), 1500);
     } catch {
@@ -208,6 +254,7 @@ export default function CarrelloPage() {
               <ul className="divide-y divide-slate-200">
                 {items.map((it) => {
                   const purch = isPurchasable(it);
+                  const shippable = isShippable(it);
 
                   return (
                     <li key={it.id} className="p-4 sm:p-5 flex gap-4">
@@ -244,9 +291,16 @@ export default function CarrelloPage() {
                             )}
 
                             <div className="mt-1 flex flex-wrap items-center gap-2">
+                              {/* ✅ Etichetta leggibile */}
                               <p className="text-xs text-slate-500">
-                                Tipo: {it.type}
+                                Formato: {getTypeLabel(it.type)}
                               </p>
+
+                              {shippable && (
+                                <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-800 ring-1 ring-amber-100 px-2 py-0.5 text-[11px] font-semibold">
+                                  Richiede spedizione
+                                </span>
+                              )}
 
                               {purch ? (
                                 <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-2 py-0.5 text-[11px] font-semibold">
@@ -265,7 +319,7 @@ export default function CarrelloPage() {
                               {formatEUR(it.price)}
                             </p>
                             <p className="text-[11px] text-slate-500">
-                              {it.quantity} × {formatEUR(it.price)}
+                              {normQty(it.quantity)} × {formatEUR(it.price)}
                             </p>
                           </div>
                         </div>
@@ -276,7 +330,7 @@ export default function CarrelloPage() {
                             <input
                               type="number"
                               min={1}
-                              value={it.quantity}
+                              value={normQty(it.quantity)}
                               onChange={(e) =>
                                 onChangeQty(it.id, Number(e.target.value || 1))
                               }
@@ -328,6 +382,22 @@ export default function CarrelloPage() {
                 </div>
               )}
             </dl>
+
+            {/* ✅ Avviso spedizione */}
+            {hasShippable && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-900">
+                <div className="flex items-start gap-2">
+                  <Truck className="h-4 w-4 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Ordine con spedizione</p>
+                    <p className="mt-1">
+                      Questo carrello include articoli cartacei: al checkout ti
+                      verrà richiesto l’indirizzo di consegna.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <p className="mt-4 text-[11px] text-slate-600">
               Il checkout online procede con gli articoli che hanno{" "}

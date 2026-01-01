@@ -1,11 +1,10 @@
 // app/servizi/editoria/[slug]/page.tsx
 "use client";
 
-import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   ShoppingCart,
@@ -22,13 +21,21 @@ import {
 import Nav from "../../../components/Nav";
 import Footer from "../../../components/Footer";
 
-// Import dati centralizzati
-import { BOOKS, type Book, type Author } from "../_data";
+// ✅ Import dati centralizzati (aggiornati con varianti)
+import {
+  BOOKS,
+  type Book,
+  type Author,
+  type BookVariant,
+  isPrintAvailable,
+  getBookPrice,
+  getStripePriceId,
+} from "../_data";
 
-// ✅ carrello globale in lib
+// ✅ carrello globale
 import { addItem } from "@/app/lib/cart";
 
-/* ===== Helper prezzo (stile altre pagine) ===== */
+/* ===== Helper prezzo ===== */
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("it-IT", {
     style: "currency",
@@ -41,10 +48,12 @@ const formatPrice = (price: number) =>
 export default function BookDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
-  const [buying, setBuying] = useState(false);
 
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const book: Book | undefined = BOOKS.find((b) => b.slug === slugParam);
+
+  const [variant, setVariant] = useState<BookVariant>("pdf");
+  const [buying, setBuying] = useState(false);
 
   // Gestione libro non trovato
   if (!book) {
@@ -60,11 +69,11 @@ export default function BookDetailPage() {
             <ArrowLeft className="h-4 w-4" />
             Torna al catalogo editoria
           </button>
+
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center">
             <h1 className="section-title">Titolo non trovato</h1>
             <p className="mt-3 text-sm text-slate-600">
-              Il volume che stai cercando non è stato trovato o non è più
-              disponibile a catalogo.
+              Il volume che stai cercando non è stato trovato o non è più disponibile a catalogo.
             </p>
             <Link
               href="/servizi/editoria"
@@ -75,35 +84,58 @@ export default function BookDetailPage() {
           </div>
         </main>
         <Footer />
+        <style jsx global>{`
+          .section-title {
+            font-size: clamp(1.5rem, 2.4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+          }
+          .section-sub {
+            margin-top: 0.5rem;
+            color: #5b6573;
+          }
+        `}</style>
       </div>
     );
   }
 
-  const related = BOOKS.filter(
-    (b) => b.area === book.area && b.slug !== book.slug
-  ).slice(0, 3);
+  const printAvailable = isPrintAvailable(book);
+
+  // ✅ se il cartaceo non è disponibile, forza PDF (senza setState nel render)
+  useEffect(() => {
+    if (!printAvailable && variant === "print") setVariant("pdf");
+  }, [printAvailable, variant]);
+
+  const related = useMemo(
+    () => BOOKS.filter((b) => b.area === book.area && b.slug !== book.slug).slice(0, 3),
+    [book.area, book.slug]
+  );
 
   const hasAuthors = Boolean(book.authors && book.authors.length > 0);
 
+  const displayedPrice = useMemo(() => getBookPrice(book, variant), [book, variant]);
+  const stripePriceId = useMemo(() => getStripePriceId(book, variant), [book, variant]);
+
   const handleAddToCart = () => {
     addItem({
-      id: `book:${book.slug}`,
-      type: "book_pdf",
+      id: `book:${book.slug}:${variant}`,
+      type: variant === "print" ? "book_print" : "book_pdf",
       title: book.title,
-      price: book.price,
+      price: displayedPrice,
       quantity: 1,
       image: book.cover,
       href: `/servizi/editoria/${book.slug}`,
-      stripePriceId: book.stripePriceId,
+      stripePriceId,
       metadata: {
         slug: book.slug,
         area: book.area,
+        variant,
       },
     });
   };
 
   const handleBuyNow = async () => {
-    if (!book.stripePriceId) return;
+    if (!stripePriceId) return;
 
     try {
       setBuying(true);
@@ -111,7 +143,11 @@ export default function BookDetailPage() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: book.slug }),
+        body: JSON.stringify({
+          slug: book.slug,
+          variant,
+          stripePriceId,
+        }),
       });
 
       const data: { url?: string; error?: string } = await res.json();
@@ -129,7 +165,7 @@ export default function BookDetailPage() {
     }
   };
 
-  const canBuyNow = Boolean(book.stripePriceId);
+  const canBuyNow = Boolean(stripePriceId);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -158,16 +194,12 @@ export default function BookDetailPage() {
                     <span>{book.title}</span>
                   </h1>
                   {book.subtitle && (
-                    <p className="mt-2 text-sm font-medium text-emerald-700">
-                      {book.subtitle}
-                    </p>
+                    <p className="mt-2 text-sm font-medium text-emerald-700">{book.subtitle}</p>
                   )}
                   <p className="mt-3 text-sm text-slate-600">
-                    Area:{" "}
-                    <span className="font-medium text-slate-800">{book.area}</span>
+                    Area: <span className="font-medium text-slate-800">{book.area}</span>
                     {" · "}
-                    Formato:{" "}
-                    <span className="font-medium text-slate-800">{book.format}</span>
+                    Formato: <span className="font-medium text-slate-800">{book.format}</span>
                     {" · "}
                     <span className="font-medium text-slate-800">{book.year}</span>
                   </p>
@@ -181,8 +213,7 @@ export default function BookDetailPage() {
                     </span>
                   )}
                   <p className="text-xs text-slate-500">
-                    Codice interno:{" "}
-                    <span className="font-mono text-slate-700">{book.slug}</span>
+                    Codice interno: <span className="font-mono text-slate-700">{book.slug}</span>
                   </p>
                 </div>
               </div>
@@ -190,10 +221,10 @@ export default function BookDetailPage() {
           </div>
         </section>
 
-        {/* BLOCCO 3 COLONNE ALLINEATE (cover / panoramica / acquisto) */}
+        {/* BLOCCO 3 COLONNE (cover / panoramica / acquisto) */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid gap-6 lg:grid-cols-3 items-stretch">
-            {/* Colonna 1: COVER */}
+            {/* Cover */}
             <div className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-center">
               <div className="relative w-full max-w-xs aspect-[3/4] overflow-hidden rounded-xl bg-slate-100">
                 <Image
@@ -206,7 +237,7 @@ export default function BookDetailPage() {
               </div>
             </div>
 
-            {/* Colonna 2: PANORAMICA + ESTRATTO PDF */}
+            {/* Panoramica + estratto */}
             <div className="h-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 flex flex-col">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -218,9 +249,7 @@ export default function BookDetailPage() {
 
               {book.previewUrl && (
                 <div className="mt-4 pt-4 border-t border-slate-200">
-                  <p className="text-xs text-slate-600 mb-2">
-                    Vuoi farti un&apos;idea dei contenuti?
-                  </p>
+                  <p className="text-xs text-slate-600 mb-2">Vuoi farti un&apos;idea dei contenuti?</p>
                   <Link
                     href={book.previewUrl}
                     target="_blank"
@@ -231,25 +260,70 @@ export default function BookDetailPage() {
                     <span>Apri un estratto in PDF</span>
                   </Link>
                   <p className="mt-2 text-[11px] text-slate-500">
-                    L&apos;estratto include indice, introduzione e alcune pagine di
-                    esempio.
+                    L&apos;estratto include indice, introduzione e alcune pagine di esempio.
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Colonna 3: ACQUISTO (stile Amazon) */}
+            {/* Acquisto */}
             <aside className="h-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm flex flex-col">
               <div>
                 <p className="text-xs text-slate-500">Prezzo</p>
                 <p className="mt-1 text-2xl font-semibold text-slate-900">
-                  {formatPrice(book.price)}
+                  {formatPrice(displayedPrice)}
                 </p>
 
-                <p className="mt-2 text-xs text-slate-600">
-                  Il prezzo si intende <strong>IVA esclusa</strong>. Dettagli su
-                  spese di spedizione e fatturazione sono mostrati nel carrello,
-                  prima del pagamento.
+                {/* ✅ Selettore variante */}
+                <div className="mt-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    Formato acquisto
+                  </p>
+
+                  <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setVariant("pdf")}
+                      className={[
+                        "rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
+                        variant === "pdf"
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900",
+                      ].join(" ")}
+                      aria-pressed={variant === "pdf"}
+                    >
+                      PDF
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setVariant("print")}
+                      disabled={!printAvailable}
+                      className={[
+                        "rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
+                        variant === "print"
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900",
+                        !printAvailable ? "opacity-50 cursor-not-allowed" : "",
+                      ].join(" ")}
+                      aria-pressed={variant === "print"}
+                      aria-disabled={!printAvailable}
+                      title={!printAvailable ? "Cartaceo: prossimamente" : "Cartaceo"}
+                    >
+                      Cartaceo
+                    </button>
+                  </div>
+
+                  <p className="mt-2 text-[11px] text-slate-500">
+                    {variant === "pdf"
+                      ? "Download immediato dopo il pagamento."
+                      : "Spedizione a domicilio (indirizzo richiesto al checkout)."}
+                  </p>
+                </div>
+
+                <p className="mt-3 text-xs text-slate-600">
+                  Il prezzo si intende <strong>IVA esclusa</strong>. Dettagli su spese di spedizione
+                  e fatturazione sono mostrati nel carrello, prima del pagamento.
                 </p>
 
                 <div className="mt-4 grid gap-2">
@@ -273,12 +347,9 @@ export default function BookDetailPage() {
                 </div>
 
                 <p className="mt-3 text-[11px] text-slate-500">
-                  Per ordini multipli o personalizzazioni aziendali, puoi contattarci
-                  direttamente dalla pagina{" "}
-                  <Link
-                    href="/contatti"
-                    className="underline underline-offset-2 hover:text-slate-800"
-                  >
+                  Per ordini multipli o personalizzazioni aziendali, puoi contattarci direttamente
+                  dalla pagina{" "}
+                  <Link href="/contatti" className="underline underline-offset-2 hover:text-slate-800">
                     Contatti
                   </Link>
                   .
@@ -300,7 +371,7 @@ export default function BookDetailPage() {
             </aside>
           </div>
 
-          {/* SECONDO BLOCCO: DETTAGLI TECNICI + AUTORI */}
+          {/* Dettagli tecnici + Autori */}
           <div className="mt-8 grid gap-6 lg:grid-cols-3 items-start">
             <div
               className={
@@ -327,24 +398,17 @@ export default function BookDetailPage() {
                   <dd>{book.pages}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Anno di pubblicazione
-                  </dt>
+                  <dt className="font-medium text-slate-600">Anno di pubblicazione</dt>
                   <dd>{book.year}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Aggiornamento normativo
-                  </dt>
+                  <dt className="font-medium text-slate-600">Aggiornamento normativo</dt>
                   <dd>Allineato alle principali norme in vigore alla data.</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-600">
-                    Utilizzo consigliato
-                  </dt>
+                  <dt className="font-medium text-slate-600">Utilizzo consigliato</dt>
                   <dd>
-                    Come manuale operativo di riferimento per casi concreti e iter
-                    autorizzativi.
+                    Come manuale operativo di riferimento per casi concreti e iter autorizzativi.
                   </dd>
                 </div>
               </dl>
@@ -364,7 +428,7 @@ export default function BookDetailPage() {
             )}
           </div>
 
-          {/* Libri correlati per area */}
+          {/* Libri correlati */}
           {related.length > 0 && (
             <section className="mt-12 border-t border-slate-200 pt-8">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -389,16 +453,12 @@ export default function BookDetailPage() {
                     <p className="mt-2 text-[11px] uppercase tracking-wide text-emerald-700 font-semibold">
                       {r.area}
                     </p>
-                    <p className="mt-1 font-semibold text-slate-900 line-clamp-2">
-                      {r.title}
-                    </p>
+                    <p className="mt-1 font-semibold text-slate-900 line-clamp-2">{r.title}</p>
                     {r.subtitle && (
-                      <p className="mt-1 text-[11px] text-slate-600 line-clamp-2">
-                        {r.subtitle}
-                      </p>
+                      <p className="mt-1 text-[11px] text-slate-600 line-clamp-2">{r.subtitle}</p>
                     )}
                     <p className="mt-2 font-semibold text-slate-900">
-                      {formatPrice(r.price)}
+                      {formatPrice(getBookPrice(r, "pdf"))}
                     </p>
                   </Link>
                 ))}
@@ -432,13 +492,7 @@ function AuthorCard({ author }: { author: Author }) {
     <div className="rounded-2xl border border-slate-200 bg-white p-4 flex gap-3 sm:gap-4">
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-semibold text-slate-500">
         {author.photo ? (
-          <Image
-            src={author.photo}
-            alt={author.name}
-            fill
-            className="object-cover"
-            sizes="56px"
-          />
+          <Image src={author.photo} alt={author.name} fill className="object-cover" sizes="56px" />
         ) : (
           <span>
             {author.name
@@ -450,29 +504,26 @@ function AuthorCard({ author }: { author: Author }) {
           </span>
         )}
       </div>
+
       <div className="flex-1">
         <p className="text-sm font-semibold text-slate-900">{author.name}</p>
         <p className="text-[11px] text-emerald-700 font-medium">{author.role}</p>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
           {author.phone && (
-            <Link
-              href={`tel:${author.phone}`}
-              className="inline-flex items-center gap-1 hover:text-slate-800"
-            >
+            <Link href={`tel:${author.phone}`} className="inline-flex items-center gap-1 hover:text-slate-800">
               <Phone className="h-3 w-3" />
               <span>Telefono</span>
             </Link>
           )}
+
           {author.email && (
-            <Link
-              href={`mailto:${author.email}`}
-              className="inline-flex items-center gap-1 hover:text-slate-800"
-            >
+            <Link href={`mailto:${author.email}`} className="inline-flex items-center gap-1 hover:text-slate-800">
               <Mail className="h-3 w-3" />
               <span>Email</span>
             </Link>
           )}
+
           {author.linkedin && (
             <Link
               href={author.linkedin}
