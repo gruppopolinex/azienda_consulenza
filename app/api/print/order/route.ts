@@ -9,28 +9,16 @@ export const runtime = "nodejs";
  * Crea (o recupera) un ordine Printful per gli articoli cartacei
  * acquistati in una Checkout Session Stripe.
  *
- * ✅ Flusso consigliato:
- * - dopo il pagamento (success page) chiami POST /api/print/order con session_id
- * - il backend verifica che:
- *   1) la sessione è "paid"
- *   2) ci sono line_items che matchano stripePriceIdPrint dei libri
- *   3) esiste un indirizzo di spedizione (Stripe Checkout)
- * - poi crea un ordine Printful con external_id = stripe_<session_id> (idempotenza)
- *
  * Requisiti env:
  * - STRIPE_SECRET_KEY
  * - PRINTFUL_API_KEY
  *
  * Requisiti dati (in _data.ts) per ogni libro cartaceo:
- * - stripePriceIdPrint
- * - printfulSyncVariantId: number
+ * - stripePriceIdPrint (string)
+ * - printfulSyncVariantId (number)
  */
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-/* =========================
-   Types
-========================= */
 
 type PrintfulRecipient = {
   name: string;
@@ -47,8 +35,8 @@ type PrintfulRecipient = {
 type PrintfulOrderItem = {
   sync_variant_id: number;
   quantity: number;
+  retail_price?: string;
   name?: string;
-  retail_price?: string; // opzionale (stringa tipo "29.00")
 };
 
 type PrintfulOrderCreateBody = {
@@ -57,10 +45,6 @@ type PrintfulOrderCreateBody = {
   items: PrintfulOrderItem[];
   confirm: boolean;
 };
-
-/* =========================
-   Helpers
-========================= */
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -77,9 +61,15 @@ function normQty(q: unknown) {
   return Math.max(1, Math.floor(n));
 }
 
+/**
+ * ✅ Fix TypeScript:
+ * alcune versioni delle typings Stripe non includono `shipping_details` su Checkout.Session
+ * anche se a runtime esiste. Usiamo un accesso "safe" via cast a any.
+ */
 function pickShippingRecipient(session: Stripe.Checkout.Session): PrintfulRecipient | null {
-  const ship = session.shipping_details;
-  const cust = session.customer_details;
+  const s: any = session as any;
+  const ship = s.shipping_details; // <- runtime ok, typings a volte no
+  const cust = s.customer_details;
 
   if (!ship?.address) return null;
 
@@ -128,9 +118,8 @@ async function printfulFetch<T>(path: string, init?: RequestInit): Promise<T> {
   if (!res.ok) {
     const msg =
       data?.error?.message ||
-      data?.error ||
-      data?.message ||
       data?.result ||
+      data?.message ||
       `Errore Printful (${res.status})`;
     throw new Error(msg);
   }
@@ -138,23 +127,18 @@ async function printfulFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-/**
- * Idempotenza: recupera ordine già creato tramite external_id
- */
+/** Idempotenza: cerca ordine Printful tramite external_id */
 async function findPrintfulOrderByExternalId(externalId: string) {
   type R = { result?: { id: number; external_id?: string; status?: string }[] };
-  const out = await printfulFetch<R>(`/orders?external_id=${encodeURIComponent(externalId)}`, {
-    method: "GET",
-  });
+  const out = await printfulFetch<R>(
+    `/orders?external_id=${encodeURIComponent(externalId)}`,
+    { method: "GET" }
+  );
   const first = Array.isArray(out.result) ? out.result[0] : undefined;
   return first ?? null;
 }
 
-/**
- * Mappa stripePriceIdPrint -> {syncVariantId,title}
- * (solo se printfulSyncVariantId è presente)
- */
-function buildPriceToPrintMap() {
+function buildPriceToPrintMap(): Map<string, { syncVariantId: number; title: string }> {
   const m = new Map<string, { syncVariantId: number; title: string }>();
 
   for (const b of BOOKS as any[]) {
@@ -169,30 +153,20 @@ function buildPriceToPrintMap() {
         : undefined;
 
     if (pricePrint && syncVariantId) {
-      m.set(pricePrint, { syncVariantId, title: String(b.title ?? b.slug) });
+      m.set(pricePrint, { syncVariantId, title: b.title ?? b.slug });
     }
   }
 
   return m;
 }
 
-/* =========================
-   Handler
-========================= */
-
 export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => ({}))) as { session_id?: string };
-    const sessionId = typeof body?.session_id === "string" ? body.session_id.trim() : "";
+    const sessionId = typeof body.session_id === "string" ? body.session_id.trim() : "";
 
-    if (!sessionId) {
-      return jsonError("session_id mancante", 400);
-    }
-
-    // Env Printful
-    if (!getPrintfulApiKey()) {
-      return jsonError("PRINTFUL_API_KEY mancante", 500);
-    }
+    if (!sessionId) return jsonError("session_id mancante", 400);
+    if (!getPrintfulApiKey()) return jsonError("PRINTFUL_API_KEY mancante", 500);
 
     // 1) Recupera sessione Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -201,29 +175,25 @@ export async function POST(req: Request) {
       return jsonError("Pagamento non valido", 403);
     }
 
-    // 2) Destinatario spedizione (Stripe Checkout)
+    // 2) Destinatario spedizione
     const recipient = pickShippingRecipient(session);
     if (!recipient) {
       return jsonError("Indirizzo di spedizione mancante nella sessione Stripe", 400);
     }
 
-    // Italia only (coerente con il checkout)
     if (recipient.country_code !== "IT") {
       return jsonError("Spedizione consentita solo in Italia (IT)", 400);
     }
 
-    // 3) Leggi line items Stripe
+    // 3) Line items
     const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 });
     const items = lineItems.data ?? [];
+    if (items.length === 0) return jsonError("Nessun articolo nella sessione", 404);
 
-    if (items.length === 0) {
-      return jsonError("Nessun articolo nella sessione", 404);
-    }
-
-    // 4) Mappa priceId -> sync_variant_id Printful
+    // 4) Mappa priceId -> Printful sync_variant_id
     const priceToPrint = buildPriceToPrintMap();
 
-    // 5) Costruisci righe Printful SOLO per cartaceo mappato
+    // 5) Righe Printful SOLO per cartacei
     const printfulItems: PrintfulOrderItem[] = [];
 
     for (const li of items) {
@@ -237,25 +207,20 @@ export async function POST(req: Request) {
         sync_variant_id: mapped.syncVariantId,
         quantity: normQty(li.quantity),
         name: mapped.title,
-        // retail_price: opzionale: se vuoi forzarlo dal totale riga
-        // retail_price:
-        //   typeof li.amount_total === "number"
-        //     ? (li.amount_total / 100 / normQty(li.quantity)).toFixed(2)
-        //     : undefined,
       });
     }
 
     if (printfulItems.length === 0) {
       return jsonError(
-        "Nessun articolo cartaceo trovato (manca mapping stripePriceIdPrint -> printfulSyncVariantId)",
+        "Nessun articolo cartaceo trovato: manca mapping stripePriceIdPrint -> printfulSyncVariantId",
         400
       );
     }
 
-    // 6) Idempotenza via external_id
+    // 6) Idempotenza
     const externalId = `stripe_${sessionId}`;
-
     const existing = await findPrintfulOrderByExternalId(externalId).catch(() => null);
+
     if (existing) {
       return NextResponse.json({
         ok: true,
@@ -273,7 +238,7 @@ export async function POST(req: Request) {
       external_id: externalId,
       recipient,
       items: printfulItems,
-      confirm: true, // ✅ true = invia in fulfillment; metti false se vuoi solo creare bozza
+      confirm: true, // se vuoi test “senza invio” metti false
     };
 
     type CreateResp = { result?: { id: number; status: string; external_id?: string } };
