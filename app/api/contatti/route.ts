@@ -4,7 +4,26 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs"; // Resend usa Node runtime (non Edge)
 
+/**
+ * ✅ CONTATTI (Resend)
+ *
+ * ENV richieste:
+ * - RESEND_API_KEY
+ * - CONTACT_TO            (destinatario interno, es: info@polinex.it)
+ *
+ * ENV consigliate:
+ * - CONTACT_FROM          (es: "Polinex <onboarding@resend.dev>" in test)
+ *   Se manca, fa fallback su ORDERS_FROM, e poi su onboarding@resend.dev.
+ *
+ * Nota: se il dominio non è verificato su Resend, usa `onboarding@resend.dev` come FROM.
+ * In ogni caso impostiamo `replyTo` sull'email del cliente così puoi rispondere direttamente.
+ */
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+/* =======================
+   Sanitize helpers
+======================= */
 
 // Piccola utility per evitare header injection e stringhe "strane"
 function cleanOneLine(input: unknown, max = 200) {
@@ -26,27 +45,67 @@ function isEmailLike(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Escape HTML semplice
+function escapeHtml(str: string) {
+  return str
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+/* =======================
+   ENV helpers
+======================= */
+
+function getResendApiKey() {
+  const s = process.env.RESEND_API_KEY;
+  return typeof s === "string" && s.trim().length > 0 ? s.trim() : "";
+}
+
+function getContactTo() {
+  const a = process.env.CONTACT_TO;
+  if (typeof a === "string" && a.trim()) return a.trim();
+
+  const b = process.env.CONTACT_EMAIL;
+  if (typeof b === "string" && b.trim()) return b.trim();
+
+  return "";
+}
+
+function getContactFrom() {
+  // 1) preferisci CONTACT_FROM
+  const a = process.env.CONTACT_FROM;
+  if (typeof a === "string" && a.trim()) return a.trim();
+
+  // 2) fallback su ORDERS_FROM (così allinei webhook+contatti)
+  const b = process.env.ORDERS_FROM;
+  if (typeof b === "string" && b.trim()) return b.trim();
+
+  // 3) fallback dev-safe (dominio non verificato)
+  return "Polinex <onboarding@resend.dev>";
+}
+
+/* =======================
+   Handler
+======================= */
+
 export async function POST(req: Request) {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    if (!getResendApiKey()) {
       return NextResponse.json(
         { ok: false, error: "RESEND_API_KEY mancante nelle variabili d'ambiente." },
         { status: 500 }
       );
     }
 
-    const to = process.env.CONTACT_TO || process.env.CONTACT_EMAIL;
-    const from = process.env.CONTACT_FROM;
+    const to = getContactTo();
+    const from = getContactFrom();
 
     if (!to) {
       return NextResponse.json(
         { ok: false, error: "CONTACT_TO (email destinataria) mancante nelle variabili d'ambiente." },
-        { status: 500 }
-      );
-    }
-    if (!from) {
-      return NextResponse.json(
-        { ok: false, error: "CONTACT_FROM (mittente) mancante nelle variabili d'ambiente." },
         { status: 500 }
       );
     }
@@ -57,7 +116,10 @@ export async function POST(req: Request) {
 
     if (contentType.includes("application/json")) {
       payload = await req.json();
-    } else if (contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) {
+    } else if (
+      contentType.includes("multipart/form-data") ||
+      contentType.includes("application/x-www-form-urlencoded")
+    ) {
       const fd = await req.formData();
       payload = Object.fromEntries(fd.entries());
     } else {
@@ -92,13 +154,12 @@ export async function POST(req: Request) {
       );
     }
     if (!isEmailLike(email)) {
-      return NextResponse.json(
-        { ok: false, error: "Email non valida." },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Email non valida." }, { status: 400 });
     }
 
     const subject = `Nuova richiesta contatti — ${nome}${azienda ? ` (${azienda})` : ""}`;
+
+    const ua = cleanText(req.headers.get("user-agent") || "-", 300);
 
     const text = [
       `Nome: ${nome}`,
@@ -112,7 +173,7 @@ export async function POST(req: Request) {
       ``,
       `---`,
       `Fonte: /contatti`,
-      `User-Agent: ${cleanText(req.headers.get("user-agent") || "-", 300)}`,
+      `User-Agent: ${ua}`,
     ].join("\n");
 
     const html = `
@@ -129,9 +190,10 @@ export async function POST(req: Request) {
           messaggio
         )}</pre>
         <hr />
-        <p style="color:#64748b; font-size:12px">Fonte: /contatti<br/>User-Agent: ${escapeHtml(
-          cleanText(req.headers.get("user-agent") || "-", 300)
-        )}</p>
+        <p style="color:#64748b; font-size:12px">
+          Fonte: /contatti<br/>
+          User-Agent: ${escapeHtml(ua)}
+        </p>
       </div>
     `;
 
@@ -141,7 +203,9 @@ export async function POST(req: Request) {
       subject,
       text,
       html,
-      replyTo: email, // così rispondi direttamente al cliente
+      // NB: in Resend JS SDK il campo è `replyTo` (camelCase).
+      // Se ti dà errore di typing, aggiorna la lib `resend`.
+      replyTo: email,
     });
 
     if (error) {
@@ -158,14 +222,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
-
-// Escape HTML semplice
-function escapeHtml(str: string) {
-  return str
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }

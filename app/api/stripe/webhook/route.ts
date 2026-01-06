@@ -15,9 +15,9 @@ export const dynamic = "force-dynamic";
  *
  * ENV richieste per EMAIL (Resend):
  * - RESEND_API_KEY
- * - ORDERS_FROM              (es. "Polinex <noreply@polinex.it>" oppure "onboarding@resend.dev" in test)
+ * - ORDERS_FROM              (es. "Polinex <onboarding@resend.dev>" in test)
  * - ORDERS_BCC (opzionale)   (es. "info@polinex.it") per copia interna
- * - NEXT_PUBLIC_SITE_URL     (per link download / link pagina success)
+ * - NEXT_PUBLIC_SITE_URL     (consigliato: per link download / link pagina success)
  *
  * (fallback dal tuo .env):
  * - CONTACT_FROM / CONTACT_TO
@@ -65,8 +65,8 @@ function getOrdersFrom() {
   const b = process.env.CONTACT_FROM;
   if (typeof b === "string" && b.trim()) return b.trim();
 
-  // fallback “dev safe”
-  return "onboarding@resend.dev";
+  // fallback “dev safe” (no domain verification needed)
+  return "Polinex <onboarding@resend.dev>";
 }
 
 function getOrdersBcc() {
@@ -129,7 +129,7 @@ async function resendSendEmail(args: {
     html: args.html,
   };
 
-  // Resend accetta string o array, qui usiamo array per coerenza
+  // Resend accetta string o array: qui usiamo array per coerenza
   if (args.bcc && args.bcc.trim()) payload.bcc = [args.bcc.trim()];
   if (args.replyTo && args.replyTo.trim()) payload.reply_to = args.replyTo.trim();
 
@@ -176,8 +176,8 @@ function buildPriceMap() {
       typeof b.stripePriceIdPdf === "string" && b.stripePriceIdPdf.trim()
         ? b.stripePriceIdPdf.trim()
         : typeof b.stripePriceId === "string" && b.stripePriceId.trim()
-        ? b.stripePriceId.trim()
-        : "";
+          ? b.stripePriceId.trim()
+          : "";
 
     const printPid =
       typeof b.stripePriceIdPrint === "string" && b.stripePriceIdPrint.trim()
@@ -334,8 +334,8 @@ function buildCustomerEmailHtml(args: {
             .map(
               (d) => `<div style="margin:6px 0;font-size:14px;">
                 <a href="${d.url}" style="color:#0f766e;text-decoration:underline;">${escapeHtml(
-                d.title
-              )}</a>
+                  d.title
+                )}</a>
                 <span style="color:#64748b;font-size:12px;">(Qtà ${d.qty})</span>
               </div>`
             )
@@ -344,7 +344,14 @@ function buildCustomerEmailHtml(args: {
             Se un link risultasse scaduto, riapri la pagina di conferma ordine.
           </div>
         </div>`
-      : "";
+      : baseUrl
+        ? ""
+        : `<div style="margin:16px 0;padding:14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;">
+            <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px;">Download PDF</div>
+            <div style="font-size:13px;color:#334155;">
+              I link di download non sono disponibili perché <code>NEXT_PUBLIC_SITE_URL</code> non è configurata.
+            </div>
+          </div>`;
 
   const shippingBlock = hasPrint
     ? `<div style="margin:16px 0;padding:14px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;">
@@ -357,7 +364,12 @@ function buildCustomerEmailHtml(args: {
 
   const hello = args.customerName ? `Ciao ${escapeHtml(args.customerName)},` : "Ciao,";
 
-  const title = hasPdf && hasPrint ? "Conferma ordine (PDF + Cartaceo)" : hasPrint ? "Conferma ordine (Cartaceo)" : "Conferma ordine (PDF)";
+  const title =
+    hasPdf && hasPrint
+      ? "Conferma ordine (PDF + Cartaceo)"
+      : hasPrint
+        ? "Conferma ordine (Cartaceo)"
+        : "Conferma ordine (PDF)";
 
   return `<!doctype html>
 <html>
@@ -464,8 +476,27 @@ async function findPrintfulOrderByExternalId(externalId: string) {
   return first ?? null;
 }
 
+/**
+ * ⚠️ Nota TypeScript:
+ * in alcune versioni dei types di Stripe, `shipping_details` può non essere presente su `Checkout.Session`.
+ * In runtime però esiste. Usiamo accesso “safe” via `any`.
+ */
 function pickShippingRecipient(session: Stripe.Checkout.Session): PrintfulRecipient | null {
-  const ship = session.shipping_details;
+  const ship = (session as any)?.shipping_details as
+    | {
+        name?: string | null;
+        phone?: string | null;
+        address?: {
+          line1?: string | null;
+          line2?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          country?: string | null;
+        } | null;
+      }
+    | undefined;
+
   const cust = session.customer_details;
 
   if (!ship?.address) return null;
@@ -596,7 +627,7 @@ async function handlePaidCheckoutSession(sessionId: string) {
   const purchased = await getPurchasedItemsFromSession(sessionId);
 
   // Se non riusciamo a mappare gli item (priceId non in BOOKS), inviamo comunque una mail “generica”
-  const safePurchased =
+  const safePurchased: Purchased[] =
     purchased.length > 0
       ? purchased
       : [
@@ -610,16 +641,17 @@ async function handlePaidCheckoutSession(sessionId: string) {
 
   const docs = await getInvoiceLinks(session);
 
-  // ✅ EMAIL cliente
+  // ✅ EMAIL cliente (non blocca mai il webhook)
   if (customerEmail) {
     const hasPrint = safePurchased.some((p) => p.variant === "print");
     const hasPdf = safePurchased.some((p) => p.variant === "pdf");
 
-    const subject = hasPdf && hasPrint
-      ? "Conferma ordine Polinex (PDF + Cartaceo)"
-      : hasPrint
-      ? "Conferma ordine Polinex (Cartaceo)"
-      : "Conferma ordine Polinex (PDF)";
+    const subject =
+      hasPdf && hasPrint
+        ? "Conferma ordine Polinex (PDF + Cartaceo)"
+        : hasPrint
+          ? "Conferma ordine Polinex (Cartaceo)"
+          : "Conferma ordine Polinex (PDF)";
 
     const html = buildCustomerEmailHtml({
       customerName,
@@ -632,23 +664,34 @@ async function handlePaidCheckoutSession(sessionId: string) {
     });
 
     const bcc = getOrdersBcc();
-    await resendSendEmail({
-      to: customerEmail,
-      subject,
-      html,
-      bcc: bcc || undefined,
-      replyTo: process.env.CONTACT_TO?.trim() || undefined,
-    });
+
+    try {
+      const out = await resendSendEmail({
+        to: customerEmail,
+        subject,
+        html,
+        bcc: bcc || undefined,
+        replyTo: process.env.CONTACT_TO?.trim() || undefined,
+      });
+      console.log("RESEND OK:", { sessionId, to: customerEmail, id: out?.id ?? out?.data?.id });
+    } catch (e) {
+      // Importantissimo: non mandiamo 500 al webhook, altrimenti Stripe ritenta e ti “sporca” i log.
+      console.error("RESEND ERROR:", e, { sessionId, to: customerEmail, from: getOrdersFrom() });
+    }
   } else {
     console.warn("WEBHOOK: customer email mancante, salto invio email cliente.", { sessionId });
   }
 
   // ✅ Printful opzionale (rimane spento se PRINTFUL_API_KEY mancante)
   if (getPrintfulApiKey()) {
-    const result = await createPrintfulOrderForSession(sessionId);
-    if (!result.ok) console.warn("PRINTFUL ORDER SKIPPED/FAILED:", result);
-    else if ((result as any).created) console.log("PRINTFUL ORDER CREATED:", result);
-    else console.log("PRINTFUL ORDER NOT CREATED:", result);
+    try {
+      const result = await createPrintfulOrderForSession(sessionId);
+      if (!result.ok) console.warn("PRINTFUL ORDER SKIPPED/FAILED:", result);
+      else if ((result as any).created) console.log("PRINTFUL ORDER CREATED:", result);
+      else console.log("PRINTFUL ORDER NOT CREATED:", result);
+    } catch (e) {
+      console.error("PRINTFUL ERROR:", e, { sessionId });
+    }
   }
 
   return { ok: true };
@@ -684,7 +727,6 @@ export async function POST(req: Request) {
         const sessionId = session?.id;
         if (!sessionId) break;
 
-        // ✅ Step A: email automatiche (+ Printful opzionale)
         await handlePaidCheckoutSession(sessionId);
         break;
       }

@@ -255,24 +255,57 @@ export const BOOKS: Book[] = [
     ],
   },
   {
-    slug: "ingegneria-fluviale",
-    title: "Ingegneria Fluviale",
+    slug: "ingegneria-acque-reflue",
+    title: "Ingegneria delle Acque Reflue",
     subtitle: "Principi teorici e criteri di dimensionamento con esercizi svolti",
     area: "Acqua",
     description:
-      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile-idraulica.",
+      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile e Ambientale.",
 
     pdfPrice: 25,
     printPrice: computePrintPrice(25),
 
     format: "PDF",
-    pages: 168,
+    pages: 250,
     year: 2026,
-    cover: "/editoria/covers/ingegneria-fluviale.jpg",
-    previewUrl: "/editoria/preview/ingegneria-fluviale.pdf",
-    pdfFile: "books/ingegneria-fluviale.pdf",
+    cover: "/editoria/covers/ingegneria-acque-reflue.jpg",
+    previewUrl: "/editoria/preview/ingegneria-acque-reflue.pdf",
+    pdfFile: "books/ingegneria-acque-reflue.pdf",
 
-    stripePriceIdPdf: "price_1Sk3ca0J6S97fNguBYBYcDwA",
+    stripePriceIdPdf: "price_1SmHCY0ptm7j4apbbOUZ43dW",
+    stripePriceIdPrint: "price_1SkA130J6S97fNguedj4EAVE",
+
+    printfulSyncVariantId: undefined,
+
+    authors: [
+      {
+        name: "Ing. Andrea Granara",
+        role: "Ingegnere Idraulico",
+        photo: "/editoria/authors/andrea-granara.jpg",
+        email: "andrea.granara@polinex.com",
+        linkedin: "https://linkedin.com/in/andrea-granara",
+      },
+    ],
+  },
+  {
+    slug: "ingegneria-falde-acquifere",
+    title: "Ingegneria delle Falde Acquifere",
+    subtitle: "Principi teorici e criteri di dimensionamento con esercizi svolti",
+    area: "Acqua",
+    description:
+      "Manuale tecnico per liberi professionisti e studenti di ingegneria civile e Ambientale.",
+
+    pdfPrice: 25,
+    printPrice: computePrintPrice(25),
+
+    format: "PDF",
+    pages: 250,
+    year: 2026,
+    cover: "/editoria/covers/ingegneria-falde-acquifere.jpg",
+    previewUrl: "/editoria/preview/ingegneria-falde-acquifere.pdf",
+    pdfFile: "books/ingegneria-falde-acquifere.pdf",
+
+    stripePriceIdPdf: "price_1SmHCY0ptm7j4apbbOUZ43dW",
     stripePriceIdPrint: "price_1SkA130J6S97fNguedj4EAVE",
 
     printfulSyncVariantId: undefined,
@@ -309,6 +342,82 @@ export const BOOKS: Book[] = [
     badge: "Best seller",
     previewUrl: "/editoria/preview/bonifica-siti-contaminati.pdf",
     pdfFile: "books/bonifica-siti-contaminati.pdf",
+
+    stripePriceIdPdf: "price_1SkA6x0J6S97fNgulPVbU0cc",
+    stripePriceIdPrint: "price_1SkA8X0J6S97fNgunEOajCov",
+
+    printfulSyncVariantId: undefined,
+
+    authors: [
+      {
+        name: "Dott.ssa Laura Bianchi",
+        role: "Esperta VIA/VAS",
+        photo: "/editoria/authors/laura-bianchi.jpg",
+        linkedin: "https://linkedin.com/in/laura-bianchi",
+      },
+      {
+        name: "Ing. Paolo Verdi",
+        role: "Coordinatore tecnico VIA",
+        photo: "/editoria/authors/paolo-verdi.jpg",
+      },
+    ],
+  },
+  {
+    slug: "autorizzazione-integrata-ambientale",
+    title: "Autorizzazione Integrata Ambientale",
+    subtitle: "Manuale operativo per consulenti e responsabili ambientali",
+    area: "Ambiente",
+    description:
+      "Un percorso operativo per la gestione completa dei procedimenti di Bonifica con particolare riferimento all'articolo 242-ter D.Lgs. 152/06 che disciplina gli interventi realizzabili nei siti oggetto di procedimento di bonifica.",
+
+    pdfPrice: 30,
+    printPrice: computePrintPrice(30),
+
+    format: "Cartaceo + PDF",
+    pages: 320,
+    year: 2026,
+    cover: "/editoria/covers/autorizzazione-integrata-ambientale.jpg",
+    badge: "Best seller",
+    previewUrl: "/editoria/preview/autorizzazione-integrata-ambientale.pdf",
+    pdfFile: "books/autorizzazione-integrata-ambientale.pdf",
+
+    stripePriceIdPdf: "price_1SkA6x0J6S97fNgulPVbU0cc",
+    stripePriceIdPrint: "price_1SkA8X0J6S97fNgunEOajCov",
+
+    printfulSyncVariantId: undefined,
+
+    authors: [
+      {
+        name: "Dott.ssa Laura Bianchi",
+        role: "Esperta VIA/VAS",
+        photo: "/editoria/authors/laura-bianchi.jpg",
+        linkedin: "https://linkedin.com/in/laura-bianchi",
+      },
+      {
+        name: "Ing. Paolo Verdi",
+        role: "Coordinatore tecnico VIA",
+        photo: "/editoria/authors/paolo-verdi.jpg",
+      },
+    ],
+  },
+  {
+    slug: "diagnosi-ambientale-aziendale",
+    title: "Diagnosi Ambientale Aziendale",
+    subtitle: "Manuale operativo per consulenti e responsabili ambientali",
+    area: "Ambiente",
+    description:
+      "Un percorso operativo per la gestione completa dei procedimenti di Bonifica con particolare riferimento all'articolo 242-ter D.Lgs. 152/06 che disciplina gli interventi realizzabili nei siti oggetto di procedimento di bonifica.",
+
+    pdfPrice: 30,
+    printPrice: computePrintPrice(30),
+
+    format: "Cartaceo + PDF",
+    pages: 320,
+    year: 2026,
+    cover: "/editoria/covers/diagnosi-ambientale-aziendale.jpg",
+    badge: "Best seller",
+    previewUrl: "/editoria/preview/diagnosi-ambientale-aziendale.pdf",
+    pdfFile: "books/diagnosi-ambientale-aziendale.pdf",
 
     stripePriceIdPdf: "price_1SkA6x0J6S97fNgulPVbU0cc",
     stripePriceIdPrint: "price_1SkA8X0J6S97fNgunEOajCov",

@@ -1,13 +1,17 @@
+// app/components/Nav.tsx
 "use client";
 
 import Link from "next/link";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 // ✅ carrello globale (polinex_cart_v1) + evento (polinex_cart_updated)
 import { getCount, CART_EVENT } from "@/app/lib/cart";
+
+// ✅ aree consulenza (architettura /consulenza/[slug])
+import { CONSULENZA_AREAS } from "@/app/consulenza/_data";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -34,18 +38,64 @@ export default function Nav() {
   // ✅ Badge carrello (count totale)
   const [cartCount, setCartCount] = useState(0);
 
+  // ✅ Consulenza items derivati da CONSULENZA_AREAS
+  const consulenzaItems = useMemo(
+    () =>
+      CONSULENZA_AREAS.map((a) => ({
+        href: `/consulenza/${a.slug}`,
+        label:
+          a.area === "Edilizia e Infrastrutture"
+            ? "Edilizia e Infrastrutture"
+            : a.area,
+      })),
+    []
+  );
+
+  // ✅ pagina "Consulenza" non esiste: puntiamo alla prima area
+  const consulenzaBaseHref = useMemo(
+    () => consulenzaItems[0]?.href ?? "/",
+    [consulenzaItems]
+  );
+
+  // Sottomenu SERVIZI (app/servizi/*)
+  const serviziItems = useMemo(
+    () =>
+      [
+        { href: "/servizi/formazione", label: "Formazione" },
+        { href: "/servizi/gestionali", label: "Gestionali" },
+        { href: "/servizi/coworking", label: "Coworking" },
+        { href: "/servizi/editoria", label: "Editoria" },
+      ] as const,
+    []
+  );
+
+  // Voci top-level coerenti con architettura (NO /consulenza)
+  const topLinks = useMemo(
+    () =>
+      [
+        { href: "/", label: "Home" },
+        // ✅ NOTA: niente /consulenza; serve solo per "active" e JSON-LD
+        { href: consulenzaBaseHref, label: "Consulenza", isDropdown: true },
+        { href: "/servizi", label: "Servizi", isDropdown: true },
+        // ✅ PATH CORRETTO: app/finanziamenti/page.tsx -> /finanziamenti
+        { href: "/finanziamenti", label: "Bandi e Finanziamenti" },
+        { href: "/portfolio", label: "Portfolio" },
+        { href: "/chi-siamo", label: "Chi siamo" },
+        { href: "/lavora-con-noi", label: "Lavora con noi" },
+        { href: "/contatti", label: "Contatti" },
+      ] as const,
+    [consulenzaBaseHref]
+  );
+
   // Init + listeners carrello
   useEffect(() => {
     const sync = () => setCartCount(getCount());
     sync();
 
-    // 1) cambia tab / finestra
     const onStorage = (e: StorageEvent) => {
-      // se cambia localStorage del carrello in un'altra tab, aggiorna
       if (e.key === "polinex_cart_v1") sync();
     };
 
-    // 2) stessa tab: evento custom emesso da app/lib/cart
     const onCartEvent = () => sync();
 
     window.addEventListener("storage", onStorage);
@@ -88,68 +138,42 @@ export default function Nav() {
   const consulenzaIsActive = pathname?.startsWith("/consulenza");
   const serviziIsActive = pathname?.startsWith("/servizi");
 
-  // Sottomenu CONSULENZA (app/consulenza/*)
-  const consulenzaItems = [
-    { href: "/consulenza/acqua", label: "Acqua" },
-    { href: "/consulenza/ambiente", label: "Ambiente" },
-    { href: "/consulenza/energia", label: "Energia" },
-    { href: "/consulenza/agricoltura", label: "Agricoltura" },
-    { href: "/consulenza/sicurezza", label: "Sicurezza" },
-    { href: "/consulenza/edilizia", label: "Edilizia e Infrastrutture" },
-    { href: "/finanziamenti", label: "Bandi e Finanziamenti" },
-  ] as const;
-
-  // Sottomenu SERVIZI (app/servizi/*)
-  const serviziItems = [
-    { href: "/servizi/formazione", label: "Formazione" },
-    { href: "/servizi/gestionali", label: "Gestionali" },
-    { href: "/servizi/coworking", label: "Coworking" },
-    { href: "/servizi/editoria", label: "Editoria" },
-  ] as const;
-
-  // Voci top-level richieste
-  const topLinks: { href: string; label: string; isDropdown?: boolean }[] = [
-    { href: "/", label: "Home" },
-    { href: "/consulenza", label: "Consulenza", isDropdown: true },
-    { href: "/servizi", label: "Servizi", isDropdown: true },
-    { href: "/finanziamenti", label: "Bandi e Finanziamenti" },
-    { href: "/portfolio", label: "Portfolio" },
-    { href: "/chi-siamo", label: "Chi siamo" },
-    { href: "/lavora-con-noi", label: "Lavora con noi" },
-    { href: "/contatti", label: "Contatti" },
-  ];
-
-  // JSON-LD per SiteNavigationElement
-  const ldNav = {
-    "@context": "https://schema.org",
-    "@type": "SiteNavigationElement",
-    name: [
-      "Home",
-      "Consulenza",
-      ...consulenzaItems.map((s) => s.label),
-      "Servizi",
-      ...serviziItems.map((s) => s.label),
-      "Bandi e Finanziamenti",
-      "Portfolio",
-      "Chi siamo",
-      "Lavora con noi",
-      "Contatti",
-      "Carrello",
-    ],
-    url: [
-      "/",
-      "/consulenza",
-      ...consulenzaItems.map((s) => s.href),
-      "/servizi",
-      ...serviziItems.map((s) => s.href),
-      "/finanziamenti",
-      "/portfolio",
-      "/chi-siamo",
-      "/lavora-con-noi",
-      "/contatti",
-      "/carrello",
-    ],
-  };
+  // JSON-LD per SiteNavigationElement (NO /consulenza)
+  const ldNav = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "SiteNavigationElement",
+      name: [
+        "Home",
+        "Consulenza",
+        ...consulenzaItems.map((s) => s.label),
+        "Servizi",
+        ...serviziItems.map((s) => s.label),
+        "Bandi e Finanziamenti",
+        "Portfolio",
+        "Chi siamo",
+        "Lavora con noi",
+        "Contatti",
+        "Carrello",
+      ],
+      url: [
+        "/",
+        // ✅ al posto di /consulenza, mettiamo la prima area (o "/")
+        consulenzaBaseHref,
+        ...consulenzaItems.map((s) => s.href),
+        "/servizi",
+        ...serviziItems.map((s) => s.href),
+        // ✅ PATH CORRETTO
+        "/finanziamenti",
+        "/portfolio",
+        "/chi-siamo",
+        "/lavora-con-noi",
+        "/contatti",
+        "/carrello",
+      ],
+    }),
+    [consulenzaBaseHref, consulenzaItems, serviziItems]
+  );
 
   // Helpers hover-intent (desktop)
   const openConsulenza = () => {
@@ -190,17 +214,12 @@ export default function Nav() {
           <div className="flex-1" />
 
           {/* Navigazione desktop centrata */}
-          <nav
-            className="flex justify-center"
-            aria-label="Navigazione principale"
-          >
+          <nav className="flex justify-center" aria-label="Navigazione principale">
             <ul className="flex items-center gap-6 lg:gap-8 text-sm">
               {/* Home */}
               <li>
                 <Link
-                  className={`nav-link inline-flex items-center h-16 ${isActive(
-                    "/"
-                  )}`}
+                  className={`nav-link inline-flex items-center h-16 ${isActive("/")}`}
                   href="/"
                   aria-current={pathname === "/" ? "page" : undefined}
                 >
@@ -208,37 +227,48 @@ export default function Nav() {
                 </Link>
               </li>
 
-              {/* Dropdown Consulenza */}
+              {/* Dropdown Consulenza (clic porta alla prima area) */}
               <li
                 className="relative"
                 onMouseEnter={openConsulenza}
                 onMouseLeave={closeConsulenza}
               >
-                <button
-                  type="button"
-                  className={`nav-link inline-flex items-center h-16 ${
-                    consulenzaIsActive
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-700"
-                  }`}
-                  aria-haspopup="menu"
-                  aria-expanded={consulenzaOpen}
-                  aria-controls="menu-consulenza"
-                  onFocus={openConsulenza}
-                  onBlur={closeConsulenza}
-                >
-                  Consulenza
-                  <svg
-                    className={`ml-1 h-3 w-3 transition-transform ${
-                      consulenzaOpen ? "rotate-180" : ""
+                <div className="flex items-center h-16">
+                  <Link
+                    href={consulenzaBaseHref}
+                    className={`nav-link inline-flex items-center h-16 pr-1 ${
+                      consulenzaIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
                     }`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
+                    aria-current={consulenzaIsActive ? "page" : undefined}
                   >
-                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
-                  </svg>
-                </button>
+                    Consulenza
+                  </Link>
+
+                  <button
+                    type="button"
+                    className={`nav-link inline-flex items-center h-16 pl-1 ${
+                      consulenzaIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
+                    }`}
+                    aria-label="Apri menu Consulenza"
+                    aria-haspopup="menu"
+                    aria-expanded={consulenzaOpen}
+                    aria-controls="menu-consulenza"
+                    onClick={() => setConsulenzaOpen((v) => !v)}
+                    onFocus={openConsulenza}
+                    onBlur={closeConsulenza}
+                  >
+                    <svg
+                      className={`h-3 w-3 transition-transform ${
+                        consulenzaOpen ? "rotate-180" : ""
+                      }`}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
+                    </svg>
+                  </button>
+                </div>
 
                 <div
                   id="menu-consulenza"
@@ -276,17 +306,11 @@ export default function Nav() {
               </li>
 
               {/* Dropdown Servizi */}
-              <li
-                className="relative"
-                onMouseEnter={openServizi}
-                onMouseLeave={closeServizi}
-              >
+              <li className="relative" onMouseEnter={openServizi} onMouseLeave={closeServizi}>
                 <button
                   type="button"
                   className={`nav-link inline-flex items-center h-16 ${
-                    serviziIsActive
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-700"
+                    serviziIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
                   }`}
                   aria-haspopup="menu"
                   aria-expanded={serviziOpen}
@@ -348,9 +372,7 @@ export default function Nav() {
                 .map(({ href, label }) => (
                   <li key={href}>
                     <Link
-                      className={`nav-link inline-flex items-center h-16 ${isActive(
-                        href
-                      )}`}
+                      className={`nav-link inline-flex items-center h-16 ${isActive(href)}`}
                       href={href}
                       aria-current={pathname === href ? "page" : undefined}
                     >
@@ -502,37 +524,45 @@ export default function Nav() {
                 </Link>
               </li>
 
-              {/* Consulenza mobile */}
+              {/* Consulenza mobile (header link -> prima area) */}
               <li className="mt-1">
-                <button
-                  className={`w-full flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${
-                    consulenzaIsActive
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-700"
-                  }`}
-                  aria-expanded={consulenzaMobileOpen}
-                  aria-controls="mobile-consulenza"
-                  onClick={() => setConsulenzaMobileOpen((v) => !v)}
-                >
-                  <span>Consulenza</span>
-                  <svg
-                    className={`ml-2 h-4 w-4 transition-transform ${
-                      consulenzaMobileOpen ? "rotate-180" : ""
+                <div className="flex items-stretch gap-2">
+                  <Link
+                    href={consulenzaBaseHref}
+                    className={`flex-1 flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${
+                      consulenzaIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
                     }`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
+                    aria-current={consulenzaIsActive ? "page" : undefined}
                   >
-                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
-                  </svg>
-                </button>
+                    <span>Consulenza</span>
+                  </Link>
+
+                  <button
+                    className={`shrink-0 inline-flex items-center justify-center rounded-xl px-3 py-3 hover:bg-slate-50 ${
+                      consulenzaIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
+                    }`}
+                    aria-label="Apri elenco aree Consulenza"
+                    aria-expanded={consulenzaMobileOpen}
+                    aria-controls="mobile-consulenza"
+                    onClick={() => setConsulenzaMobileOpen((v) => !v)}
+                  >
+                    <svg
+                      className={`h-4 w-4 transition-transform ${
+                        consulenzaMobileOpen ? "rotate-180" : ""
+                      }`}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 111.04 1.08l-4.24 3.38a.75.75 0 01-.94 0L5.21 8.31a.75.75 0 01.02-1.1z" />
+                    </svg>
+                  </button>
+                </div>
 
                 <div
                   id="mobile-consulenza"
                   className={`grid transition-[grid-template-rows,opacity] duration-200 ${
-                    consulenzaMobileOpen
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
+                    consulenzaMobileOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
@@ -561,9 +591,7 @@ export default function Nav() {
               <li className="mt-1">
                 <button
                   className={`w-full flex items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-50 ${
-                    serviziIsActive
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-700"
+                    serviziIsActive ? "text-slate-900 font-semibold" : "text-slate-700"
                   }`}
                   aria-expanded={serviziMobileOpen}
                   aria-controls="mobile-servizi"
@@ -585,9 +613,7 @@ export default function Nav() {
                 <div
                   id="mobile-servizi"
                   className={`grid transition-[grid-template-rows,opacity] duration-200 ${
-                    serviziMobileOpen
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
+                    serviziMobileOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
@@ -617,7 +643,7 @@ export default function Nav() {
 
               {/* Altre voci */}
               {topLinks
-                .filter((l) => l.label !== "Home" && !l.isDropdown)
+                .filter((l) => !l.isDropdown && l.label !== "Home")
                 .map(({ href, label }) => (
                   <li key={href} className="mt-1">
                     <Link
@@ -655,8 +681,7 @@ export default function Nav() {
           {/* Footer sheet */}
           <div className="mt-auto px-4 pb-4">
             <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600">
-              <span className="font-semibold text-slate-900">Tip:</span> Tocca
-              fuori dal pannello per chiudere.
+              <span className="font-semibold text-slate-900">Tip:</span> Tocca fuori dal pannello per chiudere.
             </div>
           </div>
         </div>

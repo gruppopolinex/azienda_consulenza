@@ -19,6 +19,9 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 
+// ✅ Portfolio data source (NUOVA SOURCE)
+import { PROJECTS, type Project } from "./portfolio/_data";
+
 /** ✅ ANCHOR CORRETTO per le 4 card Coworking / Formazione / Editoria / Gestionali */
 const PRODUCTS_ANCHOR = "prodotti"; // -> usa /#prodotti ovunque
 
@@ -63,18 +66,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                <h1 className="hero-title">
-                  Ingegneria e Consulenza Civile e Ambientale
-                </h1>
+                <h1 className="hero-title">Ingegneria e Consulenza Civile e Ambientale</h1>
                 <p className="hero-subtitle mt-4">
-                  Dalla diagnosi alla realizzazione: progetti, autorizzazioni e
-                  gestione operativa con un unico referente.
+                  Dalla diagnosi alla realizzazione: progetti, autorizzazioni e gestione
+                  operativa con un unico referente.
                 </p>
 
                 <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                   <Link href="/contatti" className="btn-hero">
-                    Richiedi una consulenza{" "}
-                    <ChevronRight className="ml-2 h-4 w-4" />
+                    Richiedi una consulenza <ChevronRight className="ml-2 h-4 w-4" />
                   </Link>
 
                   {/* 6 aree + finanza agevolata */}
@@ -160,25 +160,25 @@ export default function Home() {
               {
                 name: "ARIBO srl",
                 href: "https://www.aribo.it/",
-                logo: "/partners/aribo.jpg",
+                logo: "/partners/aribo.png",
                 alt: "Logo ARIBO srl",
               },
               {
                 name: "Geolavori srl",
                 href: "https://www.geolavori.it/",
-                logo: "/partners/geolavori.jpg",
+                logo: "/partners/geolavori.png",
                 alt: "Logo Geolavori srl",
               },
               {
                 name: "Agrolab srl",
                 href: "https://www.agrolab.com/",
-                logo: "/partners/agrolab.jpg",
+                logo: "/partners/agrolab.png",
                 alt: "Logo Agrolab srl",
               },
               {
                 name: "Siram Veolia spa",
                 href: "https://www.siram.veolia.it/",
-                logo: "/partners/siram-veolia.jpg",
+                logo: "/partners/siram-veolia.png",
                 alt: "Logo Siram Veolia",
               },
             ]}
@@ -189,10 +189,7 @@ export default function Home() {
       {/* ============ CTA ============ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
         <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10">
-          <SectionHeader
-            title="Parliamo del tuo progetto"
-            subtitle="Ti rispondiamo entro 1 giorno lavorativo."
-          />
+          <SectionHeader title="Parliamo del tuo progetto" subtitle="Ti rispondiamo entro 1 giorno lavorativo." />
           <div className="mt-4 flex justify-center">
             <Link
               href="/contatti"
@@ -278,14 +275,9 @@ export default function Home() {
 }
 
 /* ==================== TIPI & DATI ==================== */
-type Category =
-  | "Acqua"
-  | "Ambiente"
-  | "Energia"
-  | "Agricoltura"
-  | "Sicurezza"
-  | "Edilizia e Infrastrutture"
-  | "Bandi e Finanziamenti";
+
+// ✅ categorie allineate a app/portfolio/_data.ts
+type Category = Project["category"];
 
 type Study = {
   slug: string;
@@ -295,64 +287,14 @@ type Study = {
   client: string;
 };
 
-const STUDIES: Study[] = [
-  {
-    slug: "acqua-monitoraggi",
-    title: "Monitoraggi idrici multi-pozzo",
-    category: "Acqua",
-    location: "Padova (PD)",
-    client: "Consorzio di Bonifica",
-  },
-  {
-    slug: "acqua-potabilizzazione",
-    title: "Adeguamento impianto di potabilizzazione",
-    category: "Acqua",
-    location: "Treviso (TV)",
-    client: "Gestore Idrico",
-  },
-  {
-    slug: "ambiente-via",
-    title: "Screening ambientale per ampliamento produttivo (VIA)",
-    category: "Ambiente",
-    location: "Venezia (VE)",
-    client: "Manifattura locale",
-  },
-  {
-    slug: "energia-audit",
-    title: "Audit energetico ISO 50001",
-    category: "Energia",
-    location: "Vicenza (VI)",
-    client: "Azienda Metalmeccanica",
-  },
-  {
-    slug: "agricoltura-nitrati",
-    title: "Piano di gestione nitrati in ZVN",
-    category: "Agricoltura",
-    location: "Rovigo (RO)",
-    client: "Azienda Agricola",
-  },
-  {
-    slug: "sicurezza-cantieri",
-    title: "Coordinamento sicurezza in cantiere (CSP/CSE)",
-    category: "Sicurezza",
-    location: "Mestre (VE)",
-    client: "Impresa edile",
-  },
-  {
-    slug: "edilizia-riqualificazione",
-    title: "Riqualificazione strutturale con adeguamento sismico",
-    category: "Edilizia e Infrastrutture",
-    location: "Verona (VR)",
-    client: "Proprietà immobiliare",
-  },
-  {
-    slug: "bandi-psr",
-    title: "PSR e PNRR: domanda finanziamento per efficienza impianti",
-    category: "Bandi e Finanziamenti",
-    location: "Padova (PD)",
-    client: "PMI Agroalimentare",
-  },
-];
+// ✅ sorgente unica: PROJECTS
+const STUDIES: Study[] = PROJECTS.map((p) => ({
+  slug: p.slug,
+  title: p.title,
+  category: p.category,
+  location: p.location,
+  client: p.client,
+}));
 
 const FILTERS = [
   "Tutti",
@@ -366,7 +308,8 @@ const FILTERS = [
 ] as const;
 type Filter = (typeof FILTERS)[number];
 
-const cover = (slug: string) => `/portfolio/${slug}/gallery-01.jpg`;
+// ✅ le copertine sono gallery-01.* (nel tuo caso .png)
+const cover = (slug: string) => `/portfolio/${slug}/gallery-01.png`;
 
 /* ==================== COMPONENTI ==================== */
 
@@ -396,7 +339,7 @@ function SectionHeader({
   );
 }
 
-/* ========= SmartImage: prova .jpg, se errore tenta .JPG ========= */
+/* ========= SmartImage: prova .png/.PNG, poi .jpg/.JPG ========= */
 function SmartImage({
   srcJpg,
   alt,
@@ -413,7 +356,35 @@ function SmartImage({
   priority?: boolean;
 }) {
   const [src, setSrc] = useState(srcJpg);
-  const triedUpper = useRef(false);
+
+  // tentativi in cascata (supporta PNG/JPG e maiuscole)
+  const tried = useRef<Record<string, boolean>>({});
+
+  const nextFallback = useCallback((current: string) => {
+    const candidates: string[] = [];
+
+    if (current.match(/\.png$/i)) {
+      candidates.push(current.replace(/\.png$/i, ".PNG"));
+      candidates.push(current.replace(/\.png$/i, ".jpg"));
+      candidates.push(current.replace(/\.png$/i, ".JPG"));
+    } else if (current.match(/\.jpg$/i)) {
+      candidates.push(current.replace(/\.jpg$/i, ".JPG"));
+      candidates.push(current.replace(/\.jpg$/i, ".png"));
+      candidates.push(current.replace(/\.jpg$/i, ".PNG"));
+    } else {
+      candidates.push(
+        `${current}.png`,
+        `${current}.PNG`,
+        `${current}.jpg`,
+        `${current}.JPG`
+      );
+    }
+
+    for (const c of candidates) {
+      if (!tried.current[c]) return c;
+    }
+    return null;
+  }, []);
 
   return (
     <Image
@@ -424,10 +395,9 @@ function SmartImage({
       priority={priority}
       className={className}
       onError={() => {
-        if (!triedUpper.current) {
-          triedUpper.current = true;
-          setSrc(srcJpg.replace(/\.jpg$/i, ".JPG"));
-        }
+        tried.current[src] = true;
+        const n = nextFallback(src);
+        if (n) setSrc(n);
       }}
     />
   );
@@ -615,12 +585,13 @@ function ServicesMosaicCompact() {
               </h3>
 
               <p className="mt-3 text-sm text-slate-600 max-w-prose">
-                Ti aiutiamo a capire se il tuo progetto è finanziabile e quali
-                opportunità sono realmente applicabili.
+                Ti aiutiamo a capire se il tuo progetto è finanziabile e quali opportunità
+                sono realmente applicabili.
               </p>
             </div>
 
             <div className="mt-6">
+              {/* ✅ PATH CORRETTO: app/finanziamenti/page.tsx -> /finanziamenti */}
               <Link
                 href="/finanziamenti"
                 className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-white font-semibold hover:bg-emerald-700 transition"
@@ -629,8 +600,7 @@ function ServicesMosaicCompact() {
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </Link>
               <p className="mt-3 text-[11px] text-slate-500 text-center">
-                Link a:{" "}
-                <span className="font-medium">app/finanziamenti/page.tsx</span>
+                Link a: <span className="font-medium">app/finanziamenti/page.tsx</span>
               </p>
             </div>
           </div>
@@ -763,11 +733,7 @@ function ServiceTileCompact({
   desc: string;
 }) {
   return (
-    <Link
-      href={`/${slug}`}
-      className="group block focus:outline-none"
-      aria-label={title}
-    >
+    <Link href={`/${slug}`} className="group block focus:outline-none" aria-label={title}>
       <FlippableCard title={title} img={img} desc={desc} />
     </Link>
   );
@@ -777,10 +743,7 @@ function ServiceTileCompact({
 function StudiesWithFilter() {
   const [filter, setFilter] = useState<Filter>("Tutti");
   const filtered = useMemo(
-    () =>
-      filter === "Tutti"
-        ? STUDIES
-        : STUDIES.filter((s) => s.category === filter),
+    () => (filter === "Tutti" ? STUDIES : STUDIES.filter((s) => s.category === filter)),
     [filter]
   );
 
@@ -888,9 +851,7 @@ function StudiesCarousel({ items }: { items: Study[] }) {
 
 function StudyCard({ study }: { study: Study }) {
   const router = useRouter();
-  const mapsHref = `https://www.google.com/maps?q=${encodeURIComponent(
-    study.location
-  )}`;
+  const mapsHref = `https://www.google.com/maps?q=${encodeURIComponent(study.location)}`;
 
   return (
     <div className="snap-start shrink-0 w-[320px] sm:w-[360px] md:w-[400px] rounded-2xl border border-slate-200 bg-white overflow-hidden hover:shadow-sm transition">
