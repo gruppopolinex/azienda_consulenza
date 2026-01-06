@@ -41,7 +41,7 @@ import Footer from "../../components/Footer";
 import { getConsulenzaAreaBySlug, type ConsulenzaIconKey } from "../_data";
 
 // ✅ Bandi & finanziamenti (SOURCE DATA)
-import { GRANTS, type Grant } from "../../finanziamenti/_data";
+import { GRANTS, type Grant, type Area as GrantsArea } from "../../finanziamenti/_data";
 
 // Formazione
 import { COURSES, type Course } from "../../servizi/formazione/_data";
@@ -54,26 +54,25 @@ import { PROJECTS, type Project } from "../../portfolio/_data";
 
 /* ===================== ICON MAP ===================== */
 
-const ICONS: Record<ConsulenzaIconKey, React.ComponentType<{ className?: string }>> =
-  {
-    Droplets,
-    Waves,
-    Factory,
-    Leaf,
-    AlertTriangle,
-    FileSearch,
-    Building2,
-    Hammer,
-    FileText,
-    ClipboardList,
-    Zap,
-    ThermometerSun,
-    Wind,
-    ShieldCheck,
-    HardHat,
-    Flame,
-    Users,
-  };
+const ICONS: Record<ConsulenzaIconKey, React.ComponentType<{ className?: string }>> = {
+  Droplets,
+  Waves,
+  Factory,
+  Leaf,
+  AlertTriangle,
+  FileSearch,
+  Building2,
+  Hammer,
+  FileText,
+  ClipboardList,
+  Zap,
+  ThermometerSun,
+  Wind,
+  ShieldCheck,
+  HardHat,
+  Flame,
+  Users,
+};
 
 /* ===================== TYPES ===================== */
 
@@ -99,6 +98,18 @@ function fmtDate(iso?: string) {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("it-IT");
 }
 
+/* ===================== TYPE-GUARDS ===================== */
+
+/**
+ * GRANTS.aree è tipizzato con un'unione (Area) nel file finanziamenti/_data.
+ * Qui convertiamo areaConfig.area (string) in modo type-safe.
+ */
+function isGrantsArea(v: unknown): v is GrantsArea {
+  if (typeof v !== "string") return false;
+  // check runtime sulla lista attuale (robusto anche se Area cambia)
+  return GRANTS.some((g) => (g.aree ?? []).includes(v as GrantsArea));
+}
+
 /* ===================== SMART IMAGE (multi-fallback) ===================== */
 
 function SmartImage({
@@ -117,7 +128,6 @@ function SmartImage({
   priority?: boolean;
 }) {
   const [idx, setIdx] = useState(0);
-
   const src = srcCandidates[Math.min(idx, srcCandidates.length - 1)];
 
   return (
@@ -128,9 +138,7 @@ function SmartImage({
       sizes={sizes}
       priority={priority}
       className={className}
-      onError={() => {
-        setIdx((v) => (v < srcCandidates.length - 1 ? v + 1 : v));
-      }}
+      onError={() => setIdx((v) => (v < srcCandidates.length - 1 ? v + 1 : v))}
     />
   );
 }
@@ -168,9 +176,7 @@ function MacroAreaCard({
       <div className="p-5 sm:p-6 flex flex-col gap-3">
         <div className="flex items-center gap-2 text-emerald-300">
           {icon}
-          <h3 className="font-semibold text-base sm:text-lg text-white">
-            {title}
-          </h3>
+          <h3 className="font-semibold text-base sm:text-lg text-white">{title}</h3>
         </div>
 
         <ul className="space-y-1.5 text-[13px] sm:text-sm text-white/95">
@@ -258,10 +264,7 @@ function HorizontalCarousel({ children }: { children: React.ReactNode }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={ref}
-        className="scrollbar-hide overflow-x-auto snap-x snap-mandatory"
-      >
+      <div ref={ref} className="scrollbar-hide overflow-x-auto snap-x snap-mandatory">
         <div className="flex gap-5 pr-4">{children}</div>
       </div>
     </div>
@@ -346,9 +349,7 @@ function GrantCard({ g, chipText }: { g: Grant; chipText: string }) {
           {g.territorio && <GrantMeta label="Territorio" value={g.territorio} />}
         </div>
 
-        {g.teaser && (
-          <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>
-        )}
+        {g.teaser && <p className="mt-3 text-sm text-slate-600 line-clamp-3">{g.teaser}</p>}
 
         <div className="mt-4 flex items-center justify-between">
           <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 px-3 py-1 text-[11px] font-semibold">
@@ -395,13 +396,9 @@ function CourseCard({ c, tag }: { c: Course; tag: string }) {
           {c.title}
         </h3>
 
-        {c.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>
-        )}
+        {c.subtitle && <p className="mt-1 text-sm text-emerald-700">{c.subtitle}</p>}
 
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {c.description}
-        </p>
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{c.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>
@@ -452,13 +449,9 @@ function BookCard({ b, tag }: { b: Book; tag: string }) {
           {b.title}
         </h3>
 
-        {b.subtitle && (
-          <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>
-        )}
+        {b.subtitle && <p className="mt-1 text-sm text-emerald-700">{b.subtitle}</p>}
 
-        <p className="mt-2 text-sm text-slate-600 line-clamp-3">
-          {b.description}
-        </p>
+        <p className="mt-2 text-sm text-slate-600 line-clamp-3">{b.description}</p>
 
         <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
           <span>
@@ -498,7 +491,12 @@ export default function ConsulenzaSlugPage({
 
   const grants = useMemo(() => {
     if (!areaConfig) return [];
-    return GRANTS.filter((g) => g.aree?.includes(areaConfig.area));
+
+    // ✅ area type-safe per GRANTS.aree (Area)
+    const area: GrantsArea | null = isGrantsArea(areaConfig.area) ? areaConfig.area : null;
+    if (!area) return [];
+
+    return GRANTS.filter((g) => (g.aree ?? []).includes(area));
   }, [areaConfig]);
 
   const courses = useMemo(() => {
@@ -514,14 +512,12 @@ export default function ConsulenzaSlugPage({
   // ✅ Portfolio: dati da PROJECTS
   const portfolio = useMemo<PortfolioItem[]>(() => {
     if (!areaConfig) return [];
-    return PROJECTS.filter((p: Project) => p.category === areaConfig.area).map(
-      (p: Project) => ({
-        slug: p.slug,
-        title: p.title,
-        location: p.location,
-        client: p.client,
-      })
-    );
+    return PROJECTS.filter((p: Project) => p.category === areaConfig.area).map((p: Project) => ({
+      slug: p.slug,
+      title: p.title,
+      location: p.location,
+      client: p.client,
+    }));
   }, [areaConfig]);
 
   if (!areaConfig) return null;
@@ -540,12 +536,7 @@ export default function ConsulenzaSlugPage({
         <section className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-0">
             <div className="relative w-40 h-16 sm:w-56 sm:h-24">
-              <Image
-                src="/logo.png"
-                alt="Polinex"
-                fill
-                className="object-contain"
-              />
+              <Image src="/logo.png" alt="Polinex" fill className="object-contain" />
             </div>
           </div>
 
@@ -575,12 +566,7 @@ export default function ConsulenzaSlugPage({
           <SectionHeader title={areaConfig.stepsTitle} />
           <div className="mt-4 grid gap-6 md:grid-cols-3">
             {areaConfig.steps.map((s) => (
-              <StepCard
-                key={s.step}
-                step={s.step}
-                title={s.title}
-                text={s.text}
-              />
+              <StepCard key={s.step} step={s.step} title={s.title} text={s.text} />
             ))}
           </div>
         </section>
@@ -617,11 +603,7 @@ export default function ConsulenzaSlugPage({
             <SectionHeader title={areaConfig.coursesTitle} />
             <HorizontalCarousel>
               {courses.map((c) => (
-                <CourseCard
-                  key={c.slug}
-                  c={c}
-                  tag={`Formazione area ${areaConfig.slug}`}
-                />
+                <CourseCard key={c.slug} c={c} tag={`Formazione area ${areaConfig.slug}`} />
               ))}
             </HorizontalCarousel>
 
@@ -643,11 +625,7 @@ export default function ConsulenzaSlugPage({
             <SectionHeader title={areaConfig.booksTitle} />
             <HorizontalCarousel>
               {books.map((b) => (
-                <BookCard
-                  key={b.slug}
-                  b={b}
-                  tag={`Manuale area ${areaConfig.slug}`}
-                />
+                <BookCard key={b.slug} b={b} tag={`Manuale area ${areaConfig.slug}`} />
               ))}
             </HorizontalCarousel>
 
@@ -669,11 +647,7 @@ export default function ConsulenzaSlugPage({
             <SectionHeader title={areaConfig.portfolioTitle} />
             <HorizontalCarousel>
               {portfolio.map((p) => (
-                <PortfolioCard
-                  key={p.slug}
-                  p={p}
-                  chip={areaConfig.portfolioChip}
-                />
+                <PortfolioCard key={p.slug} p={p} chip={areaConfig.portfolioChip} />
               ))}
             </HorizontalCarousel>
 
@@ -697,9 +671,7 @@ export default function ConsulenzaSlugPage({
             </h2>
 
             {areaConfig.ctaText && (
-              <p className="mt-3 text-slate-600 max-w-3xl mx-auto">
-                {areaConfig.ctaText}
-              </p>
+              <p className="mt-3 text-slate-600 max-w-3xl mx-auto">{areaConfig.ctaText}</p>
             )}
 
             <Link
