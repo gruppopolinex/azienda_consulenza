@@ -13,6 +13,29 @@ import { getCount, CART_EVENT } from "@/app/lib/cart";
 // ✅ aree consulenza (architettura /consulenza/[slug])
 import { CONSULENZA_AREAS } from "@/app/consulenza/_data";
 
+/* =========================
+   Types (fix TS union issue)
+========================= */
+
+type SimpleLink = {
+  href: string;
+  label: string;
+  isDropdown?: false;
+};
+
+type DropdownLink = {
+  href: string;
+  label: string;
+  isDropdown: true;
+};
+
+type TopLink = SimpleLink | DropdownLink;
+
+type MenuItem = {
+  href: string;
+  label: string;
+};
+
 export default function Nav() {
   const pathname = usePathname();
 
@@ -39,7 +62,7 @@ export default function Nav() {
   const [cartCount, setCartCount] = useState(0);
 
   // ✅ Consulenza items derivati da CONSULENZA_AREAS
-  const consulenzaItems = useMemo(
+  const consulenzaItems: MenuItem[] = useMemo(
     () =>
       CONSULENZA_AREAS.map((a) => ({
         href: `/consulenza/${a.slug}`,
@@ -58,7 +81,7 @@ export default function Nav() {
   );
 
   // Sottomenu SERVIZI (app/servizi/*)
-  const serviziItems = useMemo(
+  const serviziItems: readonly MenuItem[] = useMemo(
     () =>
       [
         { href: "/servizi/formazione", label: "Formazione" },
@@ -70,7 +93,8 @@ export default function Nav() {
   );
 
   // Voci top-level coerenti con architettura (NO /consulenza)
-  const topLinks = useMemo(
+  // ✅ Tipizzato: risolve l’errore "Property 'isDropdown' does not exist ..."
+  const topLinks: readonly TopLink[] = useMemo(
     () =>
       [
         { href: "/", label: "Home" },
@@ -562,7 +586,9 @@ export default function Nav() {
                 <div
                   id="mobile-consulenza"
                   className={`grid transition-[grid-template-rows,opacity] duration-200 ${
-                    consulenzaMobileOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    consulenzaMobileOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
@@ -613,7 +639,9 @@ export default function Nav() {
                 <div
                   id="mobile-servizi"
                   className={`grid transition-[grid-template-rows,opacity] duration-200 ${
-                    serviziMobileOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    serviziMobileOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
@@ -681,7 +709,8 @@ export default function Nav() {
           {/* Footer sheet */}
           <div className="mt-auto px-4 pb-4">
             <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600">
-              <span className="font-semibold text-slate-900">Tip:</span> Tocca fuori dal pannello per chiudere.
+              <span className="font-semibold text-slate-900">Tip:</span> Tocca
+              fuori dal pannello per chiudere.
             </div>
           </div>
         </div>
